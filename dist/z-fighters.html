@@ -623,9 +623,25 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   position: relative;
   width: 74px;
   display: flex; flex-direction: column; align-items: center;
-  transition: opacity 0.35s ease, transform 0.35s ease;
+  /* --advance-x/y is where this unit has run to engage; 0 for anyone holding
+     the back line. Every transform below has to carry it, or a unit snaps back
+     to its lane the moment another class touches `transform`. */
+  transform: translate(var(--advance-x, 0px), var(--advance-y, 0px));
+  transition: opacity 0.35s ease, transform var(--approach-ms, 550ms) ease-in-out;
 }
-.unit.dead { opacity: 0; transform: translateY(14px) scale(0.85); pointer-events: none; }
+.unit.dead {
+  opacity: 0;
+  transform: translate(var(--advance-x, 0px), calc(var(--advance-y, 0px) + 14px)) scale(0.85);
+  pointer-events: none;
+}
+
+/* Running in. There is no run cycle in the sprite set, so the guard pose plus
+   a bob carries it; a real run frame would drop straight in here. */
+.unit.advancing .u-art { animation: runBob 280ms ease-in-out infinite; }
+@keyframes runBob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
 
 .u-art { width: 74px; height: 104px; position: relative; }
 
@@ -648,7 +664,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 /* Sprite units play their own defeat clip, so they hold at full opacity until
    it finishes. :not(.dead) matters \002014 this selector is more specific than
    .unit.dead, and without it the body would never fade out afterwards. */
-.unit.has-sprite.dying:not(.dead) { opacity: 1; transform: none; }
+.unit.has-sprite.dying:not(.dead) { opacity: 1; transform: translate(var(--advance-x, 0px), var(--advance-y, 0px)); }
 .u-art::after {
   content: '';
   position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%);
@@ -819,6 +835,8 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 
 @media (prefers-reduced-motion: reduce) {
   .u-art.hit, .u-art.lunge, .dock-card.ult-ready, .hero-card.unlockable { animation: none; }
+  .unit.advancing .u-art { animation: none; }
+  .unit { transition: opacity 0.35s ease; }
   .u-beam.fire { animation: none; width: var(--beam-len, 150px); opacity: 1; }
 }
 
@@ -981,7 +999,35 @@ const COMBAT = {
   ultimateChargeOnHitTaken: 3,
   ultimateChargeMax: 100,
   backRowDamageTakenMult: 1.0, // if back row ever becomes targetable early
+
+  /**
+   * Front-line units close the distance before they can swing. Nobody on
+   * either side acts until they have arrived, so the simulation and the
+   * on-screen run stay in step.
+   * PLACEHOLDER: pure feel \u2014 longer reads as a heavier charge, shorter as a
+   * scrappier brawl.
+   */
+  approachSeconds: 0.55,
 };
+
+/**
+ * FOCUS FIRE (adjustable): when true, a unit choosing a new target prefers the
+ * one its allies are already on, so a team converges instead of spreading
+ * damage. This is what makes a group of enemies gang up on a single hero.
+ * It cuts both ways \u2014 the player's team focuses too \u2014 and it is a real
+ * difficulty lever: concentrated damage removes attackers sooner, so every
+ * fight resolves faster than it did with damage spread evenly.
+ */
+const FOCUS_FIRE = true;
+
+/**
+ * WHO ENGAGES (adjustable): a unit runs in to fight when it is in the front
+ * row and its auto-attack is not ranged. Back-row units hold position and
+ * support, which is what gives the formation choice its teeth.
+ */
+function engagesInMelee(row, attackSkill) {
+  return row === 'front' && (!attackSkill || attackSkill.range !== 'ranged');
+}
 
 /**
  * TARGETING RULE (adjustable): 'strict' means back-row units cannot be hit by
@@ -1155,6 +1201,9 @@ function getHeroDef(id) {
  *   targeting see battle/targeting.js for the supported modes
  *   effects   array of effect descriptors applied in order
  *   trigger   passives only: 'battleStart' | 'onHitDealt' | 'onHitTaken' | 'lowHp'
+ *   range     'ranged' for anything thrown, fired or beamed. Omitted means
+ *             melee, which is what decides whether a front-row unit runs in to
+ *             fight or holds its ground and shoots.
  *
  * Effect descriptors
  *   { kind:'damage',    mult, hits?, defIgnore? }
@@ -1177,14 +1226,14 @@ const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.0 }],
   },
   goku_technique: {
-    id: 'goku_technique', name: 'Kamehameha', slot: 'technique', icon: '\ud83c\udf0a',
+    id: 'goku_technique', name: 'Kamehameha', slot: 'technique', icon: '\ud83c\udf0a', range: 'ranged',
     desc: 'Fires a concentrated ki wave at the strongest foe.',
     cooldown: 8,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.3 }],
   },
   goku_ultimate: {
-    id: 'goku_ultimate', name: 'Kaio-ken Assault', slot: 'ultimate', icon: '\ud83d\udd25',
+    id: 'goku_ultimate', name: 'Kaio-ken Assault', slot: 'ultimate', icon: '\ud83d\udd25', range: 'ranged',
     desc: 'Multiplies his ki, striking all enemies and raising his own ATK.',
     targeting: 'allEnemies',
     effects: [
@@ -1201,14 +1250,14 @@ const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.05 }],
   },
   piccolo_technique: {
-    id: 'piccolo_technique', name: 'Special Beam Cannon', slot: 'technique', icon: '\ud83c\udf00',
+    id: 'piccolo_technique', name: 'Special Beam Cannon', slot: 'technique', icon: '\ud83c\udf00', range: 'ranged',
     desc: 'A drilling beam that pierces much of the target\u2019s defence.',
     cooldown: 10,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.6, defIgnore: 0.5 }],
   },
   piccolo_ultimate: {
-    id: 'piccolo_ultimate', name: 'Explosive Demon Wave', slot: 'ultimate', icon: '\ud83d\udca5',
+    id: 'piccolo_ultimate', name: 'Explosive Demon Wave', slot: 'ultimate', icon: '\ud83d\udca5', range: 'ranged',
     desc: 'Sweeps the battlefield with an expanding blast.',
     targeting: 'allEnemies',
     effects: [
@@ -1225,14 +1274,14 @@ const SKILLS = {
     effects: [{ kind: 'damage', mult: 0.95 }],
   },
   gohan_technique: {
-    id: 'gohan_technique', name: 'Masenko', slot: 'technique', icon: '\u26a1',
+    id: 'gohan_technique', name: 'Masenko', slot: 'technique', icon: '\u26a1', range: 'ranged',
     desc: 'A two-handed burst of ki aimed at the weakest foe.',
     cooldown: 9,
     targeting: 'lowestHp',
     effects: [{ kind: 'damage', mult: 2.4 }],
   },
   gohan_ultimate: {
-    id: 'gohan_ultimate', name: 'Hidden Potential', slot: 'ultimate', icon: '\ud83d\ude24',
+    id: 'gohan_ultimate', name: 'Hidden Potential', slot: 'ultimate', icon: '\ud83d\ude24', range: 'ranged',
     desc: 'Latent power erupts, damaging every enemy and empowering the team.',
     targeting: 'allEnemies',
     effects: [
@@ -1243,20 +1292,20 @@ const SKILLS = {
 
   /* ---------------- Krillin (Uncommon) ---------------- */
   krillin_attack: {
-    id: 'krillin_attack', name: 'Ki Blast', slot: 'attack', icon: '\ud83d\udd39',
+    id: 'krillin_attack', name: 'Ki Blast', slot: 'attack', icon: '\ud83d\udd39', range: 'ranged',
     desc: 'A quick bolt of ki fired from range.',
     targeting: 'frontFirst',
     effects: [{ kind: 'damage', mult: 0.9 }],
   },
   krillin_technique: {
-    id: 'krillin_technique', name: 'Destructo Disc', slot: 'technique', icon: '\ud83d\udcbf',
+    id: 'krillin_technique', name: 'Destructo Disc', slot: 'technique', icon: '\ud83d\udcbf', range: 'ranged',
     desc: 'A razor of ki that cuts straight through defences.',
     cooldown: 9,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.1, defIgnore: 0.7 }],
   },
   krillin_ultimate: {
-    id: 'krillin_ultimate', name: 'Solar Flare', slot: 'ultimate', icon: '\u2600\ufe0f',
+    id: 'krillin_ultimate', name: 'Solar Flare', slot: 'ultimate', icon: '\u2600\ufe0f', range: 'ranged',
     desc: 'Blinds every enemy, sharply cutting their attack power.',
     targeting: 'allEnemies',
     effects: [
@@ -1280,7 +1329,7 @@ const SKILLS = {
     effects: [{ kind: 'damage', mult: 0.62, hits: 4 }],
   },
   yamcha_ultimate: {
-    id: 'yamcha_ultimate', name: 'Spirit Ball', slot: 'ultimate', icon: '\ud83d\udd2e',
+    id: 'yamcha_ultimate', name: 'Spirit Ball', slot: 'ultimate', icon: '\ud83d\udd2e', range: 'ranged',
     desc: 'A steered orb of ki that hammers a single target.',
     targeting: 'lowestHp',
     effects: [{ kind: 'damage', mult: 3.4 }],
@@ -1294,14 +1343,14 @@ const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.0 }],
   },
   tien_technique: {
-    id: 'tien_technique', name: 'Dodon Ray', slot: 'technique', icon: '\u2604\ufe0f',
+    id: 'tien_technique', name: 'Dodon Ray', slot: 'technique', icon: '\u2604\ufe0f', range: 'ranged',
     desc: 'A piercing beam fired from a single fingertip.',
     cooldown: 8,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.35 }],
   },
   tien_ultimate: {
-    id: 'tien_ultimate', name: 'Tri-Beam', slot: 'ultimate', icon: '\ud83d\udd3a',
+    id: 'tien_ultimate', name: 'Tri-Beam', slot: 'ultimate', icon: '\ud83d\udd3a', range: 'ranged',
     desc: 'Devastating area damage \u2014 at the cost of his own life force.',
     targeting: 'allEnemies',
     effects: [
@@ -1318,7 +1367,7 @@ const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.0 }],
   },
   saibaman_technique: {
-    id: 'saibaman_technique', name: 'Acid Spit', slot: 'technique', icon: '\ud83e\uddea',
+    id: 'saibaman_technique', name: 'Acid Spit', slot: 'technique', icon: '\ud83e\uddea', range: 'ranged',
     desc: 'Corrosive spray that softens armour.',
     cooldown: 9,
     targeting: 'frontFirst',
@@ -1334,14 +1383,14 @@ const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.1 }],
   },
   raditz_technique: {
-    id: 'raditz_technique', name: 'Double Sunday', slot: 'technique', icon: '\u2604\ufe0f',
+    id: 'raditz_technique', name: 'Double Sunday', slot: 'technique', icon: '\u2604\ufe0f', range: 'ranged',
     desc: 'Twin ki beams fired at once.',
     cooldown: 8,
     targeting: 'frontFirst',
     effects: [{ kind: 'damage', mult: 1.3, hits: 2 }],
   },
   raditz_ultimate: {
-    id: 'raditz_ultimate', name: 'Shooting Star Attack', slot: 'ultimate', icon: '\ud83d\udcab',
+    id: 'raditz_ultimate', name: 'Shooting Star Attack', slot: 'ultimate', icon: '\ud83d\udcab', range: 'ranged',
     desc: 'A brutal charging tackle through the whole team.',
     targeting: 'allEnemies',
     effects: [{ kind: 'damage', mult: 1.5 }],
@@ -1353,14 +1402,14 @@ const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.15 }],
   },
   nappa_technique: {
-    id: 'nappa_technique', name: 'Bomber DX', slot: 'technique', icon: '\ud83d\udca3',
+    id: 'nappa_technique', name: 'Bomber DX', slot: 'technique', icon: '\ud83d\udca3', range: 'ranged',
     desc: 'A shockwave that rips through the battlefield.',
     cooldown: 9,
     targeting: 'allEnemies',
     effects: [{ kind: 'damage', mult: 1.15 }],
   },
   nappa_ultimate: {
-    id: 'nappa_ultimate', name: 'Break Cannon', slot: 'ultimate', icon: '\ud83c\udf0b',
+    id: 'nappa_ultimate', name: 'Break Cannon', slot: 'ultimate', icon: '\ud83c\udf0b', range: 'ranged',
     desc: 'A point-blank detonation aimed at the weakest defender.',
     targeting: 'lowestHp',
     effects: [{ kind: 'damage', mult: 3.2 }],
@@ -1379,14 +1428,14 @@ const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.2 }],
   },
   vegeta_technique: {
-    id: 'vegeta_technique', name: 'Galick Gun', slot: 'technique', icon: '\ud83d\udfe3',
+    id: 'vegeta_technique', name: 'Galick Gun', slot: 'technique', icon: '\ud83d\udfe3', range: 'ranged',
     desc: 'A violet torrent of ki.',
     cooldown: 8,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.5, defIgnore: 0.3 }],
   },
   vegeta_ultimate: {
-    id: 'vegeta_ultimate', name: 'Galaxy Breaker', slot: 'ultimate', icon: '\ud83c\udf0c',
+    id: 'vegeta_ultimate', name: 'Galaxy Breaker', slot: 'ultimate', icon: '\ud83c\udf0c', range: 'ranged',
     desc: 'A world-ending sphere hurled at the entire team.',
     targeting: 'allEnemies',
     effects: [{ kind: 'damage', mult: 2.2 }],
@@ -2399,6 +2448,12 @@ function recordDefeat() {
  *   'priority' \u2014 back row is targetable but only chosen when nothing in the
  *                front row is available.
  *
+ * Basic attacks also STICK: a unit keeps swinging at whoever it picked until
+ * that target goes down, rather than choosing again every swing. With
+ * FOCUS_FIRE on, the replacement pick prefers whoever its allies are already
+ * fighting, so a team converges on one enemy instead of spreading out \u2014 which
+ * is what makes a group of attackers visibly gang up on a single defender.
+ *
  * Deliberate exception: `lowestHp` and `highestAtk` targeting IGNORE rows.
  * That is what makes techniques and ultimates feel different from auto-attacks
  * and keeps a back-row glass cannon genuinely at risk. Change `respectsRows`
@@ -2423,6 +2478,27 @@ function livingOpponents(battle, unit) {
 
 function livingAllies(battle, unit) {
   return battle.units.filter((u) => u.side === unit.side && u.alive);
+}
+
+/**
+ * Prefer whoever this unit's allies are already attacking. Ties \u2014 including
+ * the opening pick, when nobody has a target yet \u2014 break randomly, so a team
+ * does not deterministically pile onto the same slot every battle.
+ */
+function focusPick(battle, unit, allowed) {
+  const votes = new Map();
+  for (const ally of battle.units) {
+    if (ally === unit || ally.side !== unit.side || !ally.alive || !ally.targetUid) continue;
+    votes.set(ally.targetUid, (votes.get(ally.targetUid) || 0) + 1);
+  }
+  let best = -1;
+  let tied = [];
+  for (const cand of allowed) {
+    const v = votes.get(cand.uid) || 0;
+    if (v > best) { best = v; tied = [cand]; }
+    else if (v === best) tied.push(cand);
+  }
+  return tied[Math.floor(Math.random() * tied.length)];
 }
 
 /** Apply the formation rule to a candidate pool. */
@@ -2473,9 +2549,14 @@ function resolveTargets(battle, unit, mode) {
       const pool = livingOpponents(battle, unit);
       if (!pool.length) return [];
       const allowed = respectsRows[mode] === false ? pool : applyRowRule(pool);
-      // PLACEHOLDER: random pick inside the allowed pool. Swap for
-      // "stick to current target" or "lowest HP in row" to taste.
-      return [allowed[Math.floor(Math.random() * allowed.length)]];
+
+      // Keep the current target while it is alive and still a legal pick.
+      const held = allowed.find((u) => u.uid === unit.targetUid);
+      if (held) return [held];
+
+      const pick = FOCUS_FIRE ? focusPick(battle, unit, allowed) : allowed[Math.floor(Math.random() * allowed.length)];
+      unit.targetUid = pick.uid;
+      return [pick];
     }
   }
 }
@@ -2531,6 +2612,11 @@ function makeUnit(desc, side) {
     // PLACEHOLDER: small random offset so units don't all swing in lockstep.
     attackTimer: Math.random() * 0.4,
     attackInterval: COMBAT.baseAttackInterval / Math.max(0.2, desc.stats.speed || 1),
+    // Front-line melee units run in first; nobody acts before they arrive, so
+    // the fight never starts with someone swinging across an empty gap.
+    engages: engagesInMelee(desc.row === 'back' ? 'back' : 'front', skills.attack),
+    readyAt: 0,
+    targetUid: null,
     techniqueTimer: skills.technique ? (skills.technique.cooldown || 8) * 0.6 : Infinity,
     ultimateCharge: 0,
     ultimateReady: false,
@@ -2583,6 +2669,14 @@ function createBattle({ playerUnits = [], enemyUnits = [], stageId = null } = {}
   battle.player = () => battle.units.filter((u) => u.side === 'player');
   battle.enemy = () => battle.units.filter((u) => u.side === 'enemy');
   battle.unitById = (uid) => battle.units.find((u) => u.uid === uid) || null;
+
+  // Melee units pick their target up front rather than on their first swing, so
+  // they know who to run at during the approach.
+  for (const unit of units) {
+    if (!unit.engages) continue;
+    unit.readyAt = COMBAT.approachSeconds;
+    resolveTargets(battle, unit, 'frontFirst');
+  }
 
   // Passives with a battleStart trigger land before the first swing.
   for (const unit of units) {
@@ -2637,6 +2731,9 @@ function tick(battle, dt) {
         return b.remaining > 0;
       });
     }
+
+    // Still closing the distance \u2014 no attacking, charging or cooling down yet.
+    if (battle.elapsed < unit.readyAt) continue;
 
     // 2. ultimate meter
     if (unit.skills.ultimate) {
@@ -2803,6 +2900,12 @@ function killUnit(battle, unit) {
   unit.alive = false;
   unit.hp = 0;
   unit.ultimateReady = false;
+  unit.targetUid = null;
+  // Whoever was locked onto this unit picks again next time they swing, which
+  // is what makes a focused group move on together.
+  for (const other of battle.units) {
+    if (other.targetUid === unit.uid) other.targetUid = null;
+  }
   battle.events.push({ t: 'death', uid: unit.uid });
 }
 
@@ -4087,6 +4190,7 @@ function render(host, { stageId }) {
         onBeam: (ms) => fireBeam(beam, node, unit, ms),
       });
     }
+    entry.unit = unit;
     nodes.set(unit.uid, entry);
   }
 
@@ -4120,6 +4224,16 @@ function render(host, { stageId }) {
   screen.appendChild(dock);
 
   host.appendChild(screen);
+
+  // Base positions are read once, before anything is translated, so the
+  // advance can be recomputed later without measuring its own effect.
+  const arenaBox = arena.getBoundingClientRect();
+  for (const n of nodes.values()) {
+    const r = n.root.getBoundingClientRect();
+    n.baseCX = r.left + r.width / 2 - arenaBox.left;
+    n.baseCY = r.top + r.height / 2 - arenaBox.top;
+  }
+  updateAdvance(true);
 
   top.querySelector('#bt-speed').addEventListener('click', (ev) => {
     speed = speed === 1 ? 2 : speed === 2 ? 3 : 1;
@@ -4208,6 +4322,73 @@ function handleEvent(ev) {
 }
 
 /**
+ * Put every melee unit next to the enemy it is actually fighting.
+ *
+ * Each attacker runs to the midpoint between itself and its target and squares
+ * up there. Attackers sharing a target fan out \u2014 the first goes toe to toe, and
+ * each one after that stands a step further back and off to one side \u2014 which is
+ * what makes a group visibly close in on one defender rather than stacking on
+ * the same spot. Ranged and back-row units never move.
+ *
+ * Distances come from the positions captured before anything was translated, so
+ * this is safe to re-run whenever targets change or a unit falls.
+ * PLACEHOLDER: the spacing constants are feel, not measurement.
+ */
+const STANDOFF = 56;   // centre-to-centre distance when standing toe to toe
+const FAN = 34;        // each extra attacker on the same target stands back this much
+const FAN_Y = 18;      // ...and off to one side by this much
+const MAX_Y = 26;      // never slide this far vertically; the lanes still read
+
+let advanceSig = '';
+
+function updateAdvance(force = false) {
+  const all = [...nodes.values()];
+  const sig = all.map((n) => `${n.unit.uid}:${n.unit.targetUid}:${n.unit.alive ? 1 : 0}`).join('|');
+  if (!force && sig === advanceSig) return;
+  advanceSig = sig;
+
+  const groups = new Map();
+  for (const n of all) {
+    if (!n.unit.alive || !n.unit.engages) continue;
+    const tid = n.unit.targetUid;
+    if (!tid) continue;
+    if (!groups.has(tid)) groups.set(tid, []);
+    groups.get(tid).push(n);
+  }
+
+  const ms = Math.round((COMBAT.approachSeconds * 1000) / Math.max(0.25, speed));
+  for (const n of all) {
+    n.root.style.setProperty('--approach-ms', `${ms}ms`);
+  }
+
+  for (const [tid, members] of groups) {
+    const target = nodes.get(tid);
+    if (!target || !target.unit.alive) continue;
+    members.forEach((n, i) => {
+      const dir = n.unit.side === 'player' ? 1 : -1;
+      // Meet in the middle of the pair rather than running to where the target
+      // is standing now \u2014 the target is usually charging too, and aiming at its
+      // starting spot makes the two of them run straight past each other.
+      const meetX = (n.baseCX + target.baseCX) / 2;
+      const wantX = meetX - dir * (STANDOFF / 2 + i * FAN);
+      // i === 0 squares up; the rest peel off alternating sides
+      const offsetY = i === 0 ? 0 : (i % 2 ? -FAN_Y : FAN_Y);
+      const dx = wantX - n.baseCX;
+      const dy = Math.max(-MAX_Y, Math.min(MAX_Y, target.baseCY + offsetY - n.baseCY));
+      // Nobody retreats to engage.
+      const clampedX = dir > 0 ? Math.max(0, dx) : Math.min(0, dx);
+      n.root.style.setProperty('--advance-x', `${Math.round(clampedX)}px`);
+      n.root.style.setProperty('--advance-y', `${Math.round(dy)}px`);
+      // Depth order by final height on screen: lower is nearer the viewer, so a
+      // unit that peeled downward covers the one it stepped in front of rather
+      // than showing through it.
+      n.root.style.zIndex = String(2 + Math.round(n.baseCY + dy));
+      n.root.classList.add('engaged');
+    });
+  }
+}
+
+/**
  * The release frame draws the hands thrust forward but no beam, so the beam is
  * a DOM effect \u2014 which also lets it stretch to actually reach its target.
  */
@@ -4256,6 +4437,7 @@ function pulse(node, cls) {
 
 function paint(timerEl) {
   timerEl.textContent = `${battle.elapsed.toFixed(1)}s`;
+  updateAdvance();   // cheap: only rewrites when a target or a life changes
 
   for (const unit of battle.units) {
     const n = nodes.get(unit.uid);
@@ -4264,8 +4446,13 @@ function paint(timerEl) {
     n.fill.style.width = `${pct}%`;
     n.fill.classList.toggle('low', pct < 30);
 
-    // PLACEHOLDER threshold: below this the resting pose becomes the hurt one.
-    if (unit.alive) n.animator?.setIdleFrame(pct < 25 ? 'heavy_stun' : 'idle');
+    // Resting pose: closing the distance, badly hurt, or neither.
+    // PLACEHOLDER threshold for "badly hurt".
+    const closing = unit.alive && battle.elapsed < unit.readyAt;
+    n.root.classList.toggle('advancing', closing);
+    if (unit.alive) {
+      n.animator?.setIdleFrame(closing ? 'guard' : pct < 25 ? 'heavy_stun' : 'idle');
+    }
 
     if (!n.dock) continue;
     n.dockHp.style.width = `${pct}%`;

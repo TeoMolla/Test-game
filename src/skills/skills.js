@@ -16,6 +16,9 @@
  *   targeting see battle/targeting.js for the supported modes
  *   effects   array of effect descriptors applied in order
  *   trigger   passives only: 'battleStart' | 'onHitDealt' | 'onHitTaken' | 'lowHp'
+ *   range     'ranged' for anything thrown, fired or beamed. Omitted means
+ *             melee, which is what decides whether a front-row unit runs in to
+ *             fight or holds its ground and shoots.
  *
  * Effect descriptors
  *   { kind:'damage',    mult, hits?, defIgnore? }
@@ -38,14 +41,14 @@ export const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.0 }],
   },
   goku_technique: {
-    id: 'goku_technique', name: 'Kamehameha', slot: 'technique', icon: '🌊',
+    id: 'goku_technique', name: 'Kamehameha', slot: 'technique', icon: '🌊', range: 'ranged',
     desc: 'Fires a concentrated ki wave at the strongest foe.',
     cooldown: 8,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.3 }],
   },
   goku_ultimate: {
-    id: 'goku_ultimate', name: 'Kaio-ken Assault', slot: 'ultimate', icon: '🔥',
+    id: 'goku_ultimate', name: 'Kaio-ken Assault', slot: 'ultimate', icon: '🔥', range: 'ranged',
     desc: 'Multiplies his ki, striking all enemies and raising his own ATK.',
     targeting: 'allEnemies',
     effects: [
@@ -62,14 +65,14 @@ export const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.05 }],
   },
   piccolo_technique: {
-    id: 'piccolo_technique', name: 'Special Beam Cannon', slot: 'technique', icon: '🌀',
+    id: 'piccolo_technique', name: 'Special Beam Cannon', slot: 'technique', icon: '🌀', range: 'ranged',
     desc: 'A drilling beam that pierces much of the target’s defence.',
     cooldown: 10,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.6, defIgnore: 0.5 }],
   },
   piccolo_ultimate: {
-    id: 'piccolo_ultimate', name: 'Explosive Demon Wave', slot: 'ultimate', icon: '💥',
+    id: 'piccolo_ultimate', name: 'Explosive Demon Wave', slot: 'ultimate', icon: '💥', range: 'ranged',
     desc: 'Sweeps the battlefield with an expanding blast.',
     targeting: 'allEnemies',
     effects: [
@@ -86,14 +89,14 @@ export const SKILLS = {
     effects: [{ kind: 'damage', mult: 0.95 }],
   },
   gohan_technique: {
-    id: 'gohan_technique', name: 'Masenko', slot: 'technique', icon: '⚡',
+    id: 'gohan_technique', name: 'Masenko', slot: 'technique', icon: '⚡', range: 'ranged',
     desc: 'A two-handed burst of ki aimed at the weakest foe.',
     cooldown: 9,
     targeting: 'lowestHp',
     effects: [{ kind: 'damage', mult: 2.4 }],
   },
   gohan_ultimate: {
-    id: 'gohan_ultimate', name: 'Hidden Potential', slot: 'ultimate', icon: '😤',
+    id: 'gohan_ultimate', name: 'Hidden Potential', slot: 'ultimate', icon: '😤', range: 'ranged',
     desc: 'Latent power erupts, damaging every enemy and empowering the team.',
     targeting: 'allEnemies',
     effects: [
@@ -104,20 +107,20 @@ export const SKILLS = {
 
   /* ---------------- Krillin (Uncommon) ---------------- */
   krillin_attack: {
-    id: 'krillin_attack', name: 'Ki Blast', slot: 'attack', icon: '🔹',
+    id: 'krillin_attack', name: 'Ki Blast', slot: 'attack', icon: '🔹', range: 'ranged',
     desc: 'A quick bolt of ki fired from range.',
     targeting: 'frontFirst',
     effects: [{ kind: 'damage', mult: 0.9 }],
   },
   krillin_technique: {
-    id: 'krillin_technique', name: 'Destructo Disc', slot: 'technique', icon: '💿',
+    id: 'krillin_technique', name: 'Destructo Disc', slot: 'technique', icon: '💿', range: 'ranged',
     desc: 'A razor of ki that cuts straight through defences.',
     cooldown: 9,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.1, defIgnore: 0.7 }],
   },
   krillin_ultimate: {
-    id: 'krillin_ultimate', name: 'Solar Flare', slot: 'ultimate', icon: '☀️',
+    id: 'krillin_ultimate', name: 'Solar Flare', slot: 'ultimate', icon: '☀️', range: 'ranged',
     desc: 'Blinds every enemy, sharply cutting their attack power.',
     targeting: 'allEnemies',
     effects: [
@@ -141,7 +144,7 @@ export const SKILLS = {
     effects: [{ kind: 'damage', mult: 0.62, hits: 4 }],
   },
   yamcha_ultimate: {
-    id: 'yamcha_ultimate', name: 'Spirit Ball', slot: 'ultimate', icon: '🔮',
+    id: 'yamcha_ultimate', name: 'Spirit Ball', slot: 'ultimate', icon: '🔮', range: 'ranged',
     desc: 'A steered orb of ki that hammers a single target.',
     targeting: 'lowestHp',
     effects: [{ kind: 'damage', mult: 3.4 }],
@@ -155,14 +158,14 @@ export const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.0 }],
   },
   tien_technique: {
-    id: 'tien_technique', name: 'Dodon Ray', slot: 'technique', icon: '☄️',
+    id: 'tien_technique', name: 'Dodon Ray', slot: 'technique', icon: '☄️', range: 'ranged',
     desc: 'A piercing beam fired from a single fingertip.',
     cooldown: 8,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.35 }],
   },
   tien_ultimate: {
-    id: 'tien_ultimate', name: 'Tri-Beam', slot: 'ultimate', icon: '🔺',
+    id: 'tien_ultimate', name: 'Tri-Beam', slot: 'ultimate', icon: '🔺', range: 'ranged',
     desc: 'Devastating area damage — at the cost of his own life force.',
     targeting: 'allEnemies',
     effects: [
@@ -179,7 +182,7 @@ export const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.0 }],
   },
   saibaman_technique: {
-    id: 'saibaman_technique', name: 'Acid Spit', slot: 'technique', icon: '🧪',
+    id: 'saibaman_technique', name: 'Acid Spit', slot: 'technique', icon: '🧪', range: 'ranged',
     desc: 'Corrosive spray that softens armour.',
     cooldown: 9,
     targeting: 'frontFirst',
@@ -195,14 +198,14 @@ export const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.1 }],
   },
   raditz_technique: {
-    id: 'raditz_technique', name: 'Double Sunday', slot: 'technique', icon: '☄️',
+    id: 'raditz_technique', name: 'Double Sunday', slot: 'technique', icon: '☄️', range: 'ranged',
     desc: 'Twin ki beams fired at once.',
     cooldown: 8,
     targeting: 'frontFirst',
     effects: [{ kind: 'damage', mult: 1.3, hits: 2 }],
   },
   raditz_ultimate: {
-    id: 'raditz_ultimate', name: 'Shooting Star Attack', slot: 'ultimate', icon: '💫',
+    id: 'raditz_ultimate', name: 'Shooting Star Attack', slot: 'ultimate', icon: '💫', range: 'ranged',
     desc: 'A brutal charging tackle through the whole team.',
     targeting: 'allEnemies',
     effects: [{ kind: 'damage', mult: 1.5 }],
@@ -214,14 +217,14 @@ export const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.15 }],
   },
   nappa_technique: {
-    id: 'nappa_technique', name: 'Bomber DX', slot: 'technique', icon: '💣',
+    id: 'nappa_technique', name: 'Bomber DX', slot: 'technique', icon: '💣', range: 'ranged',
     desc: 'A shockwave that rips through the battlefield.',
     cooldown: 9,
     targeting: 'allEnemies',
     effects: [{ kind: 'damage', mult: 1.15 }],
   },
   nappa_ultimate: {
-    id: 'nappa_ultimate', name: 'Break Cannon', slot: 'ultimate', icon: '🌋',
+    id: 'nappa_ultimate', name: 'Break Cannon', slot: 'ultimate', icon: '🌋', range: 'ranged',
     desc: 'A point-blank detonation aimed at the weakest defender.',
     targeting: 'lowestHp',
     effects: [{ kind: 'damage', mult: 3.2 }],
@@ -240,14 +243,14 @@ export const SKILLS = {
     effects: [{ kind: 'damage', mult: 1.2 }],
   },
   vegeta_technique: {
-    id: 'vegeta_technique', name: 'Galick Gun', slot: 'technique', icon: '🟣',
+    id: 'vegeta_technique', name: 'Galick Gun', slot: 'technique', icon: '🟣', range: 'ranged',
     desc: 'A violet torrent of ki.',
     cooldown: 8,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.5, defIgnore: 0.3 }],
   },
   vegeta_ultimate: {
-    id: 'vegeta_ultimate', name: 'Galaxy Breaker', slot: 'ultimate', icon: '🌌',
+    id: 'vegeta_ultimate', name: 'Galaxy Breaker', slot: 'ultimate', icon: '🌌', range: 'ranged',
     desc: 'A world-ending sphere hurled at the entire team.',
     targeting: 'allEnemies',
     effects: [{ kind: 'damage', mult: 2.2 }],

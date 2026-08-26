@@ -30,6 +30,10 @@ Progress saves to `localStorage`, so it survives closing the tab.
   knockback, a hurt resting pose below 25% HP, and a three-frame defeat. Every
   other hero still uses the CSS placeholder, and the two mix freely on the
   same screen.
+- **Engagement** — melee front-liners run in and square up on the enemy they
+  are actually fighting; ranged and back-row units hold and support. Attackers
+  sharing a target fan out around it, so a group visibly closes in on one
+  defender. Nobody acts until they have arrived.
 - **Battle** — real-time, side-view lanes. Every unit runs its own timers:
   auto-attack on its attack interval, auto-technique the moment it leaves
   cooldown, ultimate the instant its meter fills. Floating damage numbers, per-unit
@@ -110,11 +114,22 @@ Balance values are deliberately unbalanced first-pass numbers and are marked
 charge rate), with per-hero, per-skill, per-enemy and per-stage numbers in their
 own data files.
 
-Two rules are written as switches rather than hard-coded:
+Four rules are written as switches rather than hard-coded:
 
 - `TARGETING_MODE` — how strictly the back row is protected.
 - `ULTIMATE_MODE` — `'auto'` fires ultimates the moment they charge (current
   behaviour); `'tap'` makes the battle-dock portraits the activation control.
+- `FOCUS_FIRE` — whether a unit picking a new target prefers the one its allies
+  are already on. This is what makes a group gang up rather than spread damage,
+  and it is a real difficulty lever in both directions: concentrated damage
+  removes attackers sooner, so fights resolve faster than with damage spread.
+- `engagesInMelee(row, attackSkill)` — who runs in. Front row with a
+  non-`ranged` auto-attack, currently; it is what gives the formation choice
+  its teeth, since the back row trades safety for holding position.
+
+`COMBAT.approachSeconds` sets how long closing takes. The engine gates every
+unit's first action on the same value the run-in animates over, so the
+simulation and what is on screen never disagree.
 
 ### Balance harness
 

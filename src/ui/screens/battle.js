@@ -100,6 +100,7 @@ export function render(host, { stageId }) {
         onBeam: (ms) => fireBeam(beam, node, unit, ms),
       });
     }
+    entry.unit = unit;
     nodes.set(unit.uid, entry);
   }
 
@@ -133,6 +134,16 @@ export function render(host, { stageId }) {
   screen.appendChild(dock);
 
   host.appendChild(screen);
+
+  // Base positions are read once, before anything is translated, so the
+  // advance can be recomputed later without measuring its own effect.
+  const arenaBox = arena.getBoundingClientRect();
+  for (const n of nodes.values()) {
+    const r = n.root.getBoundingClientRect();
+    n.baseCX = r.left + r.width / 2 - arenaBox.left;
+    n.baseCY = r.top + r.height / 2 - arenaBox.top;
+  }
+  updateAdvance(true);
 
   top.querySelector('#bt-speed').addEventListener('click', (ev) => {
     speed = speed === 1 ? 2 : speed === 2 ? 3 : 1;
@@ -221,6 +232,73 @@ function handleEvent(ev) {
 }
 
 /**
+ * Put every melee unit next to the enemy it is actually fighting.
+ *
+ * Each attacker runs to the midpoint between itself and its target and squares
+ * up there. Attackers sharing a target fan out — the first goes toe to toe, and
+ * each one after that stands a step further back and off to one side — which is
+ * what makes a group visibly close in on one defender rather than stacking on
+ * the same spot. Ranged and back-row units never move.
+ *
+ * Distances come from the positions captured before anything was translated, so
+ * this is safe to re-run whenever targets change or a unit falls.
+ * PLACEHOLDER: the spacing constants are feel, not measurement.
+ */
+const STANDOFF = 56;   // centre-to-centre distance when standing toe to toe
+const FAN = 34;        // each extra attacker on the same target stands back this much
+const FAN_Y = 18;      // ...and off to one side by this much
+const MAX_Y = 26;      // never slide this far vertically; the lanes still read
+
+let advanceSig = '';
+
+function updateAdvance(force = false) {
+  const all = [...nodes.values()];
+  const sig = all.map((n) => `${n.unit.uid}:${n.unit.targetUid}:${n.unit.alive ? 1 : 0}`).join('|');
+  if (!force && sig === advanceSig) return;
+  advanceSig = sig;
+
+  const groups = new Map();
+  for (const n of all) {
+    if (!n.unit.alive || !n.unit.engages) continue;
+    const tid = n.unit.targetUid;
+    if (!tid) continue;
+    if (!groups.has(tid)) groups.set(tid, []);
+    groups.get(tid).push(n);
+  }
+
+  const ms = Math.round((COMBAT.approachSeconds * 1000) / Math.max(0.25, speed));
+  for (const n of all) {
+    n.root.style.setProperty('--approach-ms', `${ms}ms`);
+  }
+
+  for (const [tid, members] of groups) {
+    const target = nodes.get(tid);
+    if (!target || !target.unit.alive) continue;
+    members.forEach((n, i) => {
+      const dir = n.unit.side === 'player' ? 1 : -1;
+      // Meet in the middle of the pair rather than running to where the target
+      // is standing now — the target is usually charging too, and aiming at its
+      // starting spot makes the two of them run straight past each other.
+      const meetX = (n.baseCX + target.baseCX) / 2;
+      const wantX = meetX - dir * (STANDOFF / 2 + i * FAN);
+      // i === 0 squares up; the rest peel off alternating sides
+      const offsetY = i === 0 ? 0 : (i % 2 ? -FAN_Y : FAN_Y);
+      const dx = wantX - n.baseCX;
+      const dy = Math.max(-MAX_Y, Math.min(MAX_Y, target.baseCY + offsetY - n.baseCY));
+      // Nobody retreats to engage.
+      const clampedX = dir > 0 ? Math.max(0, dx) : Math.min(0, dx);
+      n.root.style.setProperty('--advance-x', `${Math.round(clampedX)}px`);
+      n.root.style.setProperty('--advance-y', `${Math.round(dy)}px`);
+      // Depth order by final height on screen: lower is nearer the viewer, so a
+      // unit that peeled downward covers the one it stepped in front of rather
+      // than showing through it.
+      n.root.style.zIndex = String(2 + Math.round(n.baseCY + dy));
+      n.root.classList.add('engaged');
+    });
+  }
+}
+
+/**
  * The release frame draws the hands thrust forward but no beam, so the beam is
  * a DOM effect — which also lets it stretch to actually reach its target.
  */
@@ -269,6 +347,7 @@ function pulse(node, cls) {
 
 function paint(timerEl) {
   timerEl.textContent = `${battle.elapsed.toFixed(1)}s`;
+  updateAdvance();   // cheap: only rewrites when a target or a life changes
 
   for (const unit of battle.units) {
     const n = nodes.get(unit.uid);
@@ -277,8 +356,13 @@ function paint(timerEl) {
     n.fill.style.width = `${pct}%`;
     n.fill.classList.toggle('low', pct < 30);
 
-    // PLACEHOLDER threshold: below this the resting pose becomes the hurt one.
-    if (unit.alive) n.animator?.setIdleFrame(pct < 25 ? 'heavy_stun' : 'idle');
+    // Resting pose: closing the distance, badly hurt, or neither.
+    // PLACEHOLDER threshold for "badly hurt".
+    const closing = unit.alive && battle.elapsed < unit.readyAt;
+    n.root.classList.toggle('advancing', closing);
+    if (unit.alive) {
+      n.animator?.setIdleFrame(closing ? 'guard' : pct < 25 ? 'heavy_stun' : 'idle');
+    }
 
     if (!n.dock) continue;
     n.dockHp.style.width = `${pct}%`;

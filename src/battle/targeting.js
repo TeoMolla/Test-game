@@ -7,13 +7,19 @@
  *   'priority' — back row is targetable but only chosen when nothing in the
  *                front row is available.
  *
+ * Basic attacks also STICK: a unit keeps swinging at whoever it picked until
+ * that target goes down, rather than choosing again every swing. With
+ * FOCUS_FIRE on, the replacement pick prefers whoever its allies are already
+ * fighting, so a team converges on one enemy instead of spreading out — which
+ * is what makes a group of attackers visibly gang up on a single defender.
+ *
  * Deliberate exception: `lowestHp` and `highestAtk` targeting IGNORE rows.
  * That is what makes techniques and ultimates feel different from auto-attacks
  * and keeps a back-row glass cannon genuinely at risk. Change `respectsRows`
  * below to make row protection absolute.
  */
 
-import { TARGETING_MODE } from '../config.js';
+import { TARGETING_MODE, FOCUS_FIRE } from '../config.js';
 
 const respectsRows = {
   frontFirst: true,
@@ -31,6 +37,27 @@ function livingOpponents(battle, unit) {
 
 function livingAllies(battle, unit) {
   return battle.units.filter((u) => u.side === unit.side && u.alive);
+}
+
+/**
+ * Prefer whoever this unit's allies are already attacking. Ties — including
+ * the opening pick, when nobody has a target yet — break randomly, so a team
+ * does not deterministically pile onto the same slot every battle.
+ */
+function focusPick(battle, unit, allowed) {
+  const votes = new Map();
+  for (const ally of battle.units) {
+    if (ally === unit || ally.side !== unit.side || !ally.alive || !ally.targetUid) continue;
+    votes.set(ally.targetUid, (votes.get(ally.targetUid) || 0) + 1);
+  }
+  let best = -1;
+  let tied = [];
+  for (const cand of allowed) {
+    const v = votes.get(cand.uid) || 0;
+    if (v > best) { best = v; tied = [cand]; }
+    else if (v === best) tied.push(cand);
+  }
+  return tied[Math.floor(Math.random() * tied.length)];
 }
 
 /** Apply the formation rule to a candidate pool. */
@@ -81,9 +108,14 @@ export function resolveTargets(battle, unit, mode) {
       const pool = livingOpponents(battle, unit);
       if (!pool.length) return [];
       const allowed = respectsRows[mode] === false ? pool : applyRowRule(pool);
-      // PLACEHOLDER: random pick inside the allowed pool. Swap for
-      // "stick to current target" or "lowest HP in row" to taste.
-      return [allowed[Math.floor(Math.random() * allowed.length)]];
+
+      // Keep the current target while it is alive and still a legal pick.
+      const held = allowed.find((u) => u.uid === unit.targetUid);
+      if (held) return [held];
+
+      const pick = FOCUS_FIRE ? focusPick(battle, unit, allowed) : allowed[Math.floor(Math.random() * allowed.length)];
+      unit.targetUid = pick.uid;
+      return [pick];
     }
   }
 }

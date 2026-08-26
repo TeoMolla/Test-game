@@ -131,7 +131,35 @@ export const COMBAT = {
   ultimateChargeOnHitTaken: 3,
   ultimateChargeMax: 100,
   backRowDamageTakenMult: 1.0, // if back row ever becomes targetable early
+
+  /**
+   * Front-line units close the distance before they can swing. Nobody on
+   * either side acts until they have arrived, so the simulation and the
+   * on-screen run stay in step.
+   * PLACEHOLDER: pure feel — longer reads as a heavier charge, shorter as a
+   * scrappier brawl.
+   */
+  approachSeconds: 0.55,
 };
+
+/**
+ * FOCUS FIRE (adjustable): when true, a unit choosing a new target prefers the
+ * one its allies are already on, so a team converges instead of spreading
+ * damage. This is what makes a group of enemies gang up on a single hero.
+ * It cuts both ways — the player's team focuses too — and it is a real
+ * difficulty lever: concentrated damage removes attackers sooner, so every
+ * fight resolves faster than it did with damage spread evenly.
+ */
+export const FOCUS_FIRE = true;
+
+/**
+ * WHO ENGAGES (adjustable): a unit runs in to fight when it is in the front
+ * row and its auto-attack is not ranged. Back-row units hold position and
+ * support, which is what gives the formation choice its teeth.
+ */
+export function engagesInMelee(row, attackSkill) {
+  return row === 'front' && (!attackSkill || attackSkill.range !== 'ranged');
+}
 
 /**
  * TARGETING RULE (adjustable): 'strict' means back-row units cannot be hit by

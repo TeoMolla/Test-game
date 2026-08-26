@@ -15,7 +15,7 @@
  * same simulation can be replayed, fast-forwarded or run in a test.
  */
 
-import { COMBAT, ULTIMATE_MODE } from '../config.js';
+import { COMBAT, ULTIMATE_MODE, engagesInMelee } from '../config.js';
 import { resolveTargets } from './targeting.js';
 import { getSkill } from '../skills/skills.js';
 
@@ -48,6 +48,11 @@ function makeUnit(desc, side) {
     // PLACEHOLDER: small random offset so units don't all swing in lockstep.
     attackTimer: Math.random() * 0.4,
     attackInterval: COMBAT.baseAttackInterval / Math.max(0.2, desc.stats.speed || 1),
+    // Front-line melee units run in first; nobody acts before they arrive, so
+    // the fight never starts with someone swinging across an empty gap.
+    engages: engagesInMelee(desc.row === 'back' ? 'back' : 'front', skills.attack),
+    readyAt: 0,
+    targetUid: null,
     techniqueTimer: skills.technique ? (skills.technique.cooldown || 8) * 0.6 : Infinity,
     ultimateCharge: 0,
     ultimateReady: false,
@@ -100,6 +105,14 @@ export function createBattle({ playerUnits = [], enemyUnits = [], stageId = null
   battle.player = () => battle.units.filter((u) => u.side === 'player');
   battle.enemy = () => battle.units.filter((u) => u.side === 'enemy');
   battle.unitById = (uid) => battle.units.find((u) => u.uid === uid) || null;
+
+  // Melee units pick their target up front rather than on their first swing, so
+  // they know who to run at during the approach.
+  for (const unit of units) {
+    if (!unit.engages) continue;
+    unit.readyAt = COMBAT.approachSeconds;
+    resolveTargets(battle, unit, 'frontFirst');
+  }
 
   // Passives with a battleStart trigger land before the first swing.
   for (const unit of units) {
@@ -154,6 +167,9 @@ function tick(battle, dt) {
         return b.remaining > 0;
       });
     }
+
+    // Still closing the distance — no attacking, charging or cooling down yet.
+    if (battle.elapsed < unit.readyAt) continue;
 
     // 2. ultimate meter
     if (unit.skills.ultimate) {
@@ -320,6 +336,12 @@ function killUnit(battle, unit) {
   unit.alive = false;
   unit.hp = 0;
   unit.ultimateReady = false;
+  unit.targetUid = null;
+  // Whoever was locked onto this unit picks again next time they swing, which
+  // is what makes a focused group move on together.
+  for (const other of battle.units) {
+    if (other.targetUid === unit.uid) other.targetUid = null;
+  }
   battle.events.push({ t: 'death', uid: unit.uid });
 }
 
