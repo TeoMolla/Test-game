@@ -44,17 +44,27 @@ Progress saves to `localStorage`, so it survives closing the tab.
 - **Your hero** — Goku is the protagonist: he leads every team, cannot be
   benched, and is the only character who wears gear. He sits in his own panel
   above the collection rather than as one card among six.
-- **Allies** — the other 5 are support. Recruited with shards, promoted with
-  stars, brought two at a time — but no gear and no deep progression, so the
-  attention stays on your hero. Unowned allies are greyed out with a shard
-  fraction toward recruiting them.
+- **Companions** — two equipped slots fight beside your hero; the rest of the
+  collection stays home. Recruited with shards, starred up with shards, no gear
+  and no XP. Companions you have not met are not shown at all — the Bag tracks
+  shard progress toward them, and a Recruit button appears once you can afford
+  one.
+- **Companion slots carry the level, not the companions.** Each of the two
+  slots has its own level bought with senzu beans and zeni, and every companion
+  you own fights at the level of the *lowest* slot. Running one slot ahead buys
+  nothing, so the investment has to be spread — and a companion recruited today
+  arrives already useful instead of starting at level 1. Capped at your hero's
+  level, strictly.
+- **Bonds** — every companion you own lends your hero stats whether or not it
+  is fielded: the two equipped lend in full, the rest a quarter. The amount
+  scales with rarity and star rank, so starring up a companion you never field
+  is still worth doing. Currently 5–11% of the hero's power.
 - **Hero detail** — Stats (level and XP bar, ATK/HP/DEF/SPD, power, 4 gear
   slots), Stars (0–5★ promotion with a stat preview and skill-slot unlocks),
   Skills.
 - **Levelling** — the two tracks are deliberately different. Your hero is
   *blooded*: battle XP is his alone, and his level is derived from lifetime XP
-  rather than stored. Allies are *trained*: senzu beans plus zeni, and they
-  cannot get more than a few levels ahead of him.
+  rather than stored. Companions are *trained*, through the slots above.
 - **Gear** — weapon/chest/gloves/boots, dropped from stages, equip/unequip.
 - **Bag** — zeni, shards, gear, record, reset.
 
@@ -168,15 +178,20 @@ Three resources, three jobs, all fed by the same stages:
 | | earned from | spent on | role |
 | --- | --- | --- | --- |
 | **XP** | every stage clear, hero only | your hero's levels | the campaign's own reward |
-| **Zeni** | every stage | ally training | plentiful — the volume knob |
-| **Senzu** | stage 2 onward, more the deeper you go | ally training | the real throttle |
-| **Shards** | per-hero, from stages | recruiting and star-ups | the collection loop |
+| **Zeni** | every stage | companion slot levels | plentiful — the volume knob |
+| **Senzu** | stage 2 onward, more the deeper you go | companion slot levels | the real throttle |
+| **Shards** | per-hero, from stages | recruiting and star-ups | the collection loop, and bonds |
 
 Senzu is what ties the two tracks together. Stage 6 pays four beans a run
-against stage 2's one, so how fast your allies grow is set by how deep *you*
+against stage 2's one, so how fast your companions grow is set by how deep *you*
 can farm — which means pushing your hero forward is always the way to raise the
-team. Zeni is deliberately easy: it is rarely the thing stopping you, it just
-has to be spent.
+team. Two slots means paying the bean cost twice per effective companion level.
+Zeni is deliberately easy: it is rarely the thing stopping you, it just has to
+be spent.
+
+Shards do double duty now. They recruit a companion, and every star after that
+raises what its bond lends your hero — so shards for a companion you will never
+field are still worth collecting.
 
 `tools/economy.mjs` prints both curves side by side and, most usefully, which
 resource is actually binding as the hero climbs. Beans should be the constraint
@@ -191,7 +206,7 @@ node tools/economy.mjs
 
 Power is meant to read as a sum of several tracks rather than a proxy for any
 one of them. `tools/simulate.mjs` prints the split for each profile — currently
-about **31-42% level, 44-58% stars, 18-25% gear**. If one track ever starts to
+about **29-38% level, 42-58% stars, 17-25% gear, 5-11% bonds**. If one track ever starts to
 dominate that line, the curve needs rebalancing, not the gates.
 
 ### Balance harness

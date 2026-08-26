@@ -9,12 +9,12 @@
 
 import { HEROES, PROTAGONIST_ID, isProtagonist } from '../hero/heroes.js';
 import { GEAR_SLOTS } from '../gear/gear.js';
-import { TEAM_SIZE, xpToReach, levelFromXp } from '../config.js';
+import { TEAM_SIZE, COMPANION_SLOTS, xpToReach, levelFromXp } from '../config.js';
 
 // The key is deliberately NOT versioned: bumping it would orphan every save on
 // every device. SCHEMA_VERSION plus migrate() handle format changes in place.
 const STORAGE_KEY = 'dbz-rpg-prototype:v1';
-const SCHEMA_VERSION = 4;
+const SCHEMA_VERSION = 5;
 
 /** PLACEHOLDER: starting purse. */
 const STARTING_ZENI = 800;
@@ -39,11 +39,10 @@ export function defaultState() {
     heroes[def.id] = {
       owned: !!def.startsOwned,
       star: def.startsOwned ? (def.startStar ?? 1) : 0,
-      // The protagonist stores lifetime XP and derives his level from it.
-      // Allies store a level outright, because theirs is bought rather than
-      // earned. Each hero uses one field or the other, never both.
+      // Only the protagonist carries progression of his own: lifetime XP,
+      // from which his level is derived. Companions have no per-hero level —
+      // theirs comes from the slots below.
       xp: 0,
-      level: 1,
       equipped: emptyEquipped(),
     };
   }
@@ -63,6 +62,8 @@ export function defaultState() {
     gear: [],
     campaign: { cleared: {}, highestCleared: 0 },
     team: startingTeam,
+    // One level per companion slot. Every companion fights at the lowest.
+    companionSlots: Array.from({ length: COMPANION_SLOTS }, () => ({ level: 1 })),
     stats: { battlesWon: 0, battlesLost: 0 },
   };
 }
@@ -77,6 +78,7 @@ function migrate(raw) {
 
   const merged = { ...base, ...raw, version: SCHEMA_VERSION };
   merged.heroes = { ...base.heroes };
+  let bestAllyLevel = 1;
   for (const [id, saved] of Object.entries(raw.heroes || {})) {
     if (!base.heroes[id]) continue; // hero removed from the game
     merged.heroes[id] = {
@@ -84,20 +86,19 @@ function migrate(raw) {
       ...saved,
       equipped: { ...emptyEquipped(), ...(saved.equipped || {}) },
     };
-    // v2 -> v3: levels were bought with zeni and stored; convert to the XP
-    // that now stands behind them.
-    // v3 -> v4: allies went back to a stored level, since they are trained
-    // rather than blooded. Convert their XP back into the level it bought, so
-    // nothing is lost in either direction.
+    // v2 -> v3 levels became XP; v3 -> v4 allies went back to a stored level.
+    // v5 drops per-companion levels entirely — the slots carry it now — so a
+    // companion's old level is folded into the starting slot level instead of
+    // being thrown away.
     const hero = merged.heroes[id];
     const storedXp = Math.max(saved.xp ?? 0, xpToReach(saved.level ?? 1));
     if (isProtagonist(id)) {
       hero.xp = storedXp;
-      hero.level = 1;
     } else {
-      hero.level = Math.max(saved.level ?? 1, levelFromXp(storedXp));
       hero.xp = 0;
+      bestAllyLevel = Math.max(bestAllyLevel, saved.level ?? levelFromXp(storedXp));
     }
+    delete hero.level;
   }
   merged.senzu = Number.isFinite(raw.senzu) ? raw.senzu : base.senzu;
   merged.shards = { ...raw.shards };
@@ -121,6 +122,10 @@ function migrate(raw) {
     }
   }
   merged.team = enforceProtagonist(merged.team, merged.heroes);
+
+  merged.companionSlots = Array.from({ length: COMPANION_SLOTS }, (_, i) => ({
+    level: Math.max(1, raw.companionSlots?.[i]?.level ?? bestAllyLevel),
+  }));
   return merged;
 }
 

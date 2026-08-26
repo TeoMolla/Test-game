@@ -18,10 +18,13 @@ import { getHeroDef, statsFor, skillsFor, powerOf, levelOf } from '../src/hero/i
 import { xpToReach, computePower } from '../src/config.js';
 import { isProtagonist } from '../src/hero/heroes.js';
 
-/** The protagonist derives his level from XP; allies store one. */
+/**
+ * The protagonist derives his level from XP; companions have none of their own
+ * and fight at the lowest companion slot, so that is what gets set.
+ */
 function setLevel(hero, level) {
-  if (isProtagonist(hero)) { st.heroes[hero].xp = xpToReach(level); st.heroes[hero].level = 1; }
-  else { st.heroes[hero].level = level; st.heroes[hero].xp = 0; }
+  if (isProtagonist(hero)) st.heroes[hero].xp = xpToReach(level);
+  for (const slot of st.companionSlots) slot.level = level;
 }
 
 const RUNS = Number(process.argv[2] || 40);
@@ -54,10 +57,11 @@ function composition() {
   const level = drop({ level: 1 }, star);
   const stars = drop({ star: 1 }, 1);
   const gear = drop({ equipped: {} }, star);
-  const total = level + stars + gear;
+  const bonds = drop({ bonds: false }, star);
+  const total = level + stars + gear + bonds;
   const pct = (v) => total > 0 ? `${Math.round((v / total) * 100)}%`.padStart(4) : '  0%';
   console.log(`   power ${full}  (Lv.${levelOf(id)} ${star}\u2605)  ` +
-              `from level ${pct(level)} \u00b7 stars ${pct(stars)} \u00b7 gear ${pct(gear)}`);
+              `from level ${pct(level)} \u00b7 stars ${pct(stars)} \u00b7 gear ${pct(gear)} \u00b7 bonds ${pct(bonds)}`);
 }
 
 function run(label, team) {

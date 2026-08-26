@@ -9,7 +9,7 @@ import { bustSVG } from '../avatar.js';
 import { portraitHTML } from '../sprites.js';
 import {
   getHeroDef, heroSave, statsFor, powerOf, slotsFor,
-  promoteInfo, promote, xpInfo, isProtagonist, trainInfo, trainAlly,
+  promoteInfo, promote, xpInfo, isProtagonist, bondOf, levelOf,
 } from '../../hero/index.js';
 import { rarityOf, MAX_STARS } from '../../config.js';
 import { GEAR_SLOTS, GEAR_SLOT_META, getGearDef, describeGear } from '../../gear/index.js';
@@ -74,7 +74,7 @@ function renderStats(body, heroId) {
   const stats = statsFor(heroId);
   const lead = isProtagonist(heroId);
   const lvl = xpInfo(heroId);
-  const train = lead ? null : trainInfo(heroId);
+  const bond = lead ? null : bondOf(heroId);
 
   // Gear is the protagonist's alone; allies have no equipment slots.
   const gearNodes = !isProtagonist(heroId) ? '' : GEAR_SLOTS.map((slot) => {
@@ -100,43 +100,53 @@ function renderStats(body, heroId) {
   body.appendChild(h('div', {
     class: 'stat-panel',
     html: `
-      <div class="level-line">Lv.${lvl.level}</div>
+      <div class="level-line">Lv.${lead ? lvl.level : levelOf(heroId)}</div>
       ${lead ? `
         <div class="xp-track" role="img" aria-label="${lvl.atMax ? 'Max level' : `${fmt(lvl.into)} of ${fmt(lvl.needed)} XP`}">
           <span class="xp-fill" style="width:${lvl.pct}%"></span>
         </div>
         <div class="xp-line">${lvl.atMax ? 'Max level' : `${fmt(lvl.into)} / ${fmt(lvl.needed)} XP to Lv.${lvl.level + 1}`}</div>`
-        : `<div class="xp-line">Trained, not blooded · cap Lv.${train.cap}</div>`}
+        : '<div class="xp-line">Level comes from your companion slots</div>'}
       <div class="stat-grid">
         <div class="stat"><span class="sn">⚔️ ATK</span><span class="sv">${fmt(stats.atk)}</span></div>
         <div class="stat"><span class="sn">❤️ HP</span><span class="sv">${fmt(stats.hp)}</span></div>
         <div class="stat"><span class="sn">🛡️ DEF</span><span class="sv">${fmt(stats.def)}</span></div>
         <div class="stat"><span class="sn">💨 SPD</span><span class="sv">${stats.speed.toFixed(2)}</span></div>
       </div>
-      ${lead ? '' : `
-        <button class="btn primary wide ${train.canTrain ? '' : 'disabled'}" data-action="train">
-          ${train.atMax ? 'Max Level'
-            : train.atCap ? `Limited by your hero (Lv.${train.cap})`
-            : `Train <span class="cost">🫘 ${train.senzuCost} · 💰 ${fmt(train.zeniCost)}</span>`}
-        </button>`}`,
+      `,
   }));
+
+  if (bond) {
+    const rows = [
+      ...Object.entries(bond.flat).filter(([, v]) => v >= 0.5)
+        .map(([k, v]) => `+${fmt(v)} ${k.toUpperCase()}`),
+      ...Object.entries(bond.pct).filter(([, v]) => v >= 0.0005)
+        .map(([k, v]) => `+${(v * 100).toFixed(1)}% ${k.toUpperCase()}`),
+    ];
+    body.appendChild(h('section', {
+      class: `bond-panel ${bond.equipped ? 'equipped' : ''}`,
+      html: `
+        <div class="bond-head">
+          <span class="bond-label">${bond.label}</span>
+          <span class="bond-share">${bond.equipped ? 'Equipped · full' : 'Collected · 25%'}</span>
+        </div>
+        <div class="bond-rows">${rows.map((r) => `<span class="bond-stat">${r}</span>`).join('')}</div>
+        <p class="note" style="margin-top:8px">
+          Lent to your hero${bond.equipped ? '' : ' even while benched'}. Starring
+          this companion up raises it.
+        </p>`,
+    }));
+  }
 
   body.appendChild(h('p', {
     class: 'note',
     text: lead
       ? `${def.lore} Levels come from fighting — clear stages to earn XP.`
-      : `${def.lore} Allies train rather than fight for it: senzu beans and zeni, and they never pass your hero's level.`,
+      : `${def.lore}`,
   }));
 
   onAction(body, {
     gear: (el) => openGearSheet(heroId, el.dataset.slot),
-    train: () => {
-      const info = trainInfo(heroId);
-      if (trainAlly(heroId)) { toast('Trained!', 'good'); refresh(); }
-      else if (info?.atCap) toast(`Your hero must reach Lv.${info.cap + 1} first.`, 'warn');
-      else if (info && info.haveSenzu < info.senzuCost) toast('Not enough senzu beans.', 'warn');
-      else toast('Not enough zeni.', 'warn');
-    },
   });
 }
 

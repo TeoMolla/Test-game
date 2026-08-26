@@ -300,6 +300,65 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   color: var(--gold); text-align: center; margin-bottom: 1px;
 }
 
+/* ---------------- companion slots ---------------- */
+
+.companion-head {
+  display: flex; align-items: baseline; gap: 8px;
+  margin: 18px 2px 8px;
+}
+.ch-title {
+  font-family: var(--font-display); font-size: 18px; letter-spacing: 0.02em;
+}
+.ch-level { font-size: 15px; font-weight: 800; color: var(--gold); }
+.ch-note { font-size: 10.5px; color: var(--muted); flex: 1; text-align: right; }
+
+.slot-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+.comp-slot {
+  border: 1.5px solid var(--panel-line);
+  border-radius: 12px;
+  padding: 8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.22));
+  text-align: center;
+}
+/* The slot actually setting the companion level reads as the live one; a slot
+   that has run ahead is dimmed, because raising it further changes nothing. */
+.comp-slot.binding { border-color: var(--accent-2); }
+.comp-slot.ahead { opacity: 0.72; }
+
+.cs-head { font-size: 11px; color: var(--muted); }
+.cs-lv { color: var(--text); font-weight: 700; }
+.cs-art {
+  width: 64px; height: 64px; margin: 5px auto 3px;
+  border-radius: 11px; overflow: hidden; background: rgba(0,0,0,0.3);
+  display: grid; place-items: center;
+}
+.cs-empty { font-size: 26px; color: var(--muted); }
+.cs-name { font-size: 12.5px; font-family: var(--font-display); margin-bottom: 6px; }
+.cs-warn { font-size: 9.5px; color: var(--warn); margin-top: 4px; }
+.btn.tiny.wide { display: block; width: 100%; }
+
+.recruit-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* ---------------- bonds ---------------- */
+
+.bond-panel {
+  background: var(--panel); border: 1px solid var(--panel-line);
+  border-left: 3px solid var(--muted);
+  border-radius: var(--radius); padding: 12px; margin-top: 12px;
+}
+.bond-panel.equipped { border-left-color: var(--gold); }
+.bond-head { display: flex; align-items: baseline; gap: 8px; }
+.bond-label { font-family: var(--font-display); font-size: 16px; flex: 1; }
+.bond-share { font-size: 10.5px; color: var(--muted); }
+.bond-rows { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.bond-stat {
+  font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--panel-line);
+  border-radius: 999px; padding: 3px 10px;
+}
+.bond-panel.equipped .bond-stat { border-color: rgba(251,191,36,0.4); color: var(--gold); }
+
 /* ---------------- roster ---------------- */
 
 .hero-grid {

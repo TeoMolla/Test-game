@@ -13,7 +13,8 @@ import {
   rarityOf, STAR_STAT_MULT, STAR_PROMOTE_SHARDS, MAX_STARS,
   MAX_LEVEL, LEVEL_STAT_STEP, computePower, HP_SCALE,
   xpForLevel, xpToReach, levelFromXp,
-  allyTrainZeni, allyTrainSenzu, ALLY_LEVEL_CAP_OFFSET,
+  slotTrainZeni, slotTrainSenzu, COMPANION_LEVEL_CAP_OFFSET,
+  BOND_RARITY_MULT, BOND_STAR_MULT, BOND_EQUIPPED_SHARE, BOND_COLLECTED_SHARE,
 } from '../config.js';
 import { bonusesFor } from '../gear/index.js';
 import { activeSkills, loadoutSlots } from '../skills/index.js';
@@ -27,32 +28,48 @@ export function heroSave(heroId) {
 }
 
 /**
- * The protagonist's level is derived from lifetime XP and never stored; an
- * ally's is stored outright, because it is bought rather than earned.
+ * The protagonist's level is derived from lifetime XP. Companions have no level
+ * of their own — they all fight at the companion level below.
  */
 export function levelOf(heroId) {
   const hs = heroSave(heroId);
   if (!hs) return 1;
-  return isProtagonist(heroId) ? levelFromXp(hs.xp || 0) : (hs.level || 1);
+  return isProtagonist(heroId) ? levelFromXp(hs.xp || 0) : companionLevel();
 }
 
-/** Allies cannot pass the protagonist. */
-export function allyLevelCap() {
-  return Math.min(MAX_LEVEL, levelOf(PROTAGONIST_ID) + ALLY_LEVEL_CAP_OFFSET);
+/** Companions can never pass the protagonist. */
+export function companionLevelCap() {
+  return Math.min(MAX_LEVEL, levelOf(PROTAGONIST_ID) + COMPANION_LEVEL_CAP_OFFSET);
 }
 
-/** Everything the ally training panel needs. */
-export function trainInfo(heroId) {
-  const hs = heroSave(heroId);
-  if (!hs || isProtagonist(heroId)) return null;
-  const level = levelOf(heroId);
-  const cap = allyLevelCap();
-  const atCap = level >= cap;
+/**
+ * The level every companion fights at: the LOWEST slot, capped at the hero's
+ * level. Running one slot ahead of the other buys nothing, which is what forces
+ * the investment to be spread rather than dumped into a favourite.
+ */
+export function companionLevel() {
+  const slots = getState().companionSlots || [];
+  if (!slots.length) return 1;
+  return Math.min(companionLevelCap(), ...slots.map((s) => s.level || 1));
+}
+
+/** Per-slot state for the training panel. */
+export function slotInfo(index) {
+  const slots = getState().companionSlots || [];
+  const slot = slots[index];
+  if (!slot) return null;
+  const level = slot.level || 1;
+  const lowest = Math.min(...slots.map((s) => s.level || 1));
+  const cap = companionLevelCap();
   const atMax = level >= MAX_LEVEL;
-  const zeniCost = allyTrainZeni(level);
-  const senzuCost = allyTrainSenzu(level);
+  const atCap = level >= cap;
+  const zeniCost = slotTrainZeni(level);
+  const senzuCost = slotTrainSenzu(level);
   return {
-    level, cap, atCap, atMax,
+    index, level, cap, atCap, atMax,
+    // A slot above the lowest is not the level companions are fighting at, so
+    // raising it further changes nothing until the other one catches up.
+    binding: level === lowest,
     zeniCost, senzuCost,
     haveZeni: inventory.zeni(), haveSenzu: inventory.senzu(),
     canTrain: !atCap && !atMax
@@ -60,19 +77,62 @@ export function trainInfo(heroId) {
   };
 }
 
-/** Spend zeni and beans to raise an ally one level. */
-export function trainAlly(heroId) {
-  const info = trainInfo(heroId);
+/** Spend beans and zeni to raise one companion slot. */
+export function trainSlot(index) {
+  const info = slotInfo(index);
   if (!info || !info.canTrain) return false;
-  // Take the scarce resource first: if beans are short nothing is spent.
+  // Take the scarce resource first: if beans are short, nothing is spent.
   if (!inventory.spendSenzu(info.senzuCost)) return false;
   if (!inventory.spendZeni(info.zeniCost)) {
-    inventory.addSenzu(info.senzuCost);   // put the beans back
+    inventory.addSenzu(info.senzuCost);
     return false;
   }
-  heroSave(heroId).level = levelOf(heroId) + 1;
+  getState().companionSlots[index].level = info.level + 1;
   persist();
   return true;
+}
+
+/* ---------------- bonds ---------------- */
+
+/** Which companions are currently fielded. */
+function equippedCompanions() {
+  return new Set(
+    getState().team.filter((s) => s?.heroId && !isProtagonist(s.heroId)).map((s) => s.heroId)
+  );
+}
+
+/**
+ * What one companion lends, at its current star rank and slot share. Null for
+ * the protagonist and for anyone not yet recruited.
+ */
+export function bondOf(heroId) {
+  const def = getHeroDef(heroId);
+  const hs = heroSave(heroId);
+  if (!def?.bond || !hs?.owned || isProtagonist(heroId)) return null;
+  const mult = (BOND_RARITY_MULT[def.rarity] ?? 1)
+    * (BOND_STAR_MULT[Math.min(hs.star, BOND_STAR_MULT.length - 1)] ?? 0);
+  const share = equippedCompanions().has(heroId) ? BOND_EQUIPPED_SHARE : BOND_COLLECTED_SHARE;
+  const scale = mult * share;
+  const flat = {};
+  const pct = {};
+  for (const [k, v] of Object.entries(def.bond.flat || {})) flat[k] = v * scale;
+  for (const [k, v] of Object.entries(def.bond.pct || {})) pct[k] = v * scale;
+  return { label: def.bond.label, equipped: share === BOND_EQUIPPED_SHARE, flat, pct };
+}
+
+/** Everything the collection lends the protagonist, summed. */
+export function bondTotals() {
+  const flat = { atk: 0, hp: 0, def: 0, speed: 0 };
+  const pct = { atk: 0, hp: 0, def: 0, speed: 0 };
+  for (const id of ALLY_IDS) {
+    const bond = bondOf(id);
+    if (!bond) continue;
+    for (const k of Object.keys(flat)) {
+      flat[k] += bond.flat[k] || 0;
+      pct[k] += bond.pct[k] || 0;
+    }
+  }
+  return { flat, pct };
 }
 
 export function isOwned(heroId) {
@@ -110,6 +170,15 @@ export function statsFor(heroId, override = {}) {
 
   const base = baseStatsAt(def, star, level);
   const { flat, pct } = bonusesFor(equipped, getState().gear);
+
+  // Bonds land on the protagonist only — he is the one the collection lends to.
+  if (isProtagonist(heroId) && override.bonds !== false) {
+    const bonds = bondTotals();
+    for (const k of Object.keys(flat)) {
+      flat[k] += bonds.flat[k] || 0;
+      pct[k] += bonds.pct[k] || 0;
+    }
+  }
 
   return {
     atk: Math.round((base.atk + flat.atk) * (1 + pct.atk)),
@@ -230,9 +299,17 @@ export function awardBattleXp(amount) {
 
 /* ---------------- roster view model ---------------- */
 
-/** Allies only, for the collection grid — the protagonist gets his own panel. */
+/**
+ * The collection grid: companions actually recruited. Ones you do not own are
+ * deliberately absent — the Bag tracks shard progress toward them instead.
+ */
 export function allyEntries() {
-  return rosterEntries().filter((e) => !isProtagonist(e.id));
+  return rosterEntries().filter((e) => !isProtagonist(e.id) && e.owned);
+}
+
+/** Companions you have enough shards to recruit right now. */
+export function recruitableEntries() {
+  return rosterEntries().filter((e) => !isProtagonist(e.id) && !e.owned && e.unlock.canUnlock);
 }
 
 export function rosterEntries() {

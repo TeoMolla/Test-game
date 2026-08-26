@@ -11,6 +11,9 @@
  *
  * `art` drives the CSS-drawn placeholder avatar in ui/avatar.js — clearly
  * temporary stand-ins for real art.
+ * `bond` is what a companion lends the protagonist just for being owned; see
+ * BOND_* in config.js for how it scales. The protagonist has none — he is the
+ * one receiving them.
  * `baseStats` are the 0-star, level-1 values before rarity multiplier.
  * PLACEHOLDER: all stat values below are unbalanced first-pass numbers.
  */
@@ -53,6 +56,8 @@ export const HEROES = {
       ultimate: 'piccolo_ultimate',
     },
     art: { skin: '#4ade80', hair: '#f8fafc', hairStyle: 'turban', gi: '#a855f7', trim: '#e2e8f0', aura: '#a3e635' },
+    // Lent to the protagonist whether or not this companion is fielded.
+    bond: { label: 'Namekian Resolve', flat: { def: 4 }, pct: { hp: 0.025 } },
     startsOwned: false,
     startStar: 1,
     lore: 'A reluctant ally whose piercing beam can end a fight outright.',
@@ -71,6 +76,8 @@ export const HEROES = {
       ultimate: 'gohan_ultimate',
     },
     art: { skin: '#f2c9a0', hair: '#1b1b23', hairStyle: 'bowl', gi: '#f8fafc', trim: '#dc2626', aura: '#facc15' },
+    // Lent to the protagonist whether or not this companion is fielded.
+    bond: { label: 'Latent Power', flat: { atk: 5 }, pct: { atk: 0.025 } },
     startsOwned: false,
     startStar: 1,
     lore: 'A frightened child with a power level nobody can explain.',
@@ -89,6 +96,8 @@ export const HEROES = {
       ultimate: 'krillin_ultimate',
     },
     art: { skin: '#f2c9a0', hair: 'none', hairStyle: 'bald', gi: '#f97316', trim: '#1d4ed8', aura: '#38bdf8' },
+    // Lent to the protagonist whether or not this companion is fielded.
+    bond: { label: 'Sharp Eye', flat: { atk: 4 }, pct: { atk: 0.018 } },
     startsOwned: true,
     startStar: 2,
     lore: 'No hair, no ki to spare, and the sharpest technique on the field.',
@@ -107,6 +116,8 @@ export const HEROES = {
       ultimate: 'yamcha_ultimate',
     },
     art: { skin: '#f2c9a0', hair: '#2a1d16', hairStyle: 'long', gi: '#fb923c', trim: '#166534', aura: '#f472b6' },
+    // Lent to the protagonist whether or not this companion is fielded.
+    bond: { label: 'Bandit Reflexes', flat: { atk: 3 }, pct: { speed: 0.012 } },
     startsOwned: true,
     startStar: 1,
     lore: 'Fast hands, bad luck. Do not leave him next to a Saibaman.',
@@ -125,6 +136,8 @@ export const HEROES = {
       ultimate: 'tien_ultimate',
     },
     art: { skin: '#f6d6ae', hair: 'none', hairStyle: 'thirdEye', gi: '#22c55e', trim: '#facc15', aura: '#4ade80' },
+    // Lent to the protagonist whether or not this companion is fielded.
+    bond: { label: 'Iron Discipline', flat: { hp: 55 }, pct: { atk: 0.012 } },
     startsOwned: false,
     startStar: 1,
     lore: 'Will trade his own life force for one more shot at the enemy.',
