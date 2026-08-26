@@ -962,6 +962,19 @@ const SKILL_SLOTS = ['attack', 'technique', 'ultimate', 'passive', 'transform'];
  */
 const RESERVED_SLOTS = ['transform'];
 
+/**
+ * FIGHT LENGTH \u2014 the one knob for pacing. Multiplies the HP of everyone on the
+ * field, heroes and enemies alike, so raising it stretches every fight without
+ * touching who beats whom: both sides gain the same survivability.
+ *
+ * It is not perfectly neutral, and the direction is worth knowing. Auto-attacks
+ * scale with the clock, but techniques run on fixed cooldowns and ultimates on
+ * a charge meter \u2014 so a longer fight means more casts, and it quietly favours
+ * whoever has the better kit. That is usually the boss. Re-run
+ * tools/simulate.mjs after changing this.
+ */
+const HP_SCALE = 2.0;
+
 const MAX_LEVEL = 60;             // PLACEHOLDER
 const LEVEL_STAT_STEP = 0.055;    // PLACEHOLDER: +5.5% of base per level
 
@@ -1556,7 +1569,7 @@ const ENEMIES = {
   },
   saibaman_elite: {
     id: 'saibaman_elite', name: 'Elite Saibaman', rarity: 'uncommon',
-    stats: { atk: 60, hp: 920, def: 26, speed: 1.1 },
+    stats: { atk: 80, hp: 920, def: 26, speed: 1.1 },
     skills: { attack: 'saibaman_attack', technique: 'saibaman_technique' },
     art: { skin: '#4d7c0f', hair: 'none', hairStyle: 'saibaman', gi: '#1a2e05', trim: '#facc15', aura: '#a3e635' },
   },
@@ -1568,7 +1581,7 @@ const ENEMIES = {
   },
   nappa: {
     id: 'nappa', name: 'Nappa', rarity: 'epic',
-    stats: { atk: 132, hp: 5400, def: 68, speed: 1.0 },
+    stats: { atk: 152, hp: 5400, def: 68, speed: 1.0 },
     skills: {
       attack: 'nappa_attack', technique: 'nappa_technique',
       ultimate: 'nappa_ultimate', passive: 'nappa_passive',
@@ -1577,7 +1590,7 @@ const ENEMIES = {
   },
   vegeta: {
     id: 'vegeta', name: 'Vegeta', rarity: 'ssr',
-    stats: { atk: 168, hp: 8600, def: 88, speed: 1.1 },
+    stats: { atk: 196, hp: 8600, def: 88, speed: 1.1 },
     skills: {
       attack: 'vegeta_attack', technique: 'vegeta_technique',
       ultimate: 'vegeta_ultimate', passive: 'vegeta_passive',
@@ -1615,7 +1628,7 @@ const STAGES = [
     id: 1,
     name: 'Landing Zone',
     subtitle: 'A pod cracks the earth open outside the city.',
-    requiredPower: 500,
+    requiredPower: 600,
     enemies: [
       { defId: 'saibaman', row: 'front', scale: 1.0 },
       { defId: 'saibaman', row: 'front', scale: 1.0 },
@@ -1631,7 +1644,7 @@ const STAGES = [
     id: 2,
     name: 'Farmland Skirmish',
     subtitle: 'The scouts spread out across the fields.',
-    requiredPower: 1000,
+    requiredPower: 1200,
     enemies: [
       { defId: 'saibaman', row: 'front', scale: 1.15 },
       { defId: 'saibaman', row: 'front', scale: 1.15 },
@@ -1651,7 +1664,7 @@ const STAGES = [
     id: 3,
     name: 'Raditz Strikes',
     subtitle: 'Goku\u2019s brother has come to collect him.',
-    requiredPower: 1700,
+    requiredPower: 2100,
     enemies: [
       { defId: 'raditz', row: 'front', scale: 1.0 },
       { defId: 'saibaman', row: 'back', scale: 1.2 },
@@ -1670,7 +1683,7 @@ const STAGES = [
     id: 4,
     name: 'One Year Later',
     subtitle: 'Training ends. The sky turns the colour of a scouter.',
-    requiredPower: 2500,
+    requiredPower: 3100,
     enemies: [
       { defId: 'saibaman_elite', row: 'front', scale: 1.0 },
       { defId: 'saibaman_elite', row: 'front', scale: 1.0 },
@@ -1691,7 +1704,7 @@ const STAGES = [
     id: 5,
     name: 'Nappa\u2019s Rampage',
     subtitle: 'He is not even trying yet.',
-    requiredPower: 3400,
+    requiredPower: 4700,
     enemies: [
       { defId: 'nappa', row: 'front', scale: 1.0 },
       { defId: 'saibaman_elite', row: 'back', scale: 1.1 },
@@ -1711,7 +1724,7 @@ const STAGES = [
     id: 6,
     name: 'The Prince of All Saiyans',
     subtitle: 'Vegeta stops watching and steps forward.',
-    requiredPower: 4400,
+    requiredPower: 6300,
     enemies: [
       { defId: 'vegeta', row: 'front', scale: 1.0 },
     ],
@@ -2194,7 +2207,7 @@ function baseStatsAt(def, star, level = 1) {
   const scale = rarity.statMult * starMult * levelMult;
   return {
     atk: Math.round(def.baseStats.atk * scale),
-    hp: Math.round(def.baseStats.hp * scale),
+    hp: Math.round(def.baseStats.hp * scale * HP_SCALE),
     def: Math.round(def.baseStats.def * scale),
     speed: def.baseStats.speed,
   };
@@ -2340,6 +2353,7 @@ function rosterEntries() {
 
 
 
+
 function isCleared(stageId) {
   return !!getState().campaign.cleared[stageId];
 }
@@ -2387,7 +2401,7 @@ function buildEnemyTeam(stageId) {
       skills: def.skills,
       stats: {
         atk: Math.round(def.stats.atk * scale),
-        hp: Math.round(def.stats.hp * scale),
+        hp: Math.round(def.stats.hp * scale * HP_SCALE),
         def: Math.round(def.stats.def * scale),
         speed: def.stats.speed,
       },

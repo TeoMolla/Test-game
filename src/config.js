@@ -94,6 +94,19 @@ export const SKILL_SLOTS = ['attack', 'technique', 'ultimate', 'passive', 'trans
  */
 export const RESERVED_SLOTS = ['transform'];
 
+/**
+ * FIGHT LENGTH — the one knob for pacing. Multiplies the HP of everyone on the
+ * field, heroes and enemies alike, so raising it stretches every fight without
+ * touching who beats whom: both sides gain the same survivability.
+ *
+ * It is not perfectly neutral, and the direction is worth knowing. Auto-attacks
+ * scale with the clock, but techniques run on fixed cooldowns and ultimates on
+ * a charge meter — so a longer fight means more casts, and it quietly favours
+ * whoever has the better kit. That is usually the boss. Re-run
+ * tools/simulate.mjs after changing this.
+ */
+export const HP_SCALE = 2.0;
+
 export const MAX_LEVEL = 60;             // PLACEHOLDER
 export const LEVEL_STAT_STEP = 0.055;    // PLACEHOLDER: +5.5% of base per level
 

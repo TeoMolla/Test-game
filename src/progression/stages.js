@@ -22,7 +22,7 @@ export const STAGES = [
     id: 1,
     name: 'Landing Zone',
     subtitle: 'A pod cracks the earth open outside the city.',
-    requiredPower: 500,
+    requiredPower: 600,
     enemies: [
       { defId: 'saibaman', row: 'front', scale: 1.0 },
       { defId: 'saibaman', row: 'front', scale: 1.0 },
@@ -38,7 +38,7 @@ export const STAGES = [
     id: 2,
     name: 'Farmland Skirmish',
     subtitle: 'The scouts spread out across the fields.',
-    requiredPower: 1000,
+    requiredPower: 1200,
     enemies: [
       { defId: 'saibaman', row: 'front', scale: 1.15 },
       { defId: 'saibaman', row: 'front', scale: 1.15 },
@@ -58,7 +58,7 @@ export const STAGES = [
     id: 3,
     name: 'Raditz Strikes',
     subtitle: 'Goku’s brother has come to collect him.',
-    requiredPower: 1700,
+    requiredPower: 2100,
     enemies: [
       { defId: 'raditz', row: 'front', scale: 1.0 },
       { defId: 'saibaman', row: 'back', scale: 1.2 },
@@ -77,7 +77,7 @@ export const STAGES = [
     id: 4,
     name: 'One Year Later',
     subtitle: 'Training ends. The sky turns the colour of a scouter.',
-    requiredPower: 2500,
+    requiredPower: 3100,
     enemies: [
       { defId: 'saibaman_elite', row: 'front', scale: 1.0 },
       { defId: 'saibaman_elite', row: 'front', scale: 1.0 },
@@ -98,7 +98,7 @@ export const STAGES = [
     id: 5,
     name: 'Nappa’s Rampage',
     subtitle: 'He is not even trying yet.',
-    requiredPower: 3400,
+    requiredPower: 4700,
     enemies: [
       { defId: 'nappa', row: 'front', scale: 1.0 },
       { defId: 'saibaman_elite', row: 'back', scale: 1.1 },
@@ -118,7 +118,7 @@ export const STAGES = [
     id: 6,
     name: 'The Prince of All Saiyans',
     subtitle: 'Vegeta stops watching and steps forward.',
-    requiredPower: 4400,
+    requiredPower: 6300,
     enemies: [
       { defId: 'vegeta', row: 'front', scale: 1.0 },
     ],

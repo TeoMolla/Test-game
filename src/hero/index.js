@@ -11,7 +11,7 @@
 import { HEROES, HERO_IDS, getHeroDef } from './heroes.js';
 import {
   rarityOf, STAR_STAT_MULT, STAR_PROMOTE_SHARDS, MAX_STARS,
-  MAX_LEVEL, LEVEL_STAT_STEP, levelUpCost, computePower,
+  MAX_LEVEL, LEVEL_STAT_STEP, levelUpCost, computePower, HP_SCALE,
 } from '../config.js';
 import { bonusesFor } from '../gear/index.js';
 import { activeSkills, loadoutSlots } from '../skills/index.js';
@@ -42,7 +42,7 @@ export function baseStatsAt(def, star, level = 1) {
   const scale = rarity.statMult * starMult * levelMult;
   return {
     atk: Math.round(def.baseStats.atk * scale),
-    hp: Math.round(def.baseStats.hp * scale),
+    hp: Math.round(def.baseStats.hp * scale * HP_SCALE),
     def: Math.round(def.baseStats.def * scale),
     speed: def.baseStats.speed,
   };

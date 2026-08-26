@@ -7,6 +7,7 @@ import { STAGES, getStage } from './stages.js';
 import { ENEMIES, getEnemyDef } from './enemies.js';
 import { getState, persist } from '../save/index.js';
 import { teamPower } from '../hero/index.js';
+import { HP_SCALE } from '../config.js';
 import { rollGearDrops } from '../gear/index.js';
 import * as inventory from '../inventory/index.js';
 
@@ -59,7 +60,7 @@ export function buildEnemyTeam(stageId) {
       skills: def.skills,
       stats: {
         atk: Math.round(def.stats.atk * scale),
-        hp: Math.round(def.stats.hp * scale),
+        hp: Math.round(def.stats.hp * scale * HP_SCALE),
         def: Math.round(def.stats.def * scale),
         speed: def.stats.speed,
       },

@@ -21,7 +21,7 @@ export const ENEMIES = {
   },
   saibaman_elite: {
     id: 'saibaman_elite', name: 'Elite Saibaman', rarity: 'uncommon',
-    stats: { atk: 60, hp: 920, def: 26, speed: 1.1 },
+    stats: { atk: 80, hp: 920, def: 26, speed: 1.1 },
     skills: { attack: 'saibaman_attack', technique: 'saibaman_technique' },
     art: { skin: '#4d7c0f', hair: 'none', hairStyle: 'saibaman', gi: '#1a2e05', trim: '#facc15', aura: '#a3e635' },
   },
@@ -33,7 +33,7 @@ export const ENEMIES = {
   },
   nappa: {
     id: 'nappa', name: 'Nappa', rarity: 'epic',
-    stats: { atk: 132, hp: 5400, def: 68, speed: 1.0 },
+    stats: { atk: 152, hp: 5400, def: 68, speed: 1.0 },
     skills: {
       attack: 'nappa_attack', technique: 'nappa_technique',
       ultimate: 'nappa_ultimate', passive: 'nappa_passive',
@@ -42,7 +42,7 @@ export const ENEMIES = {
   },
   vegeta: {
     id: 'vegeta', name: 'Vegeta', rarity: 'ssr',
-    stats: { atk: 168, hp: 8600, def: 88, speed: 1.1 },
+    stats: { atk: 196, hp: 8600, def: 88, speed: 1.1 },
     skills: {
       attack: 'vegeta_attack', technique: 'vegeta_technique',
       ultimate: 'vegeta_ultimate', passive: 'vegeta_passive',

@@ -108,6 +108,15 @@ would quietly resize the character between frames of one animation.
 
 ### Tuning
 
+**Fight length is one knob**: `HP_SCALE` in `src/config.js` multiplies the HP of
+everyone on the field. Raise it for longer fights, lower it for shorter. It is
+close to neutral on who wins — both sides gain the same survivability — but not
+exactly: auto-attacks scale with the clock while techniques run on fixed
+cooldowns and ultimates on a charge meter, so a longer fight means more casts
+and quietly favours whoever has the deeper kit. That is usually the player's
+three full loadouts, not a mob with two skills, so raising it softens the
+difficulty walls. Re-run the harness after changing it.
+
 Balance values are deliberately unbalanced first-pass numbers and are marked
 `PLACEHOLDER` in comments. The main dials live in `src/config.js`
 (rarity multipliers, star rungs, skill-slot thresholds, damage formula, ultimate
@@ -138,7 +147,9 @@ node tools/simulate.mjs 40     # 40 runs per stage
 ```
 
 Runs every stage headless against a starting, early-mid, mid and late-game team
-and prints win rate, average duration and average survivors.
+and prints win rate, average duration and average survivors. The campaign's
+`requiredPower` gates are derived from its output rather than guessed, so that
+"you are underpowered" honestly predicts a loss at every stage.
 
 ## Reference material
 
