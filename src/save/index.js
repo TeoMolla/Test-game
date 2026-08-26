@@ -9,15 +9,18 @@
 
 import { HEROES, PROTAGONIST_ID, isProtagonist } from '../hero/heroes.js';
 import { GEAR_SLOTS } from '../gear/gear.js';
-import { TEAM_SIZE, xpToReach } from '../config.js';
+import { TEAM_SIZE, xpToReach, levelFromXp } from '../config.js';
 
 // The key is deliberately NOT versioned: bumping it would orphan every save on
 // every device. SCHEMA_VERSION plus migrate() handle format changes in place.
 const STORAGE_KEY = 'dbz-rpg-prototype:v1';
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 
 /** PLACEHOLDER: starting purse. */
 const STARTING_ZENI = 800;
+
+/** PLACEHOLDER: enough to train one ally a couple of levels and see how it works. */
+const STARTING_SENZU = 3;
 
 /** PLACEHOLDER: shards the player begins with, to show unlock progress. */
 const STARTING_SHARDS = { piccolo: 4, gohan: 2, tien: 6 };
@@ -36,9 +39,11 @@ export function defaultState() {
     heroes[def.id] = {
       owned: !!def.startsOwned,
       star: def.startsOwned ? (def.startStar ?? 1) : 0,
-      // Lifetime XP is stored; level is derived from it, never saved, so the
-      // two can never drift apart.
+      // The protagonist stores lifetime XP and derives his level from it.
+      // Allies store a level outright, because theirs is bought rather than
+      // earned. Each hero uses one field or the other, never both.
       xp: 0,
+      level: 1,
       equipped: emptyEquipped(),
     };
   }
@@ -52,6 +57,7 @@ export function defaultState() {
   return {
     version: SCHEMA_VERSION,
     zeni: STARTING_ZENI,
+    senzu: STARTING_SENZU,
     heroes,
     shards: { ...STARTING_SHARDS },
     gear: [],
@@ -78,13 +84,22 @@ function migrate(raw) {
       ...saved,
       equipped: { ...emptyEquipped(), ...(saved.equipped || {}) },
     };
-    // v2 -> v3: levels were bought outright and stored. Convert a stored level
-    // into the XP that now stands behind it, so nobody loses progress.
-    if (merged.heroes[id].xp === undefined || saved.level !== undefined) {
-      merged.heroes[id].xp = Math.max(saved.xp ?? 0, xpToReach(saved.level ?? 1));
+    // v2 -> v3: levels were bought with zeni and stored; convert to the XP
+    // that now stands behind them.
+    // v3 -> v4: allies went back to a stored level, since they are trained
+    // rather than blooded. Convert their XP back into the level it bought, so
+    // nothing is lost in either direction.
+    const hero = merged.heroes[id];
+    const storedXp = Math.max(saved.xp ?? 0, xpToReach(saved.level ?? 1));
+    if (isProtagonist(id)) {
+      hero.xp = storedXp;
+      hero.level = 1;
+    } else {
+      hero.level = Math.max(saved.level ?? 1, levelFromXp(storedXp));
+      hero.xp = 0;
     }
-    delete merged.heroes[id].level;
   }
+  merged.senzu = Number.isFinite(raw.senzu) ? raw.senzu : base.senzu;
   merged.shards = { ...raw.shards };
   merged.gear = Array.isArray(raw.gear) ? raw.gear : [];
   merged.campaign = { ...base.campaign, ...(raw.campaign || {}) };

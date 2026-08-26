@@ -9,7 +9,7 @@ import { bustSVG } from '../avatar.js';
 import { portraitHTML } from '../sprites.js';
 import {
   getHeroDef, heroSave, statsFor, powerOf, slotsFor,
-  promoteInfo, promote, xpInfo, isProtagonist,
+  promoteInfo, promote, xpInfo, isProtagonist, trainInfo, trainAlly,
 } from '../../hero/index.js';
 import { rarityOf, MAX_STARS } from '../../config.js';
 import { GEAR_SLOTS, GEAR_SLOT_META, getGearDef, describeGear } from '../../gear/index.js';
@@ -72,7 +72,9 @@ function renderStats(body, heroId) {
   const def = getHeroDef(heroId);
   const hs = heroSave(heroId);
   const stats = statsFor(heroId);
+  const lead = isProtagonist(heroId);
   const lvl = xpInfo(heroId);
+  const train = lead ? null : trainInfo(heroId);
 
   // Gear is the protagonist's alone; allies have no equipment slots.
   const gearNodes = !isProtagonist(heroId) ? '' : GEAR_SLOTS.map((slot) => {
@@ -99,26 +101,42 @@ function renderStats(body, heroId) {
     class: 'stat-panel',
     html: `
       <div class="level-line">Lv.${lvl.level}</div>
-      <div class="xp-track" role="img" aria-label="${lvl.atMax ? 'Max level' : `${fmt(lvl.into)} of ${fmt(lvl.needed)} XP`}">
-        <span class="xp-fill" style="width:${lvl.pct}%"></span>
-      </div>
-      <div class="xp-line">${lvl.atMax ? 'Max level' : `${fmt(lvl.into)} / ${fmt(lvl.needed)} XP to Lv.${lvl.level + 1}`}</div>
+      ${lead ? `
+        <div class="xp-track" role="img" aria-label="${lvl.atMax ? 'Max level' : `${fmt(lvl.into)} of ${fmt(lvl.needed)} XP`}">
+          <span class="xp-fill" style="width:${lvl.pct}%"></span>
+        </div>
+        <div class="xp-line">${lvl.atMax ? 'Max level' : `${fmt(lvl.into)} / ${fmt(lvl.needed)} XP to Lv.${lvl.level + 1}`}</div>`
+        : `<div class="xp-line">Trained, not blooded · cap Lv.${train.cap}</div>`}
       <div class="stat-grid">
         <div class="stat"><span class="sn">⚔️ ATK</span><span class="sv">${fmt(stats.atk)}</span></div>
         <div class="stat"><span class="sn">❤️ HP</span><span class="sv">${fmt(stats.hp)}</span></div>
         <div class="stat"><span class="sn">🛡️ DEF</span><span class="sv">${fmt(stats.def)}</span></div>
         <div class="stat"><span class="sn">💨 SPD</span><span class="sv">${stats.speed.toFixed(2)}</span></div>
       </div>
-      `,
+      ${lead ? '' : `
+        <button class="btn primary wide ${train.canTrain ? '' : 'disabled'}" data-action="train">
+          ${train.atMax ? 'Max Level'
+            : train.atCap ? `Limited by your hero (Lv.${train.cap})`
+            : `Train <span class="cost">🫘 ${train.senzuCost} · 💰 ${fmt(train.zeniCost)}</span>`}
+        </button>`}`,
   }));
 
   body.appendChild(h('p', {
     class: 'note',
-    text: `${def.lore} Levels come from fighting — clear stages to earn XP.`,
+    text: lead
+      ? `${def.lore} Levels come from fighting — clear stages to earn XP.`
+      : `${def.lore} Allies train rather than fight for it: senzu beans and zeni, and they never pass your hero's level.`,
   }));
 
   onAction(body, {
     gear: (el) => openGearSheet(heroId, el.dataset.slot),
+    train: () => {
+      const info = trainInfo(heroId);
+      if (trainAlly(heroId)) { toast('Trained!', 'good'); refresh(); }
+      else if (info?.atCap) toast(`Your hero must reach Lv.${info.cap + 1} first.`, 'warn');
+      else if (info && info.haveSenzu < info.senzuCost) toast('Not enough senzu beans.', 'warn');
+      else toast('Not enough zeni.', 'warn');
+    },
   });
 }
 

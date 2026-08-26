@@ -158,12 +158,53 @@ export function levelFromXp(xp) {
   return level;
 }
 
-/**
- * PLACEHOLDER: allies who sat the fight out still learn something. Without
- * this, an ally you did not field falls permanently behind and swapping the
- * line-up becomes a punishment rather than a choice.
+/* ---------------- ally progression ----------------
+ *
+ * Allies do not learn from fighting — battle XP is the protagonist's alone.
+ * They are trained instead, with Senzu Beans and Zeni, and starred up with
+ * shards. Three resources, three different jobs:
+ *
+ *   Zeni    plentiful, drops from every stage. The volume knob, rarely the
+ *           thing stopping you.
+ *   Senzu   the real throttle. Only later stages drop them in any quantity,
+ *           so an ally's ceiling is set by how deep YOU can farm — which ties
+ *           ally progress to the hero's, rather than running beside it.
+ *   Shards  per-ally, for recruiting and star-ups. Unchanged.
  */
-export const BENCH_XP_SHARE = 0.4;
+
+/** PLACEHOLDER: zeni to train an ally from `level` to `level + 1`. */
+export function allyTrainZeni(level) {
+  return Math.round(40 * Math.pow(1.18, level - 1));
+}
+
+/**
+ * PLACEHOLDER: senzu beans for the same step. Rises in bands rather than every
+ * level, so early training is cheap and the cost steps up in a way the player
+ * can feel coming.
+ *
+ * The slope matters more than it looks. Banked beans grow linearly with farm
+ * runs, while the ally cap grows with the hero's level and so slows down as his
+ * XP curve steepens. If beans get cheap relative to that, the cap silently
+ * becomes the only thing limiting allies and the resource stops meaning
+ * anything. This slope keeps beans the binding constraint across the range the
+ * campaign actually covers — see tools/economy.mjs.
+ */
+export function allyTrainSenzu(level) {
+  return 1 + Math.floor((level - 1) / 2);
+}
+
+/**
+ * Allies cannot run away from the protagonist: their level is capped at his,
+ * plus this offset. Set it to 0 for the strict rule "never above your hero".
+ *
+ * It sits at 5 rather than 0 on purpose. His XP curve is steep by design, so a
+ * hard cap at his exact level would bind almost immediately and beans would
+ * pile up unspendable — the cap, not the resource, would be doing all the
+ * work. With a little headroom the beans are the everyday constraint and the
+ * cap is the backstop it should be. He stays far stronger regardless: he is a
+ * tier above on base stats and he is the only one wearing gear.
+ */
+export const ALLY_LEVEL_CAP_OFFSET = 5;
 
 /**
  * PLACEHOLDER: Power Level is a single headline number derived from final

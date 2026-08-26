@@ -25,6 +25,9 @@ export function render(host, { stageId, won, survivors, seconds, rewards }) {
           <span>${def.name} reached <b>Lv.${up.to}</b></span>
         </div>`);
     }
+    if (rewards.senzu) {
+      rewardRows.push(`<div class="reward"><span class="ri">🫘</span><span>Senzu Bean ×${rewards.senzu}</span></div>`);
+    }
     if (rewards.zeni) rewardRows.push(`<div class="reward"><span class="ri">💰</span><span>${fmt(rewards.zeni)} Zeni</span></div>`);
     for (const s of rewards.shards) {
       const def = getHeroDef(s.heroId);

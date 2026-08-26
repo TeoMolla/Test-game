@@ -90,8 +90,10 @@ export function currentScreen() {
 }
 
 function refreshWallet() {
-  const chip = $('#wallet-zeni .val');
-  if (chip) chip.textContent = fmt(getState().zeni);
+  const zeni = $('#wallet-zeni .val');
+  if (zeni) zeni.textContent = fmt(getState().zeni);
+  const senzu = $('#wallet-senzu .val');
+  if (senzu) senzu.textContent = fmt(getState().senzu);
 }
 
 export function initShell() {

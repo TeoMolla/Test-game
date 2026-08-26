@@ -87,15 +87,17 @@ export function completeStage(stageId) {
 
   const shards = { ...(stage.rewards.shards || {}) };
   let zeni = stage.rewards.zeni || 0;
+  let senzu = stage.rewards.senzu || 0;
   if (first && stage.firstClear) {
     zeni += stage.firstClear.zeni || 0;
+    senzu += stage.firstClear.senzu || 0;
     for (const [heroId, amount] of Object.entries(stage.firstClear.shards || {})) {
       shards[heroId] = (shards[heroId] || 0) + amount;
     }
   }
 
   const gear = rollGearDrops(stage.rewards.gearTable);
-  const summary = inventory.grantRewards({ zeni, shards, gear });
+  const summary = inventory.grantRewards({ zeni, senzu, shards, gear });
 
   // XP is not an inventory item — it goes straight to the roster. First clears
   // pay double, which is what makes pushing forward better than farming.

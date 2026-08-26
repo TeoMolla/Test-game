@@ -51,10 +51,10 @@ Progress saves to `localStorage`, so it survives closing the tab.
 - **Hero detail** — Stats (level and XP bar, ATK/HP/DEF/SPD, power, 4 gear
   slots), Stars (0–5★ promotion with a stat preview and skill-slot unlocks),
   Skills.
-- **Levelling** — levels are earned, not bought. Clearing a stage grants XP to
-  everyone who fought, and a reduced share to owned allies who sat it out so
-  rotating the line-up is a choice rather than a punishment. Level is derived
-  from lifetime XP and never stored, so the two cannot drift.
+- **Levelling** — the two tracks are deliberately different. Your hero is
+  *blooded*: battle XP is his alone, and his level is derived from lifetime XP
+  rather than stored. Allies are *trained*: senzu beans plus zeni, and they
+  cannot get more than a few levels ahead of him.
 - **Gear** — weapon/chest/gloves/boots, dropped from stages, equip/unequip.
 - **Bag** — zeni, shards, gear, record, reset.
 
@@ -161,15 +161,38 @@ and reading as both at once.
 unit's first action on the same value the run-in animates over, so the
 simulation and what is on screen never disagree.
 
+### The economy
+
+Three resources, three jobs, all fed by the same stages:
+
+| | earned from | spent on | role |
+| --- | --- | --- | --- |
+| **XP** | every stage clear, hero only | your hero's levels | the campaign's own reward |
+| **Zeni** | every stage | ally training | plentiful — the volume knob |
+| **Senzu** | stage 2 onward, more the deeper you go | ally training | the real throttle |
+| **Shards** | per-hero, from stages | recruiting and star-ups | the collection loop |
+
+Senzu is what ties the two tracks together. Stage 6 pays four beans a run
+against stage 2's one, so how fast your allies grow is set by how deep *you*
+can farm — which means pushing your hero forward is always the way to raise the
+team. Zeni is deliberately easy: it is rarely the thing stopping you, it just
+has to be spent.
+
+`tools/economy.mjs` prints both curves side by side and, most usefully, which
+resource is actually binding as the hero climbs. Beans should be the constraint
+across the range the campaign covers; if the ally cap starts binding instead,
+beans have gone too cheap and the resource has stopped meaning anything.
+
+```bash
+node tools/economy.mjs
+```
+
 ### Where power comes from
 
 Power is meant to read as a sum of several tracks rather than a proxy for any
 one of them. `tools/simulate.mjs` prints the split for each profile — currently
 about **31-42% level, 44-58% stars, 18-25% gear**. If one track ever starts to
 dominate that line, the curve needs rebalancing, not the gates.
-
-Zeni currently has no sink: it used to buy levels, and gear upgrading (which
-will spend it) is not built yet. Expect it to pile up until then.
 
 ### Balance harness
 

@@ -11,7 +11,7 @@
  *   requiredPower   team power gate (the only gate in this pass — no
  *                   resource-gated obstacles yet)
  *   enemies         [{ defId, row, scale }] — `scale` multiplies final stats
- *   rewards         granted on every clear, XP included
+ *   rewards         granted on every clear: zeni, XP, senzu beans, shards, gear
  *   firstClear      one-time bonus on the first clear
  *
  * PLACEHOLDER: power gates, reward amounts and drop chances are all untuned.
@@ -33,7 +33,7 @@ export const STAGES = [
       shards: { tien: 2 },
       gearTable: [{ defId: 'training_weights', chance: 0.5 }],
     },
-    firstClear: { zeni: 150, shards: { tien: 3 } },
+    firstClear: { senzu: 3, zeni: 150, shards: { tien: 3 } },
   },
   {
     id: 2,
@@ -48,13 +48,14 @@ export const STAGES = [
     rewards: {
       zeni: 165,
       xp: 130,
+      senzu: 1,
       shards: { tien: 2 },
       gearTable: [
         { defId: 'turtle_gi', chance: 0.45 },
         { defId: 'worn_boots', chance: 0.4 },
       ],
     },
-    firstClear: { zeni: 200, shards: { tien: 4 } },
+    firstClear: { senzu: 3, zeni: 200, shards: { tien: 4 } },
   },
   {
     id: 3,
@@ -68,13 +69,14 @@ export const STAGES = [
     rewards: {
       zeni: 230,
       xp: 240,
+      senzu: 1,
       shards: { piccolo: 3 },
       gearTable: [
         { defId: 'power_pole', chance: 0.4 },
         { defId: 'scouter', chance: 0.35 },
       ],
     },
-    firstClear: { zeni: 320, shards: { piccolo: 5 } },
+    firstClear: { senzu: 4, zeni: 320, shards: { piccolo: 5 } },
   },
   {
     id: 4,
@@ -90,13 +92,14 @@ export const STAGES = [
     rewards: {
       zeni: 280,
       xp: 380,
+      senzu: 2,
       shards: { gohan: 3 },
       gearTable: [
         { defId: 'kame_belt', chance: 0.4 },
         { defId: 'scouter', chance: 0.3 },
       ],
     },
-    firstClear: { zeni: 380, shards: { gohan: 5 } },
+    firstClear: { senzu: 5, zeni: 380, shards: { gohan: 5 } },
   },
   {
     id: 5,
@@ -111,13 +114,14 @@ export const STAGES = [
     rewards: {
       zeni: 360,
       xp: 620,
+      senzu: 3,
       shards: { piccolo: 4 },
       gearTable: [
         { defId: 'saiyan_boots', chance: 0.3 },
         { defId: 'kaio_gloves', chance: 0.3 },
       ],
     },
-    firstClear: { zeni: 500, shards: { piccolo: 8, gohan: 4 } },
+    firstClear: { senzu: 8, zeni: 500, shards: { piccolo: 8, gohan: 4 } },
   },
   {
     id: 6,
@@ -130,13 +134,14 @@ export const STAGES = [
     rewards: {
       zeni: 520,
       xp: 950,
+      senzu: 4,
       shards: { gohan: 5 },
       gearTable: [
         { defId: 'saiyan_armor', chance: 0.3 },
         { defId: 'z_sword_shard', chance: 0.25 },
       ],
     },
-    firstClear: { zeni: 900, shards: { gohan: 10, tien: 10 } },
+    firstClear: { senzu: 12, zeni: 900, shards: { gohan: 10, tien: 10 } },
   },
 ];
 

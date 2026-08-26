@@ -16,6 +16,13 @@ import { getState } from '../src/save/index.js';
 import { equipGear, addGear } from '../src/inventory/index.js';
 import { getHeroDef, statsFor, skillsFor, powerOf, levelOf } from '../src/hero/index.js';
 import { xpToReach, computePower } from '../src/config.js';
+import { isProtagonist } from '../src/hero/heroes.js';
+
+/** The protagonist derives his level from XP; allies store one. */
+function setLevel(hero, level) {
+  if (isProtagonist(hero)) { st.heroes[hero].xp = xpToReach(level); st.heroes[hero].level = 1; }
+  else { st.heroes[hero].level = level; st.heroes[hero].xp = 0; }
+}
 
 const RUNS = Number(process.argv[2] || 40);
 
@@ -91,7 +98,7 @@ run('STARTING ACCOUNT', st.team);
 for (const id of Object.keys(st.heroes)) {
   st.heroes[id].owned = true;
   st.heroes[id].star = 2;
-  st.heroes[id].xp = xpToReach(8);
+  setLevel(id, 8);
 }
 run('EARLY-MID (2★ Lv8)', [
   { heroId: 'goku', row: 'front' },
@@ -112,7 +119,7 @@ function equipSet(defIds) {
 for (const id of Object.keys(st.heroes)) {
   st.heroes[id].owned = true;
   st.heroes[id].star = 3;
-  st.heroes[id].xp = xpToReach(15);
+  setLevel(id, 15);
 }
 equipSet(['power_pole', 'kame_belt', 'scouter', 'worn_boots']);
 run('MID (3★ Lv15, uncommon gear)', [
@@ -124,10 +131,10 @@ run('MID (3★ Lv15, uncommon gear)', [
 // Late: 5★, level 30
 for (const id of Object.keys(st.heroes)) {
   st.heroes[id].star = 5;
-  st.heroes[id].xp = xpToReach(30);
+  setLevel(id, 30);
 }
 // Late-mid: the shape a player is in when stage 6 first looks reachable.
-for (const id of Object.keys(st.heroes)) { st.heroes[id].star = 4; st.heroes[id].xp = xpToReach(20); }
+for (const id of Object.keys(st.heroes)) { st.heroes[id].star = 4; setLevel(id, 20); }
 equipSet(['z_sword_shard', 'saiyan_armor', 'kaio_gloves', 'saiyan_boots']);
 run('LATE-MID (4★ Lv20, rare gear)', [
   { heroId: 'goku', row: 'front' },
@@ -135,7 +142,7 @@ run('LATE-MID (4★ Lv20, rare gear)', [
   { heroId: 'gohan', row: 'back' },
 ]);
 
-for (const id of Object.keys(st.heroes)) { st.heroes[id].star = 5; st.heroes[id].xp = xpToReach(30); }
+for (const id of Object.keys(st.heroes)) { st.heroes[id].star = 5; setLevel(id, 30); }
 run('LATE (5★ Lv30, rare gear)', [
   { heroId: 'goku', row: 'front' },
   { heroId: 'piccolo', row: 'front' },

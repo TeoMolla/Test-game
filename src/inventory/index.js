@@ -30,6 +30,25 @@ export function spendZeni(amount) {
   return true;
 }
 
+/* ---------------- senzu beans ---------------- */
+
+export function senzu() {
+  return getState().senzu;
+}
+
+export function addSenzu(amount) {
+  getState().senzu += amount;
+  persist();
+}
+
+export function spendSenzu(amount) {
+  const s = getState();
+  if (s.senzu < amount) return false;
+  s.senzu -= amount;
+  persist();
+  return true;
+}
+
 /* ---------------- shards ---------------- */
 
 export function shards(heroId) {
@@ -125,9 +144,10 @@ export function unequipGear(heroId, slot) {
 }
 
 /** Grant a batch of rewards from a stage clear. Returns a display summary. */
-export function grantRewards({ zeni: z = 0, shards: sh = {}, gear: gearDefIds = [] } = {}) {
-  const summary = { zeni: z, shards: [], gear: [] };
+export function grantRewards({ zeni: z = 0, senzu: sz = 0, shards: sh = {}, gear: gearDefIds = [] } = {}) {
+  const summary = { zeni: z, senzu: sz, shards: [], gear: [] };
   if (z) addZeni(z);
+  if (sz) addSenzu(sz);
   for (const [heroId, amount] of Object.entries(sh)) {
     if (!amount) continue;
     addShards(heroId, amount);

@@ -178,6 +178,7 @@ ${css}
     <button class="back-btn" data-action="back" aria-label="Back" hidden>&lsaquo;</button>
     <div class="screen-title" id="screen-title">Campaign</div>
     <div class="wallet">
+      <span class="wallet-chip" id="wallet-senzu"><span class="ico">&#129747;</span><span class="val">0</span></span>
       <span class="wallet-chip" id="wallet-zeni"><span class="ico">&#128176;</span><span class="val">0</span></span>
     </div>
   </header>

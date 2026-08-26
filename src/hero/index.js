@@ -12,7 +12,8 @@ import { HEROES, HERO_IDS, ALLY_IDS, PROTAGONIST_ID, getHeroDef, isProtagonist }
 import {
   rarityOf, STAR_STAT_MULT, STAR_PROMOTE_SHARDS, MAX_STARS,
   MAX_LEVEL, LEVEL_STAT_STEP, computePower, HP_SCALE,
-  xpForLevel, xpToReach, levelFromXp, BENCH_XP_SHARE,
+  xpForLevel, xpToReach, levelFromXp,
+  allyTrainZeni, allyTrainSenzu, ALLY_LEVEL_CAP_OFFSET,
 } from '../config.js';
 import { bonusesFor } from '../gear/index.js';
 import { activeSkills, loadoutSlots } from '../skills/index.js';
@@ -25,10 +26,53 @@ export function heroSave(heroId) {
   return getState().heroes[heroId] || null;
 }
 
-/** Level is derived from lifetime XP; it is never stored. */
+/**
+ * The protagonist's level is derived from lifetime XP and never stored; an
+ * ally's is stored outright, because it is bought rather than earned.
+ */
 export function levelOf(heroId) {
   const hs = heroSave(heroId);
-  return hs ? levelFromXp(hs.xp || 0) : 1;
+  if (!hs) return 1;
+  return isProtagonist(heroId) ? levelFromXp(hs.xp || 0) : (hs.level || 1);
+}
+
+/** Allies cannot pass the protagonist. */
+export function allyLevelCap() {
+  return Math.min(MAX_LEVEL, levelOf(PROTAGONIST_ID) + ALLY_LEVEL_CAP_OFFSET);
+}
+
+/** Everything the ally training panel needs. */
+export function trainInfo(heroId) {
+  const hs = heroSave(heroId);
+  if (!hs || isProtagonist(heroId)) return null;
+  const level = levelOf(heroId);
+  const cap = allyLevelCap();
+  const atCap = level >= cap;
+  const atMax = level >= MAX_LEVEL;
+  const zeniCost = allyTrainZeni(level);
+  const senzuCost = allyTrainSenzu(level);
+  return {
+    level, cap, atCap, atMax,
+    zeniCost, senzuCost,
+    haveZeni: inventory.zeni(), haveSenzu: inventory.senzu(),
+    canTrain: !atCap && !atMax
+      && inventory.zeni() >= zeniCost && inventory.senzu() >= senzuCost,
+  };
+}
+
+/** Spend zeni and beans to raise an ally one level. */
+export function trainAlly(heroId) {
+  const info = trainInfo(heroId);
+  if (!info || !info.canTrain) return false;
+  // Take the scarce resource first: if beans are short nothing is spent.
+  if (!inventory.spendSenzu(info.senzuCost)) return false;
+  if (!inventory.spendZeni(info.zeniCost)) {
+    inventory.addSenzu(info.senzuCost);   // put the beans back
+    return false;
+  }
+  heroSave(heroId).level = levelOf(heroId) + 1;
+  persist();
+  return true;
 }
 
 export function isOwned(heroId) {
@@ -175,20 +219,13 @@ export function grantXp(heroId, amount) {
 }
 
 /**
- * Split a stage's XP across the roster: everyone who fought gets the full
- * amount, everyone owned but benched gets a share. Returns per-hero results so
- * the results screen can call out who levelled.
+ * Battle XP belongs to the protagonist alone. Allies learn nothing from
+ * fighting — they are trained with beans and zeni instead, so that the two
+ * tracks stay distinct and his is the one the campaign feeds.
  */
-export function awardBattleXp(amount, team = getState().team) {
-  const fielded = new Set(team.filter((s) => s?.heroId).map((s) => s.heroId));
-  const out = [];
-  for (const id of HERO_IDS) {
-    if (!isOwned(id)) continue;
-    const share = fielded.has(id) ? amount : amount * BENCH_XP_SHARE;
-    const res = grantXp(id, share);
-    if (res.gained) out.push({ heroId: id, ...res, fielded: fielded.has(id) });
-  }
-  return out;
+export function awardBattleXp(amount) {
+  const res = grantXp(PROTAGONIST_ID, amount);
+  return res.gained ? [{ heroId: PROTAGONIST_ID, ...res }] : [];
 }
 
 /* ---------------- roster view model ---------------- */

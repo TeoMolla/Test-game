@@ -17,7 +17,19 @@ export function render(host) {
 
   host.appendChild(h('div', {
     class: 'power-banner',
-    html: `<div class="pb-label">Zeni</div><div class="pb-value">💰 ${fmt(state.zeni)}</div>`,
+    html: `<div class="pb-label">Zeni</div><div class="pb-value">💰 ${fmt(state.zeni)}</div>
+           <div class="pb-note">🫘 ${fmt(state.senzu)} senzu</div>`,
+  }));
+
+  host.appendChild(h('section', {
+    class: 'panel',
+    html: `<h2 class="panel-title">Senzu Beans</h2>
+      <p class="note" style="margin-top:0">
+        Beans train your allies. Every stage from 2 onward drops them, and the
+        deeper the stage the more it gives — stage 6 pays four a run against
+        stage 2's one. Farming the hardest fight you can win is the fastest way
+        to raise the team, which is why your hero has to get there first.
+      </p>`,
   }));
 
   /* ---- shards ---- */
