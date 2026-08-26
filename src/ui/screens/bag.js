@@ -64,9 +64,24 @@ export function render(host) {
       <button class="btn ghost wide" data-action="reset">Reset Progress</button>`,
   }));
 
+  // Two-tap confirmation rather than confirm(): a sandboxed embed (and some
+  // in-app browsers) will not show a native modal at all.
+  let resetArmed = false;
   onAction(host, {
-    reset: () => {
-      if (!confirm('Erase all saved progress?')) return;
+    reset: (el) => {
+      if (!resetArmed) {
+        resetArmed = true;
+        el.textContent = 'Tap again to erase everything';
+        el.classList.add('danger');
+        setTimeout(() => {
+          if (!resetArmed) return;
+          resetArmed = false;
+          el.textContent = 'Reset Progress';
+          el.classList.remove('danger');
+        }, 4000);
+        return;
+      }
+      resetArmed = false;
       resetSave();
       toast('Progress reset.', 'warn');
       navigate('campaign', {}, { replace: true });

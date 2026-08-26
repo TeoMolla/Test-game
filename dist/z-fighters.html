@@ -1,0 +1,4153 @@
+<title>Z-Fighters</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<style>
+/* Anton by The Anton Project Authors, SIL Open Font License 1.1.
+   Vendored (latin subset) rather than loaded from a font CDN so the game works
+   offline, on a LAN with no internet, and inside a sandboxed embed.
+   Full licence: assets/anton-OFL.txt */
+@font-face {
+  font-family: 'Anton';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(data:font/woff2;base64,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) format('woff2');
+}
+
+/* main.css \002014 shell, roster, hero detail, campaign, bag.
+   Mobile-first portrait; every size is tuned for a ~390px-wide iPhone. */
+
+:root {
+  --bg: #0b1020;
+  --bg-2: #131a30;
+  --panel: rgba(255, 255, 255, 0.045);
+  --panel-line: rgba(255, 255, 255, 0.1);
+  --text: #eef2ff;
+  --muted: #94a3b8;
+  --accent: #f97316;
+  --accent-2: #38bdf8;
+  --good: #4ade80;
+  --warn: #fbbf24;
+  --bad: #f87171;
+  --gold: #fbbf24;
+  --radius: 14px;
+  /* Anton: condensed heavy caps \002014 a fighting-game title-card voice, and the
+     narrow width buys real room for long hero and stage names at 390px.
+     Body text stays on the system UI stack, which is what iOS renders best. */
+  --font-display: 'Anton', 'Arial Narrow', 'Helvetica Neue Condensed', 'Haettenschweiler', system-ui, sans-serif;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --topbar-h: 52px;
+  --tabbar-h: 60px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  background:
+    radial-gradient(120% 70% at 50% 0%, #1c2545 0%, transparent 60%),
+    radial-gradient(90% 60% at 80% 100%, #2a1a3a 0%, transparent 55%),
+    var(--bg);
+}
+
+button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent; }
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+/* ---------------- shell ---------------- */
+
+#topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: calc(var(--safe-top) + 8px) 14px 8px;
+  min-height: calc(var(--topbar-h) + var(--safe-top));
+  background: linear-gradient(180deg, rgba(11, 16, 32, 0.96), rgba(11, 16, 32, 0.7));
+  border-bottom: 1px solid var(--panel-line);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+#topbar[hidden] { display: none; }
+
+.back-btn {
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: 10px;
+  width: 34px; height: 34px;
+  font-size: 22px; line-height: 1;
+  padding: 0 0 3px;
+}
+
+.screen-title {
+  font-family: var(--font-display);
+  font-size: 21px; letter-spacing: 0.02em; flex: 1;
+}
+
+.wallet-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--panel); border: 1px solid var(--panel-line);
+  padding: 5px 11px; border-radius: 999px;
+  font-size: 13px; font-variant-numeric: tabular-nums;
+}
+
+#screen {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 14px 24px;
+}
+#screen[data-screen='battle'] { padding: 0; overflow: hidden; }
+#screen[data-screen='results'] { padding: 0; }
+
+#tabbar {
+  display: flex;
+  border-top: 1px solid var(--panel-line);
+  background: rgba(11, 16, 32, 0.94);
+  backdrop-filter: blur(12px);
+  padding-bottom: var(--safe-bottom);
+}
+#tabbar[hidden] { display: none; }
+
+.tab {
+  flex: 1;
+  background: none; border: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 9px 0 7px;
+  font-size: 11px; color: var(--muted);
+}
+.tab .ico { font-size: 20px; }
+.tab.active { color: var(--accent); }
+
+/* ---------------- shared bits ---------------- */
+
+.btn {
+  border: 1px solid var(--panel-line);
+  background: var(--panel);
+  border-radius: 11px;
+  padding: 11px 16px;
+  font-weight: 650;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.15s ease;
+}
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: linear-gradient(180deg, #fb923c, #ea580c); border-color: #fdba74; color: #1a0e04; }
+.btn.gold { background: linear-gradient(180deg, #fcd34d, #d97706); border-color: #fde68a; color: #241503; }
+.btn.warn { background: linear-gradient(180deg, #64748b, #475569); border-color: #94a3b8; }
+.btn.ghost { background: var(--panel); }
+.btn.wide { display: block; width: 100%; margin-top: 10px; }
+.btn.small { padding: 8px 13px; font-size: 13px; border-radius: 9px; }
+.btn.tiny { padding: 5px 9px; font-size: 11px; border-radius: 8px; }
+.btn.disabled { opacity: 0.42; pointer-events: none; }
+.btn.danger { background: linear-gradient(180deg, #ef4444, #b91c1c); border-color: #fca5a5; color: #fff; }
+.btn .cost { font-weight: 500; font-size: 12px; opacity: 0.85; display: block; }
+
+:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.note { color: var(--muted); font-size: 12.5px; line-height: 1.5; margin: 12px 2px 0; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.panel-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 10px; }
+
+.power-banner {
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(120deg, rgba(249, 115, 22, 0.16), rgba(56, 189, 248, 0.12));
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius);
+  padding: 11px 14px;
+  margin-bottom: 14px;
+}
+.pb-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.pb-value { font-size: 19px; font-weight: 800; flex: 1; font-variant-numeric: tabular-nums; }
+
+.stars { letter-spacing: 1px; }
+.stars .pip { color: rgba(255, 255, 255, 0.2); font-size: 12px; }
+.stars .pip.on { color: var(--gold); text-shadow: 0 0 6px rgba(251, 191, 36, 0.6); }
+
+.avatar-svg { width: 100%; height: 100%; display: block; }
+
+/* ---------------- campaign ---------------- */
+
+.stage-list { display: flex; flex-direction: column; gap: 10px; }
+
+.stage-card {
+  display: flex; align-items: center; gap: 11px;
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius);
+  padding: 11px;
+}
+.stage-card.cleared { border-color: rgba(74, 222, 128, 0.35); }
+.stage-card.locked { opacity: 0.45; }
+.stage-card.risky { border-color: rgba(251, 191, 36, 0.35); }
+
+.stage-num {
+  width: 34px; height: 34px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #334155, #1e293b);
+  font-weight: 800; font-size: 15px;
+}
+.stage-card.cleared .stage-num { background: linear-gradient(180deg, #16a34a, #14532d); }
+
+.stage-body { flex: 1; min-width: 0; }
+.stage-name { font-family: var(--font-display); font-size: 17px; letter-spacing: 0.01em; text-wrap: balance; }
+.stage-name .tick { color: var(--good); }
+.stage-sub { color: var(--muted); font-size: 12px; margin-top: 1px; line-height: 1.35; }
+
+.enemy-row { display: flex; align-items: center; gap: 4px; margin-top: 7px; }
+.enemy-chip {
+  width: 30px; height: 30px; border-radius: 8px; overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1.5px solid var(--rc, var(--panel-line));
+}
+.enemy-row .more { font-size: 11px; color: var(--muted); }
+
+.stage-meta { margin-top: 6px; font-size: 11.5px; }
+.gate.ok { color: var(--good); }
+.gate.warn { color: var(--warn); }
+.stage-action { flex: none; }
+.stage-action .lock { font-size: 20px; opacity: 0.7; }
+
+/* ---------------- roster ---------------- */
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.hero-card {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px 4px 7px;
+  border-radius: 12px;
+  border: 1.5px solid var(--rarity, #64748b);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(0, 0, 0, 0.25)),
+    color-mix(in srgb, var(--rarity, #64748b) 22%, #0b1020);
+  box-shadow: 0 0 14px -6px var(--glow, transparent);
+  cursor: pointer;
+  overflow: hidden;
+}
+.hero-card.locked { filter: grayscale(0.9) brightness(0.62); }
+.hero-card.unlockable { filter: none; animation: readyPulse 1.8s ease-in-out infinite; }
+
+@keyframes readyPulse {
+  0%, 100% { box-shadow: 0 0 12px -6px var(--glow); }
+  50% { box-shadow: 0 0 20px -2px var(--glow); }
+}
+
+.rarity-tag {
+  position: absolute; top: 4px; left: 5px;
+  font-size: 9px; font-weight: 800; letter-spacing: 0.05em;
+  background: var(--rarity); color: #0b1020;
+  padding: 1px 5px; border-radius: 5px;
+}
+.card-art { width: 100%; aspect-ratio: 1 / 1; display: block; }
+.card-name { font-family: var(--font-display); font-size: 14px; letter-spacing: 0.02em; margin-top: 2px; }
+.card-sub { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.card-stars { margin-top: 1px; }
+
+.shard-frac {
+  font-size: 12px; font-weight: 800;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 6px; padding: 1px 7px; margin-top: 2px;
+}
+.shard-frac.ready { background: var(--good); color: #062b12; }
+
+.hero-card.small { padding: 6px 3px; }
+.hero-card.small .card-art { aspect-ratio: 1 / 1; }
+.hero-card.current { outline: 2px solid var(--accent); }
+
+/* ---------------- hero detail ---------------- */
+
+.hero-hero { text-align: center; margin-bottom: 6px; }
+.rarity-badge {
+  display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #0b1020; background: var(--rarity, #64748b);
+  padding: 2px 9px; border-radius: 999px;
+}
+.hero-name { font-family: var(--font-display); font-size: 30px; letter-spacing: 0.01em; margin-top: 3px; text-wrap: balance; }
+.hero-title { font-size: 12px; color: var(--muted); }
+
+.tab-bar {
+  display: flex; gap: 8px; margin-top: 14px;
+  /* Fixed to the bottom of the scroll area, as in the reference hero screen,
+     so the tabs stay reachable however long the tab content is. */
+  position: sticky; bottom: -14px; z-index: 3;
+  margin-left: -14px; margin-right: -14px;
+  padding: 10px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+  background: rgba(11, 16, 32, 0.93);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--panel-line);
+}
+.tab-btn {
+  flex: 1; padding: 10px 0; border-radius: 11px;
+  border: 1px solid var(--panel-line); background: var(--panel);
+  font-size: 14px; font-weight: 650; color: var(--muted);
+}
+.tab-btn.active { background: var(--rarity, #38bdf8); color: #0b1020; border-color: transparent; }
+
+.tab-body { min-height: 200px; padding-bottom: 62px; }
+
+.portrait-stage {
+  position: relative;
+  /* Slightly shorter than square so the stat row and Upgrade button clear the
+     sticky tab bar without scrolling on a small phone. */
+  aspect-ratio: 1 / 0.86;
+  max-width: 300px;
+  margin: 0 auto;
+  border-radius: 18px;
+  background:
+    radial-gradient(70% 60% at 50% 30%, color-mix(in srgb, var(--rarity) 30%, transparent), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.35));
+  border: 1px solid var(--panel-line);
+  overflow: hidden;
+}
+.portrait-art { position: absolute; inset: 8% 14% 0; }
+
+.gear-slot {
+  position: absolute;
+  width: 46px; height: 46px;
+  border-radius: 11px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.45);
+  display: grid; place-items: center;
+  font-size: 20px;
+}
+.gear-slot.filled { border-style: solid; border-color: var(--gr); box-shadow: 0 0 12px -4px var(--gr); }
+.gear-slot:not(.filled) .gi { opacity: 0.35; }
+.slot-weapon { top: 10px; left: 10px; }
+.slot-chest  { top: 66px; left: 10px; }
+.slot-gloves { top: 10px; right: 10px; }
+.slot-boots  { top: 66px; right: 10px; }
+
+.power-plate {
+  position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6); border: 1px solid var(--gold);
+  color: var(--gold); font-weight: 800; font-size: 16px;
+  padding: 3px 14px; border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-panel {
+  background: var(--panel); border: 1px solid var(--panel-line);
+  border-radius: var(--radius); padding: 10px; margin-top: 10px;
+}
+.level-line { text-align: center; font-size: 19px; font-weight: 800; color: var(--gold); }
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0 4px; }
+.stat { text-align: center; }
+.sn { display: block; font-size: 10px; color: var(--muted); }
+.sv { display: block; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+.stars-panel {
+  background: var(--panel); border: 1px solid var(--panel-line);
+  border-radius: var(--radius); padding: 14px; text-align: center;
+}
+.big-stars .pip { font-size: 26px; }
+.star-caption { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+.promo-table { margin: 14px 0; display: flex; flex-direction: column; gap: 6px; }
+.promo-row {
+  display: grid; grid-template-columns: 60px 1fr 26px 1fr;
+  align-items: center; font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--panel-line); padding-bottom: 5px;
+}
+.pk { text-align: left; color: var(--muted); font-size: 12px; }
+.pv { font-weight: 700; }
+.pv.next { color: var(--good); }
+.parrow { color: var(--good); }
+
+.slot-row { display: flex; justify-content: center; gap: 8px; margin: 14px 0 6px; }
+.skill-slot {
+  width: 50px; height: 50px; border-radius: 12px;
+  display: grid; place-items: center; position: relative;
+  border: 1.5px solid var(--panel-line);
+  background: linear-gradient(180deg, #3b2a5c, #241a3a);
+  font-size: 21px;
+}
+.skill-slot.off { filter: grayscale(1) brightness(0.5); }
+.skill-slot.reserved { border-style: dashed; }
+.skill-slot .req {
+  position: absolute; bottom: -2px; right: -2px;
+  font-size: 9px; font-weight: 800;
+  background: #0b1020; border: 1px solid var(--panel-line);
+  border-radius: 5px; padding: 0 3px;
+}
+
+.skill-list { display: flex; flex-direction: column; gap: 9px; margin-top: 12px; }
+.skill-row {
+  display: flex; gap: 11px; align-items: flex-start;
+  background: var(--panel); border: 1px solid var(--panel-line);
+  border-radius: 12px; padding: 11px;
+}
+.skill-row.locked { opacity: 0.5; }
+.skill-icon {
+  width: 42px; height: 42px; flex: none; border-radius: 10px;
+  display: grid; place-items: center; font-size: 20px;
+  background: linear-gradient(180deg, #3b2a5c, #241a3a);
+}
+.skill-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.skill-name { font-weight: 700; font-size: 14px; }
+.lock-tag {
+  font-size: 10px; font-weight: 800; color: var(--gold);
+  border: 1px solid var(--gold); border-radius: 5px; padding: 0 4px; margin-left: 6px;
+}
+.skill-slot-label { font-size: 10.5px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.05em; }
+.skill-desc { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+
+/* ---------------- sheets ---------------- */
+
+.sheet-backdrop {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0, 0, 0, 0.62);
+  display: flex; align-items: flex-end;
+  backdrop-filter: blur(3px);
+}
+.sheet {
+  width: 100%;
+  background: var(--bg-2);
+  border-top-left-radius: 20px; border-top-right-radius: 20px;
+  border-top: 1px solid var(--panel-line);
+  padding: 16px 14px calc(16px + var(--safe-bottom));
+  max-height: 78dvh; overflow-y: auto;
+  animation: sheetUp 0.22s ease;
+}
+@keyframes sheetUp { from { transform: translateY(24px); opacity: 0; } }
+.sheet-title { font-family: var(--font-display); font-size: 19px; margin-bottom: 12px; }
+
+.gear-rows { display: flex; flex-direction: column; gap: 8px; }
+.gear-row, .shard-row {
+  display: flex; align-items: center; gap: 11px; width: 100%;
+  background: var(--panel); border: 1px solid var(--panel-line);
+  border-left: 3px solid var(--gr, var(--rc, var(--panel-line)));
+  border-radius: 11px; padding: 10px; text-align: left;
+}
+.gear-row .gi { font-size: 21px; width: 30px; text-align: center; }
+.gt, .sr-text { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.gt small, .sr-text small { color: var(--muted); font-size: 11px; }
+.gr-tag, .sr-count { font-size: 11px; color: var(--muted); font-weight: 700; }
+.shard-row { margin-bottom: 8px; }
+.sr-art { width: 34px; height: 34px; border-radius: 8px; overflow: hidden; background: rgba(0,0,0,0.3); }
+
+.pick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-bottom: 6px; }
+
+/* ---------------- formation ---------------- */
+
+.battle-brief {
+  background: var(--panel); border: 1px solid var(--panel-line);
+  border-radius: var(--radius); padding: 12px; margin-bottom: 14px;
+}
+.brief-title { font-family: var(--font-display); font-size: 19px; letter-spacing: 0.01em; }
+.brief-sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.enemy-lineup { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+.lineup-unit { text-align: center; width: 62px; }
+.lu-art {
+  width: 62px; height: 62px; border-radius: 11px; overflow: hidden;
+  border: 1.5px solid var(--rc); background: rgba(0, 0, 0, 0.3);
+}
+.lu-name { font-family: var(--font-display); font-size: 12.5px; margin-top: 3px; }
+.lu-row { font-size: 9.5px; color: var(--muted); text-transform: uppercase; }
+
+.power-compare { font-size: 12.5px; }
+.power-compare.ok { color: var(--good); }
+.power-compare.warn { color: var(--warn); }
+.warn-tag { background: var(--warn); color: #241503; border-radius: 5px; padding: 0 5px; font-weight: 800; font-size: 10px; margin-left: 5px; }
+
+.formation-field { display: flex; flex-direction: column; gap: 12px; }
+.form-row {
+  border: 1px dashed var(--panel-line);
+  border-radius: var(--radius);
+  padding: 9px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+}
+.form-front { border-color: rgba(249, 115, 22, 0.4); }
+.form-back { border-color: rgba(56, 189, 248, 0.35); }
+.row-label { font-size: 10px; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+.row-slots { display: flex; gap: 9px; flex-wrap: wrap; }
+
+.form-unit {
+  width: 96px; text-align: center;
+  border: 1.5px solid var(--rarity, var(--panel-line));
+  border-radius: 12px; padding: 6px 4px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.25));
+}
+.fu-art { width: 100%; aspect-ratio: 1/1; background: none; border: 0; padding: 0; display: block; }
+.fu-name { font-family: var(--font-display); font-size: 14px; }
+.fu-sub { font-size: 10px; color: var(--muted); }
+.fu-stars { margin-bottom: 5px; }
+.form-unit.empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; min-height: 150px; border-style: dashed; color: var(--muted); font-size: 12px;
+}
+.form-unit .plus { font-size: 26px; }
+
+.action-bar { margin-top: 16px; }
+
+/* ---------------- results ---------------- */
+
+.results {
+  min-height: 100dvh;
+  padding: calc(var(--safe-top) + 40px) 18px calc(var(--safe-bottom) + 24px);
+  text-align: center;
+  display: flex; flex-direction: column;
+}
+.res-banner { font-family: var(--font-display); font-size: 52px; letter-spacing: 0.05em; }
+.results.win .res-banner { color: var(--gold); text-shadow: 0 0 26px rgba(251, 191, 36, 0.55); }
+.results.lose .res-banner { color: var(--bad); }
+.res-stage { font-family: var(--font-display); font-size: 18px; margin-top: 6px; }
+.res-line { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+.first-clear {
+  margin: 10px auto 0; display: inline-block;
+  background: var(--gold); color: #241503; font-weight: 800; font-size: 12px;
+  padding: 3px 12px; border-radius: 999px;
+}
+.reward-list { margin: 22px 0; display: flex; flex-direction: column; gap: 9px; flex: 1; }
+.reward {
+  display: flex; align-items: center; gap: 11px;
+  background: var(--panel); border: 1px solid var(--panel-line);
+  border-radius: 11px; padding: 10px 13px; font-size: 14px;
+}
+.reward .ri { font-size: 21px; width: 30px; text-align: center; }
+.reward .ri.shard { height: 30px; border-radius: 7px; overflow: hidden; background: rgba(0,0,0,0.3); }
+.res-actions { display: flex; flex-direction: column; }
+
+/* ---------------- toasts ---------------- */
+
+#toasts {
+  position: fixed; top: calc(var(--safe-top) + 60px); left: 0; right: 0;
+  z-index: 80; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  pointer-events: none;
+}
+.toast {
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid var(--panel-line);
+  border-radius: 999px; padding: 7px 16px; font-size: 13px;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.toast-good { border-color: var(--good); color: var(--good); }
+.toast-warn { border-color: var(--warn); color: var(--warn); }
+.toast.out { opacity: 0; transform: translateY(-8px); }
+
+
+/* battle.css \002014 the real-time battle screen.
+   Side-view lanes: player left, enemies right; back row sits behind and above
+   the front row to fake depth in portrait. */
+
+.battle-screen {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(90% 50% at 50% 12%, #24325c 0%, transparent 62%),
+    linear-gradient(180deg, #101736 0%, #0a0f22 55%, #131a2e 100%);
+}
+
+/* ---- top bar ---- */
+
+.bt-top {
+  display: flex; align-items: center; gap: 10px;
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) 14px 8px;
+}
+.bt-stage { font-family: var(--font-display); font-size: 16px; letter-spacing: 0.02em; flex: 1; opacity: 0.9; }
+.bt-timer {
+  font-variant-numeric: tabular-nums; font-weight: 800; font-size: 14px;
+  background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px; padding: 3px 11px;
+}
+
+/* ---- arena ---- */
+
+.arena {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  min-height: 0;
+  position: relative;
+}
+/* ground plane */
+.arena::after {
+  content: '';
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: 56%;
+  background: linear-gradient(180deg, rgba(120, 90, 60, 0) 0%, rgba(120, 90, 60, 0.14) 28%, rgba(60, 45, 30, 0.3) 100%);
+  z-index: 0;
+}
+
+.side { flex: 1; display: flex; align-items: center; justify-content: center; gap: 2px; position: relative; z-index: 1; }
+.side-player { justify-content: flex-start; }
+.side-enemy { justify-content: flex-end; }
+
+.lane { display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; }
+/* stagger stacked units sideways so a lane reads as a formation, not a column */
+.side-player .lane .unit:nth-child(even) { margin-left: 20px; }
+.side-enemy .lane .unit:nth-child(even) { margin-right: 20px; }
+/* back row: smaller and lifted, so it reads as "further away" */
+.lane-back { transform: translateY(-34px) scale(0.82); opacity: 0.94; }
+
+.unit {
+  position: relative;
+  width: 74px;
+  display: flex; flex-direction: column; align-items: center;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.unit.dead { opacity: 0; transform: translateY(14px) scale(0.85); pointer-events: none; }
+
+.u-art { width: 74px; height: 104px; position: relative; }
+.u-art::after {
+  content: '';
+  position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%);
+  width: 46px; height: 12px; border-radius: 50%;
+  background: radial-gradient(closest-side, var(--aura), transparent);
+  opacity: 0.5;
+}
+
+/* hit / attack motion \002014 these are the only "animations" in the prototype */
+.u-art.hit { animation: hitShake 0.22s ease; }
+@keyframes hitShake {
+  0% { transform: translateX(0); filter: none; }
+  25% { transform: translateX(-5px); filter: brightness(2.4) saturate(0.3); }
+  60% { transform: translateX(4px); filter: brightness(1.4); }
+  100% { transform: translateX(0); filter: none; }
+}
+.unit.player .u-art.lunge { animation: lungeR 0.3s ease; }
+.unit.enemy .u-art.lunge { animation: lungeL 0.3s ease; }
+@keyframes lungeR { 50% { transform: translateX(11px); } }
+@keyframes lungeL { 50% { transform: translateX(-11px); } }
+
+.u-bar {
+  width: 54px; height: 5px; border-radius: 3px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  margin-top: 2px;
+}
+.u-fill {
+  display: block; height: 100%; width: 100%;
+  background: linear-gradient(180deg, #86efac, #22c55e);
+  transition: width 0.16s linear;
+}
+.unit.enemy .u-fill { background: linear-gradient(180deg, #fca5a5, #ef4444); }
+.u-fill.low { background: linear-gradient(180deg, #fde047, #f59e0b); }
+
+.u-name {
+  font-size: 9px; color: rgba(255, 255, 255, 0.7);
+  margin-top: 2px; white-space: nowrap;
+}
+
+/* ---- floating combat text ---- */
+
+.u-fx { position: absolute; left: 50%; top: 6px; width: 0; height: 0; z-index: 4; }
+.float {
+  position: absolute;
+  left: 0; top: 0;
+  transform: translateX(-50%);
+  font-weight: 900;
+  font-size: 15px;
+  white-space: nowrap;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.85);
+  animation: floatUp 0.95s ease-out forwards;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes floatUp {
+  0%   { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), calc(6px + var(--dy, 0px))) scale(0.7); }
+  18%  { opacity: 1; transform: translate(calc(-50% + var(--dx, 0px)), calc(-4px + var(--dy, 0px))) scale(1.12); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), calc(-46px + var(--dy, 0px))) scale(0.95); }
+}
+.float.dmg { color: #fff; }
+.float.crit { color: #fde047; font-size: 20px; }
+.float.heal { color: #4ade80; }
+.float.self { color: #fca5a5; }
+.float.buff { color: #7dd3fc; font-size: 12px; }
+.float.debuff { color: #c084fc; font-size: 12px; }
+
+/* ---- skill call-out above the caster ---- */
+
+.u-callout {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  font-size: 10px; font-weight: 800; white-space: nowrap;
+  padding: 2px 8px; border-radius: 999px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  opacity: 0; z-index: 5;
+  transition: opacity 0.18s ease;
+}
+.u-callout.show { opacity: 1; }
+.u-callout.ultimate { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 14px -3px var(--gold); }
+.u-callout.technique { border-color: #38bdf8; color: #7dd3fc; }
+.u-callout.passive { border-color: #c084fc; color: #d8b4fe; }
+
+/* ---- bottom dock: per-hero cooldown + ultimate meter ---- */
+
+.bt-dock {
+  display: flex; gap: 8px; justify-content: center;
+  padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.55) 40%);
+}
+
+.dock-card {
+  position: relative;
+  width: 88px;
+  border-radius: 13px;
+  border: 1.5px solid var(--rarity, #64748b);
+  background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(0,0,0,0.4));
+  padding: 4px 4px 6px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.dock-card.down { filter: grayscale(1) brightness(0.5); }
+
+.dc-timer {
+  font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums;
+  color: #e2e8f0;
+}
+.dc-art { width: 46px; height: 46px; border-radius: 9px; overflow: hidden; background: rgba(0,0,0,0.3); }
+.dc-name { font-size: 9.5px; color: rgba(255,255,255,0.72); }
+
+.dc-ult, .dc-hp {
+  width: 68px; height: 4px; border-radius: 3px;
+  background: rgba(0, 0, 0, 0.6); overflow: hidden;
+}
+.dc-ult-fill { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #fbbf24, #f97316); transition: width 0.15s linear; }
+.dc-hp-fill { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #22c55e, #86efac); transition: width 0.16s linear; }
+
+/* the "ultimate ready" state called for in the reference dock */
+.dock-card.ult-ready {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold), 0 0 18px -2px var(--gold);
+  animation: ultReady 1s ease-in-out infinite;
+}
+.dock-card.ult-ready .dc-timer::after {
+  content: ' \0026a1';
+  color: var(--gold);
+}
+@keyframes ultReady {
+  0%, 100% { box-shadow: 0 0 0 1px var(--gold), 0 0 12px -3px var(--gold); }
+  50%      { box-shadow: 0 0 0 1px var(--gold), 0 0 24px 1px var(--gold); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .u-art.hit, .u-art.lunge, .dock-card.ult-ready, .hero-card.unlockable { animation: none; }
+}
+
+</style>
+
+<div id="app">
+  <header id="topbar">
+    <button class="back-btn" data-action="back" aria-label="Back" hidden>&lsaquo;</button>
+    <div class="screen-title" id="screen-title">Campaign</div>
+    <div class="wallet">
+      <span class="wallet-chip" id="wallet-zeni"><span class="ico">&#128176;</span><span class="val">0</span></span>
+    </div>
+  </header>
+
+  <main id="screen" aria-live="polite"></main>
+
+  <nav id="tabbar">
+    <button class="tab" data-tab="campaign"><span class="ico">&#128506;&#65039;</span><span>Campaign</span></button>
+    <button class="tab" data-tab="roster"><span class="ico">&#128101;</span><span>Heroes</span></button>
+    <button class="tab" data-tab="bag"><span class="ico">&#127890;</span><span>Bag</span></button>
+  </nav>
+</div>
+
+<div id="toasts"></div>
+
+<script type="module">
+/* Z-Fighters \u2014 generated by tools/build-artifact.mjs. Edit src/, not this. */
+
+/* ===== src/config.js ===== */
+/**
+ * config.js \u2014 Global balance knobs.
+ *
+ * PLACEHOLDER BALANCE: essentially every number in this file is a first-pass
+ * guess meant to be tuned. Nothing here is load-bearing for architecture \u2014
+ * changing a value should never require touching a system module.
+ */
+
+/** Rarity ladder. Only UNCOMMON and RARE have heroes in this pass;
+ *  EPIC and SSR are reserved for the stronger heroes coming later, and are
+ *  currently only used by boss enemies. */
+const RARITIES = {
+  common: {
+    id: 'common', name: 'Common', short: 'C',
+    color: '#93a3b8', glow: 'rgba(147,163,184,0.55)',
+    statMult: 0.8,        // PLACEHOLDER
+    hasPassive: false,
+    shardsToUnlock: 10,   // PLACEHOLDER
+    order: 0,
+  },
+  uncommon: {
+    id: 'uncommon', name: 'Uncommon', short: 'U',
+    color: '#4ade80', glow: 'rgba(74,222,128,0.55)',
+    statMult: 1.0,
+    hasPassive: false,
+    shardsToUnlock: 10,
+    order: 1,
+  },
+  rare: {
+    id: 'rare', name: 'Rare', short: 'R',
+    color: '#38bdf8', glow: 'rgba(56,189,248,0.6)',
+    statMult: 1.22,
+    hasPassive: false,
+    shardsToUnlock: 15,
+    order: 2,
+  },
+  epic: {
+    id: 'epic', name: 'Epic', short: 'E',
+    color: '#c084fc', glow: 'rgba(192,132,252,0.6)',
+    statMult: 1.55,
+    hasPassive: true,
+    shardsToUnlock: 25,
+    order: 3,
+  },
+  ssr: {
+    id: 'ssr', name: 'SSR', short: 'SSR',
+    color: '#fbbf24', glow: 'rgba(251,191,36,0.65)',
+    statMult: 2.0,
+    hasPassive: true,
+    shardsToUnlock: 40,
+    order: 4,
+  },
+};
+
+const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'ssr'];
+
+function rarityOf(id) {
+  return RARITIES[id] || RARITIES.common;
+}
+
+/** Max star rank. Reference UI shows 5 pips. */
+const MAX_STARS = 5;
+
+/**
+ * PLACEHOLDER: stat multiplier applied at each star rank. "Promote" raises a
+ * hero's stats to the next star's fixed value, so these are absolute rungs,
+ * not stacking bonuses.
+ */
+const STAR_STAT_MULT = [1.0, 1.15, 1.35, 1.6, 1.9, 2.25];
+
+/** PLACEHOLDER: shard cost to promote FROM index star TO star+1. */
+const STAR_PROMOTE_SHARDS = [6, 10, 20, 40, 80];
+
+/**
+ * PLACEHOLDER: star rank at which each skill slot unlocks.
+ * Mirrors the reference screenshot's locked skill slots.
+ * The passive slot ALSO requires a rarity with hasPassive === true.
+ */
+const SKILL_SLOT_UNLOCK = {
+  attack: 0,
+  technique: 1,
+  ultimate: 2,
+  passive: 3,
+};
+
+/** Order the five slots are laid out in the Stars tab. */
+const SKILL_SLOTS = ['attack', 'technique', 'ultimate', 'passive', 'transform'];
+
+/**
+ * NOTE (future): 'transform' is intentionally reserved as an always-locked
+ * fifth slot. The transformation / power-up form system is out of scope for
+ * this pass \u2014 this reserves its place in the data model and UI so adding it
+ * later does not require reshaping hero data.
+ */
+const RESERVED_SLOTS = ['transform'];
+
+const MAX_LEVEL = 60;             // PLACEHOLDER
+const LEVEL_STAT_STEP = 0.055;    // PLACEHOLDER: +5.5% of base per level
+
+/** PLACEHOLDER: zeni cost to go from `level` to `level + 1`. */
+function levelUpCost(level) {
+  return Math.round(60 * Math.pow(1.16, level - 1));
+}
+
+/**
+ * PLACEHOLDER: Power Level is a single headline number derived from final
+ * stats (gear included) plus star rank. Tune freely \u2014 nothing branches on it
+ * except stage power gates.
+ */
+function computePower(stats, star = 0) {
+  return Math.round(
+    stats.atk * 2.4 +
+    stats.hp * 0.22 +
+    stats.def * 1.8 +
+    stats.speed * 40 +
+    star * 120
+  );
+}
+
+/** Combat tuning. PLACEHOLDER across the board. */
+const COMBAT = {
+  tickMs: 50,                  // fixed simulation step
+  baseAttackInterval: 1.7,     // seconds between auto-attacks at speed 1.0
+  maxBattleSeconds: 90,        // draw -> defeat if nobody wipes
+  defenseConstant: 240,        // dmg * K / (K + def)
+  damageVariance: 0.12,        // +/- 12% roll
+  critChance: 0.1,
+  critMult: 1.6,
+  ultimateChargePerSecond: 5.6,   // passive charge
+  ultimateChargeOnHitDealt: 4,
+  ultimateChargeOnHitTaken: 3,
+  ultimateChargeMax: 100,
+  backRowDamageTakenMult: 1.0, // if back row ever becomes targetable early
+};
+
+/**
+ * TARGETING RULE (adjustable): 'strict' means back-row units cannot be hit by
+ * single-target attacks until every front-row unit on their team is down.
+ * Set to 'priority' to instead make back-row units merely a last-resort
+ * choice (targetable, just heavily deprioritised).
+ */
+const TARGETING_MODE = 'strict';
+
+/**
+ * ULTIMATE ACTIVATION (adjustable): 'auto' fires the ultimate the instant the
+ * meter fills \u2014 the simpler prototype behaviour requested. Switching this to
+ * 'tap' is the hook for making ultimates player-activated later; the battle
+ * portraits already render a distinct ready state and accept taps.
+ */
+const ULTIMATE_MODE = 'auto';
+
+const TEAM_SIZE = 3;
+
+/* ===== src/hero/heroes.js ===== */
+/**
+ * hero/heroes.js \u2014 Hero definitions (data only).
+ *
+ * This pass ships 3 Rare and 3 Uncommon heroes from the Saiyan Saga.
+ * Epic and SSR are deliberately unused by player heroes \u2014 those tiers are
+ * reserved for the much stronger heroes arriving later. (Boss enemies in
+ * progression/stages.js do use them, which is what exercises the Epic+
+ * passive rule.)
+ *
+ * Adding a hero = adding an entry here. No system module needs to change.
+ *
+ * `art` drives the CSS-drawn placeholder avatar in ui/avatar.js \u2014 clearly
+ * temporary stand-ins for real art.
+ * `baseStats` are the 0-star, level-1 values before rarity multiplier.
+ * PLACEHOLDER: all stat values below are unbalanced first-pass numbers.
+ */
+
+const HEROES = {
+  goku: {
+    id: 'goku',
+    name: 'Goku',
+    title: 'Raised on Earth',
+    rarity: 'rare',
+    role: 'Bruiser',
+    preferredRow: 'front',
+    baseStats: { atk: 58, hp: 640, def: 34, speed: 1.12 },
+    loadout: {
+      attack: 'goku_attack',
+      technique: 'goku_technique',
+      ultimate: 'goku_ultimate',
+    },
+    art: { skin: '#f2c9a0', hair: '#1b1b23', hairStyle: 'spiky', gi: '#f97316', trim: '#1d4ed8', aura: '#fb923c' },
+    startsOwned: true,
+    startStar: 2,
+    lore: 'A Saiyan raised as a human, and Earth\u2019s first line of defence.',
+  },
+  piccolo: {
+    id: 'piccolo',
+    name: 'Piccolo',
+    title: 'The Demon King\u2019s Heir',
+    rarity: 'rare',
+    role: 'Tank',
+    preferredRow: 'front',
+    baseStats: { atk: 50, hp: 760, def: 44, speed: 0.95 },
+    loadout: {
+      attack: 'piccolo_attack',
+      technique: 'piccolo_technique',
+      ultimate: 'piccolo_ultimate',
+    },
+    art: { skin: '#4ade80', hair: '#f8fafc', hairStyle: 'turban', gi: '#a855f7', trim: '#e2e8f0', aura: '#a3e635' },
+    startsOwned: false,
+    startStar: 1,
+    lore: 'A reluctant ally whose piercing beam can end a fight outright.',
+  },
+  gohan: {
+    id: 'gohan',
+    name: 'Gohan',
+    title: 'Hidden Potential',
+    rarity: 'rare',
+    role: 'Burst',
+    preferredRow: 'back',
+    baseStats: { atk: 62, hp: 470, def: 26, speed: 1.0 },
+    loadout: {
+      attack: 'gohan_attack',
+      technique: 'gohan_technique',
+      ultimate: 'gohan_ultimate',
+    },
+    art: { skin: '#f2c9a0', hair: '#1b1b23', hairStyle: 'bowl', gi: '#f8fafc', trim: '#dc2626', aura: '#facc15' },
+    startsOwned: false,
+    startStar: 1,
+    lore: 'A frightened child with a power level nobody can explain.',
+  },
+  krillin: {
+    id: 'krillin',
+    name: 'Krillin',
+    title: 'Strongest Human',
+    rarity: 'uncommon',
+    role: 'Support',
+    preferredRow: 'back',
+    baseStats: { atk: 46, hp: 480, def: 24, speed: 1.15 },
+    loadout: {
+      attack: 'krillin_attack',
+      technique: 'krillin_technique',
+      ultimate: 'krillin_ultimate',
+    },
+    art: { skin: '#f2c9a0', hair: 'none', hairStyle: 'bald', gi: '#f97316', trim: '#1d4ed8', aura: '#38bdf8' },
+    startsOwned: true,
+    startStar: 2,
+    lore: 'No hair, no ki to spare, and the sharpest technique on the field.',
+  },
+  yamcha: {
+    id: 'yamcha',
+    name: 'Yamcha',
+    title: 'Desert Bandit',
+    rarity: 'uncommon',
+    role: 'Fighter',
+    preferredRow: 'front',
+    baseStats: { atk: 44, hp: 520, def: 28, speed: 1.2 },
+    loadout: {
+      attack: 'yamcha_attack',
+      technique: 'yamcha_technique',
+      ultimate: 'yamcha_ultimate',
+    },
+    art: { skin: '#f2c9a0', hair: '#2a1d16', hairStyle: 'long', gi: '#fb923c', trim: '#166534', aura: '#f472b6' },
+    startsOwned: true,
+    startStar: 1,
+    lore: 'Fast hands, bad luck. Do not leave him next to a Saibaman.',
+  },
+  tien: {
+    id: 'tien',
+    name: 'Tien',
+    title: 'Three-Eyed Master',
+    rarity: 'uncommon',
+    role: 'Bruiser',
+    preferredRow: 'front',
+    baseStats: { atk: 52, hp: 545, def: 30, speed: 1.0 },
+    loadout: {
+      attack: 'tien_attack',
+      technique: 'tien_technique',
+      ultimate: 'tien_ultimate',
+    },
+    art: { skin: '#f6d6ae', hair: 'none', hairStyle: 'thirdEye', gi: '#22c55e', trim: '#facc15', aura: '#4ade80' },
+    startsOwned: false,
+    startStar: 1,
+    lore: 'Will trade his own life force for one more shot at the enemy.',
+  },
+};
+
+const HERO_IDS = Object.keys(HEROES);
+
+function getHeroDef(id) {
+  return HEROES[id] || null;
+}
+
+/* ===== src/skills/skills.js ===== */
+/**
+ * skills/skills.js \u2014 Skill definitions (data only).
+ *
+ * A skill is pure data. The battle engine never special-cases a skill by id;
+ * it reads `effects` and applies them. To add a skill, add an entry here and
+ * reference its id from a hero's loadout in hero/heroes.js.
+ *
+ * Skill shape
+ *   id        unique string
+ *   name      display name
+ *   slot      'attack' | 'technique' | 'ultimate' | 'passive'
+ *   icon      short glyph used by the placeholder art layer
+ *   desc      tooltip text
+ *   cooldown  seconds (technique only; attacks use the unit's attack interval,
+ *             ultimates use the charge meter)
+ *   targeting see battle/targeting.js for the supported modes
+ *   effects   array of effect descriptors applied in order
+ *   trigger   passives only: 'battleStart' | 'onHitDealt' | 'onHitTaken' | 'lowHp'
+ *
+ * Effect descriptors
+ *   { kind:'damage',    mult, hits?, defIgnore? }
+ *   { kind:'heal',      mult }                        // of caster ATK
+ *   { kind:'selfDamage', pctMaxHp }
+ *   { kind:'buff',      stat:'atk'|'def'|'speed', pct, seconds, target:'self'|'allies' }
+ *   { kind:'debuff',    stat:'atk'|'def'|'speed', pct, seconds }
+ *   { kind:'charge',    amount }                      // ultimate meter
+ *
+ * PLACEHOLDER: every multiplier, cooldown and duration below is unbalanced
+ * first-pass tuning.
+ */
+
+const SKILLS = {
+  /* ---------------- Goku (Rare) ---------------- */
+  goku_attack: {
+    id: 'goku_attack', name: 'Rush Combo', slot: 'attack', icon: '\ud83d\udc4a',
+    desc: 'A flurry of close-range strikes.',
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 1.0 }],
+  },
+  goku_technique: {
+    id: 'goku_technique', name: 'Kamehameha', slot: 'technique', icon: '\ud83c\udf0a',
+    desc: 'Fires a concentrated ki wave at the strongest foe.',
+    cooldown: 8,
+    targeting: 'highestAtk',
+    effects: [{ kind: 'damage', mult: 2.3 }],
+  },
+  goku_ultimate: {
+    id: 'goku_ultimate', name: 'Kaio-ken Assault', slot: 'ultimate', icon: '\ud83d\udd25',
+    desc: 'Multiplies his ki, striking all enemies and raising his own ATK.',
+    targeting: 'allEnemies',
+    effects: [
+      { kind: 'damage', mult: 1.45 },
+      { kind: 'buff', stat: 'atk', pct: 0.35, seconds: 10, target: 'self' },
+    ],
+  },
+
+  /* ---------------- Piccolo (Rare) ---------------- */
+  piccolo_attack: {
+    id: 'piccolo_attack', name: 'Demon Strike', slot: 'attack', icon: '\u270a',
+    desc: 'A heavy elongated-arm blow.',
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 1.05 }],
+  },
+  piccolo_technique: {
+    id: 'piccolo_technique', name: 'Special Beam Cannon', slot: 'technique', icon: '\ud83c\udf00',
+    desc: 'A drilling beam that pierces much of the target\u2019s defence.',
+    cooldown: 10,
+    targeting: 'highestAtk',
+    effects: [{ kind: 'damage', mult: 2.6, defIgnore: 0.5 }],
+  },
+  piccolo_ultimate: {
+    id: 'piccolo_ultimate', name: 'Explosive Demon Wave', slot: 'ultimate', icon: '\ud83d\udca5',
+    desc: 'Sweeps the battlefield with an expanding blast.',
+    targeting: 'allEnemies',
+    effects: [
+      { kind: 'damage', mult: 1.6 },
+      { kind: 'debuff', stat: 'def', pct: 0.2, seconds: 8 },
+    ],
+  },
+
+  /* ---------------- Gohan (Rare) ---------------- */
+  gohan_attack: {
+    id: 'gohan_attack', name: 'Wild Swing', slot: 'attack', icon: '\ud83c\udf1f',
+    desc: 'Untrained but surprisingly heavy blows.',
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 0.95 }],
+  },
+  gohan_technique: {
+    id: 'gohan_technique', name: 'Masenko', slot: 'technique', icon: '\u26a1',
+    desc: 'A two-handed burst of ki aimed at the weakest foe.',
+    cooldown: 9,
+    targeting: 'lowestHp',
+    effects: [{ kind: 'damage', mult: 2.4 }],
+  },
+  gohan_ultimate: {
+    id: 'gohan_ultimate', name: 'Hidden Potential', slot: 'ultimate', icon: '\ud83d\ude24',
+    desc: 'Latent power erupts, damaging every enemy and empowering the team.',
+    targeting: 'allEnemies',
+    effects: [
+      { kind: 'damage', mult: 1.35 },
+      { kind: 'buff', stat: 'atk', pct: 0.2, seconds: 12, target: 'allies' },
+    ],
+  },
+
+  /* ---------------- Krillin (Uncommon) ---------------- */
+  krillin_attack: {
+    id: 'krillin_attack', name: 'Ki Blast', slot: 'attack', icon: '\ud83d\udd39',
+    desc: 'A quick bolt of ki fired from range.',
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 0.9 }],
+  },
+  krillin_technique: {
+    id: 'krillin_technique', name: 'Destructo Disc', slot: 'technique', icon: '\ud83d\udcbf',
+    desc: 'A razor of ki that cuts straight through defences.',
+    cooldown: 9,
+    targeting: 'highestAtk',
+    effects: [{ kind: 'damage', mult: 2.1, defIgnore: 0.7 }],
+  },
+  krillin_ultimate: {
+    id: 'krillin_ultimate', name: 'Solar Flare', slot: 'ultimate', icon: '\u2600\ufe0f',
+    desc: 'Blinds every enemy, sharply cutting their attack power.',
+    targeting: 'allEnemies',
+    effects: [
+      { kind: 'damage', mult: 0.5 },
+      { kind: 'debuff', stat: 'atk', pct: 0.3, seconds: 9 },
+    ],
+  },
+
+  /* ---------------- Yamcha (Uncommon) ---------------- */
+  yamcha_attack: {
+    id: 'yamcha_attack', name: 'Fist Combo', slot: 'attack', icon: '\ud83d\udc4a',
+    desc: 'Fast martial-arts strikes.',
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 0.95 }],
+  },
+  yamcha_technique: {
+    id: 'yamcha_technique', name: 'Wolf Fang Fist', slot: 'technique', icon: '\ud83d\udc3a',
+    desc: 'Four savage clawing blows in sequence.',
+    cooldown: 7,
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 0.62, hits: 4 }],
+  },
+  yamcha_ultimate: {
+    id: 'yamcha_ultimate', name: 'Spirit Ball', slot: 'ultimate', icon: '\ud83d\udd2e',
+    desc: 'A steered orb of ki that hammers a single target.',
+    targeting: 'lowestHp',
+    effects: [{ kind: 'damage', mult: 3.4 }],
+  },
+
+  /* ---------------- Tien (Uncommon) ---------------- */
+  tien_attack: {
+    id: 'tien_attack', name: 'Volleyball Fist', slot: 'attack', icon: '\ud83d\udd90\ufe0f',
+    desc: 'A punishing downward spike.',
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 1.0 }],
+  },
+  tien_technique: {
+    id: 'tien_technique', name: 'Dodon Ray', slot: 'technique', icon: '\u2604\ufe0f',
+    desc: 'A piercing beam fired from a single fingertip.',
+    cooldown: 8,
+    targeting: 'highestAtk',
+    effects: [{ kind: 'damage', mult: 2.35 }],
+  },
+  tien_ultimate: {
+    id: 'tien_ultimate', name: 'Tri-Beam', slot: 'ultimate', icon: '\ud83d\udd3a',
+    desc: 'Devastating area damage \u2014 at the cost of his own life force.',
+    targeting: 'allEnemies',
+    effects: [
+      { kind: 'damage', mult: 2.0 },
+      { kind: 'selfDamage', pctMaxHp: 0.15 },
+    ],
+  },
+
+  /* ---------------- Enemy skills ---------------- */
+  saibaman_attack: {
+    id: 'saibaman_attack', name: 'Claw Swipe', slot: 'attack', icon: '\ud83e\uddb5',
+    desc: 'A raking swipe.',
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 1.0 }],
+  },
+  saibaman_technique: {
+    id: 'saibaman_technique', name: 'Acid Spit', slot: 'technique', icon: '\ud83e\uddea',
+    desc: 'Corrosive spray that softens armour.',
+    cooldown: 9,
+    targeting: 'frontFirst',
+    effects: [
+      { kind: 'damage', mult: 1.4 },
+      { kind: 'debuff', stat: 'def', pct: 0.18, seconds: 8 },
+    ],
+  },
+  raditz_attack: {
+    id: 'raditz_attack', name: 'Saiyan Backhand', slot: 'attack', icon: '\ud83d\udc4b',
+    desc: 'A contemptuous heavy blow.',
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 1.1 }],
+  },
+  raditz_technique: {
+    id: 'raditz_technique', name: 'Double Sunday', slot: 'technique', icon: '\u2604\ufe0f',
+    desc: 'Twin ki beams fired at once.',
+    cooldown: 8,
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 1.3, hits: 2 }],
+  },
+  raditz_ultimate: {
+    id: 'raditz_ultimate', name: 'Shooting Star Attack', slot: 'ultimate', icon: '\ud83d\udcab',
+    desc: 'A brutal charging tackle through the whole team.',
+    targeting: 'allEnemies',
+    effects: [{ kind: 'damage', mult: 1.5 }],
+  },
+  nappa_attack: {
+    id: 'nappa_attack', name: 'Crushing Blow', slot: 'attack', icon: '\ud83e\udd1b',
+    desc: 'Raw Saiyan strength.',
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 1.15 }],
+  },
+  nappa_technique: {
+    id: 'nappa_technique', name: 'Bomber DX', slot: 'technique', icon: '\ud83d\udca3',
+    desc: 'A shockwave that rips through the battlefield.',
+    cooldown: 9,
+    targeting: 'allEnemies',
+    effects: [{ kind: 'damage', mult: 1.15 }],
+  },
+  nappa_ultimate: {
+    id: 'nappa_ultimate', name: 'Break Cannon', slot: 'ultimate', icon: '\ud83c\udf0b',
+    desc: 'A point-blank detonation aimed at the weakest defender.',
+    targeting: 'lowestHp',
+    effects: [{ kind: 'damage', mult: 3.2 }],
+  },
+  nappa_passive: {
+    id: 'nappa_passive', name: 'Saiyan Brutality', slot: 'passive', icon: '\ud83d\udee1\ufe0f',
+    desc: 'Every landed hit has a chance to erupt for bonus damage.',
+    trigger: 'onHitDealt',
+    chance: 0.25,                                   // PLACEHOLDER
+    effects: [{ kind: 'damage', mult: 0.8 }],
+  },
+  vegeta_attack: {
+    id: 'vegeta_attack', name: 'Elite Strike', slot: 'attack', icon: '\ud83e\udd4a',
+    desc: 'Precise, merciless blows.',
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 1.2 }],
+  },
+  vegeta_technique: {
+    id: 'vegeta_technique', name: 'Galick Gun', slot: 'technique', icon: '\ud83d\udfe3',
+    desc: 'A violet torrent of ki.',
+    cooldown: 8,
+    targeting: 'highestAtk',
+    effects: [{ kind: 'damage', mult: 2.5, defIgnore: 0.3 }],
+  },
+  vegeta_ultimate: {
+    id: 'vegeta_ultimate', name: 'Galaxy Breaker', slot: 'ultimate', icon: '\ud83c\udf0c',
+    desc: 'A world-ending sphere hurled at the entire team.',
+    targeting: 'allEnemies',
+    effects: [{ kind: 'damage', mult: 2.2 }],
+  },
+  vegeta_passive: {
+    id: 'vegeta_passive', name: 'Saiyan Pride', slot: 'passive', icon: '\ud83d\udc51',
+    desc: 'Below half health, his attack power surges.',
+    trigger: 'lowHp',
+    hpThreshold: 0.5,                               // PLACEHOLDER
+    effects: [{ kind: 'buff', stat: 'atk', pct: 0.45, seconds: 999, target: 'self' }],
+  },
+};
+
+function getSkill(id) {
+  return SKILLS[id] || null;
+}
+
+/* ===== src/gear/gear.js ===== */
+/**
+ * gear/gear.js \u2014 Equipment definitions (data only).
+ *
+ * Four slots per hero: weapon, chest, gloves, boots \u2014 matching the reference
+ * hero-detail screen. Gear is drop-only for this prototype (no crafting or
+ * shop). Pool is deliberately tiny; adding items is a data-only change.
+ *
+ * PLACEHOLDER: all bonuses and the rarity spread are untuned.
+ */
+
+const GEAR_SLOTS = ['weapon', 'chest', 'gloves', 'boots'];
+
+const GEAR_SLOT_META = {
+  weapon: { name: 'Weapon', icon: '\u2694\ufe0f' },
+  chest: { name: 'Chest', icon: '\ud83e\udd4b' },
+  gloves: { name: 'Gloves', icon: '\ud83e\udde4' },
+  boots: { name: 'Boots', icon: '\ud83d\udc62' },
+};
+
+const GEAR = {
+  training_weights: {
+    id: 'training_weights', name: 'Weighted Wristbands', slot: 'gloves',
+    rarity: 'common', icon: '\ud83e\udde4',
+    flat: { atk: 4, def: 3 }, pct: {},
+  },
+  turtle_gi: {
+    id: 'turtle_gi', name: 'Turtle School Gi', slot: 'chest',
+    rarity: 'common', icon: '\ud83e\udd4b',
+    flat: { hp: 90, def: 5 }, pct: {},
+  },
+  worn_boots: {
+    id: 'worn_boots', name: 'Worn Training Boots', slot: 'boots',
+    rarity: 'common', icon: '\ud83d\udc62',
+    flat: { def: 4 }, pct: { speed: 0.04 },
+  },
+  power_pole: {
+    id: 'power_pole', name: 'Power Pole', slot: 'weapon',
+    rarity: 'uncommon', icon: '\ud83e\udd62',
+    flat: { atk: 12 }, pct: { atk: 0.05 },
+  },
+  kame_belt: {
+    id: 'kame_belt', name: 'Kame Sash', slot: 'chest',
+    rarity: 'uncommon', icon: '\ud83c\udf80',
+    flat: { hp: 160, def: 8 }, pct: {},
+  },
+  scouter: {
+    id: 'scouter', name: 'Cracked Scouter', slot: 'gloves',
+    rarity: 'uncommon', icon: '\ud83d\udd0e',
+    flat: { atk: 9 }, pct: { speed: 0.06 },
+  },
+  saiyan_boots: {
+    id: 'saiyan_boots', name: 'Saiyan Battle Boots', slot: 'boots',
+    rarity: 'rare', icon: '\ud83e\udd7e',
+    flat: { def: 12, hp: 90 }, pct: { speed: 0.08 },
+  },
+  saiyan_armor: {
+    id: 'saiyan_armor', name: 'Saiyan Battle Armor', slot: 'chest',
+    rarity: 'rare', icon: '\ud83d\udee1\ufe0f',
+    flat: { hp: 320, def: 18 }, pct: { def: 0.1 },
+  },
+  kaio_gloves: {
+    id: 'kaio_gloves', name: 'King Kai\u2019s Gloves', slot: 'gloves',
+    rarity: 'rare', icon: '\ud83e\udd4a',
+    flat: { atk: 18 }, pct: { atk: 0.08 },
+  },
+  z_sword_shard: {
+    id: 'z_sword_shard', name: 'Splintered Blade', slot: 'weapon',
+    rarity: 'rare', icon: '\ud83d\udde1\ufe0f',
+    flat: { atk: 26 }, pct: { atk: 0.1 },
+  },
+};
+
+const GEAR_IDS = Object.keys(GEAR);
+
+function getGearDef(id) {
+  return GEAR[id] || null;
+}
+
+/* ===== src/progression/enemies.js ===== */
+/**
+ * progression/enemies.js \u2014 Enemy unit definitions.
+ *
+ * Enemies are deliberately simpler than heroes: their `stats` are FINAL
+ * values (no rarity/star/level multipliers applied) and their skills are
+ * listed explicitly rather than gated behind star ranks. A stage entry can
+ * apply a `scale` multiplier to make the same enemy tougher later in the arc.
+ *
+ * Nappa and Vegeta are Epic/SSR, which is what puts the passive-skill rule
+ * (passives at Epic and above) on screen in this pass.
+ *
+ * PLACEHOLDER: every number here is untuned.
+ */
+
+const ENEMIES = {
+  saibaman: {
+    id: 'saibaman', name: 'Saibaman', rarity: 'common',
+    stats: { atk: 34, hp: 430, def: 16, speed: 1.05 },
+    skills: { attack: 'saibaman_attack', technique: 'saibaman_technique' },
+    art: { skin: '#65a30d', hair: 'none', hairStyle: 'saibaman', gi: '#3f6212', trim: '#a3e635', aura: '#84cc16' },
+  },
+  saibaman_elite: {
+    id: 'saibaman_elite', name: 'Elite Saibaman', rarity: 'uncommon',
+    stats: { atk: 60, hp: 920, def: 26, speed: 1.1 },
+    skills: { attack: 'saibaman_attack', technique: 'saibaman_technique' },
+    art: { skin: '#4d7c0f', hair: 'none', hairStyle: 'saibaman', gi: '#1a2e05', trim: '#facc15', aura: '#a3e635' },
+  },
+  raditz: {
+    id: 'raditz', name: 'Raditz', rarity: 'rare',
+    stats: { atk: 94, hp: 2150, def: 44, speed: 1.05 },
+    skills: { attack: 'raditz_attack', technique: 'raditz_technique', ultimate: 'raditz_ultimate' },
+    art: { skin: '#e8b48b', hair: '#171717', hairStyle: 'mane', gi: '#1e293b', trim: '#f5f5f4', aura: '#a855f7' },
+  },
+  nappa: {
+    id: 'nappa', name: 'Nappa', rarity: 'epic',
+    stats: { atk: 132, hp: 5400, def: 68, speed: 1.0 },
+    skills: {
+      attack: 'nappa_attack', technique: 'nappa_technique',
+      ultimate: 'nappa_ultimate', passive: 'nappa_passive',
+    },
+    art: { skin: '#e8b48b', hair: 'none', hairStyle: 'bald', gi: '#1e293b', trim: '#f59e0b', aura: '#c084fc' },
+  },
+  vegeta: {
+    id: 'vegeta', name: 'Vegeta', rarity: 'ssr',
+    stats: { atk: 168, hp: 8600, def: 88, speed: 1.1 },
+    skills: {
+      attack: 'vegeta_attack', technique: 'vegeta_technique',
+      ultimate: 'vegeta_ultimate', passive: 'vegeta_passive',
+    },
+    art: { skin: '#e8b48b', hair: '#171717', hairStyle: 'widowsPeak', gi: '#1e293b', trim: '#fbbf24', aura: '#fbbf24' },
+  },
+};
+
+function getEnemyDef(id) {
+  return ENEMIES[id] || null;
+}
+
+/* ===== src/progression/stages.js ===== */
+/**
+ * progression/stages.js \u2014 Linear story campaign (Saiyan Saga).
+ *
+ * Difficulty rises along the arc: Saibamen, then Raditz, then Nappa, then
+ * Vegeta. Plot accuracy is loose on purpose \u2014 the shape of the escalation is
+ * what matters for the prototype.
+ *
+ * Stage shape
+ *   id              1-based, also the ordering
+ *   name/subtitle   narrative beat shown on the stage card
+ *   requiredPower   team power gate (the only gate in this pass \u2014 no
+ *                   resource-gated obstacles yet)
+ *   enemies         [{ defId, row, scale }] \u2014 `scale` multiplies final stats
+ *   rewards         granted on every clear
+ *   firstClear      one-time bonus on the first clear
+ *
+ * PLACEHOLDER: power gates, reward amounts and drop chances are all untuned.
+ */
+
+const STAGES = [
+  {
+    id: 1,
+    name: 'Landing Zone',
+    subtitle: 'A pod cracks the earth open outside the city.',
+    requiredPower: 500,
+    enemies: [
+      { defId: 'saibaman', row: 'front', scale: 1.0 },
+      { defId: 'saibaman', row: 'front', scale: 1.0 },
+    ],
+    rewards: {
+      zeni: 120,
+      shards: { tien: 2 },
+      gearTable: [{ defId: 'training_weights', chance: 0.5 }],
+    },
+    firstClear: { zeni: 150, shards: { tien: 3 } },
+  },
+  {
+    id: 2,
+    name: 'Farmland Skirmish',
+    subtitle: 'The scouts spread out across the fields.',
+    requiredPower: 1000,
+    enemies: [
+      { defId: 'saibaman', row: 'front', scale: 1.15 },
+      { defId: 'saibaman', row: 'front', scale: 1.15 },
+      { defId: 'saibaman', row: 'back', scale: 1.1 },
+    ],
+    rewards: {
+      zeni: 165,
+      shards: { tien: 2 },
+      gearTable: [
+        { defId: 'turtle_gi', chance: 0.45 },
+        { defId: 'worn_boots', chance: 0.4 },
+      ],
+    },
+    firstClear: { zeni: 200, shards: { tien: 4 } },
+  },
+  {
+    id: 3,
+    name: 'Raditz Strikes',
+    subtitle: 'Goku\u2019s brother has come to collect him.',
+    requiredPower: 1700,
+    enemies: [
+      { defId: 'raditz', row: 'front', scale: 1.0 },
+      { defId: 'saibaman', row: 'back', scale: 1.2 },
+    ],
+    rewards: {
+      zeni: 230,
+      shards: { piccolo: 3 },
+      gearTable: [
+        { defId: 'power_pole', chance: 0.4 },
+        { defId: 'scouter', chance: 0.35 },
+      ],
+    },
+    firstClear: { zeni: 320, shards: { piccolo: 5 } },
+  },
+  {
+    id: 4,
+    name: 'One Year Later',
+    subtitle: 'Training ends. The sky turns the colour of a scouter.',
+    requiredPower: 2500,
+    enemies: [
+      { defId: 'saibaman_elite', row: 'front', scale: 1.0 },
+      { defId: 'saibaman_elite', row: 'front', scale: 1.0 },
+      { defId: 'saibaman_elite', row: 'back', scale: 1.0 },
+      { defId: 'saibaman_elite', row: 'back', scale: 1.0 },
+    ],
+    rewards: {
+      zeni: 280,
+      shards: { gohan: 3 },
+      gearTable: [
+        { defId: 'kame_belt', chance: 0.4 },
+        { defId: 'scouter', chance: 0.3 },
+      ],
+    },
+    firstClear: { zeni: 380, shards: { gohan: 5 } },
+  },
+  {
+    id: 5,
+    name: 'Nappa\u2019s Rampage',
+    subtitle: 'He is not even trying yet.',
+    requiredPower: 3400,
+    enemies: [
+      { defId: 'nappa', row: 'front', scale: 1.0 },
+      { defId: 'saibaman_elite', row: 'back', scale: 1.1 },
+      { defId: 'saibaman_elite', row: 'back', scale: 1.1 },
+    ],
+    rewards: {
+      zeni: 360,
+      shards: { piccolo: 4 },
+      gearTable: [
+        { defId: 'saiyan_boots', chance: 0.3 },
+        { defId: 'kaio_gloves', chance: 0.3 },
+      ],
+    },
+    firstClear: { zeni: 500, shards: { piccolo: 8, gohan: 4 } },
+  },
+  {
+    id: 6,
+    name: 'The Prince of All Saiyans',
+    subtitle: 'Vegeta stops watching and steps forward.',
+    requiredPower: 4400,
+    enemies: [
+      { defId: 'vegeta', row: 'front', scale: 1.0 },
+    ],
+    rewards: {
+      zeni: 520,
+      shards: { gohan: 5 },
+      gearTable: [
+        { defId: 'saiyan_armor', chance: 0.3 },
+        { defId: 'z_sword_shard', chance: 0.25 },
+      ],
+    },
+    firstClear: { zeni: 900, shards: { gohan: 10, tien: 10 } },
+  },
+];
+
+function getStage(id) {
+  return STAGES.find((s) => s.id === id) || null;
+}
+
+/* ===== src/save/index.js ===== */
+/**
+ * save/index.js \u2014 Persistence layer.
+ *
+ * Owns the single mutable player-state object. Every other system reads and
+ * mutates it through their own module APIs, then calls `persist()`.
+ * Swapping localStorage for a server later means reimplementing only
+ * `load()` / `persist()` \u2014 the state shape is the contract.
+ */
+
+
+
+
+const STORAGE_KEY = 'dbz-rpg-prototype:v1';
+const SCHEMA_VERSION = 1;
+
+/** PLACEHOLDER: starting purse. */
+const STARTING_ZENI = 800;
+
+/** PLACEHOLDER: shards the player begins with, to show unlock progress. */
+const STARTING_SHARDS = { piccolo: 4, gohan: 2, tien: 6 };
+
+const listeners = new Set();
+
+function emptyEquipped() {
+  const e = {};
+  for (const s of GEAR_SLOTS) e[s] = null;
+  return e;
+}
+
+function defaultState() {
+  const heroes = {};
+  for (const def of Object.values(HEROES)) {
+    heroes[def.id] = {
+      owned: !!def.startsOwned,
+      star: def.startsOwned ? (def.startStar ?? 1) : 0,
+      level: 1,
+      equipped: emptyEquipped(),
+    };
+  }
+
+  const startingTeam = Object.values(HEROES)
+    .filter((h) => h.startsOwned)
+    .slice(0, 3)
+    .map((h) => ({ heroId: h.id, row: h.preferredRow }));
+
+  return {
+    version: SCHEMA_VERSION,
+    zeni: STARTING_ZENI,
+    heroes,
+    shards: { ...STARTING_SHARDS },
+    gear: [],
+    campaign: { cleared: {}, highestCleared: 0 },
+    team: startingTeam,
+    stats: { battlesWon: 0, battlesLost: 0 },
+  };
+}
+
+/**
+ * Merge a loaded save over a fresh default so heroes/gear/fields added after
+ * the save was written appear with sane values instead of undefined.
+ */
+function migrate(raw) {
+  const base = defaultState();
+  if (!raw || typeof raw !== 'object') return base;
+
+  const merged = { ...base, ...raw, version: SCHEMA_VERSION };
+  merged.heroes = { ...base.heroes };
+  for (const [id, saved] of Object.entries(raw.heroes || {})) {
+    if (!base.heroes[id]) continue; // hero removed from the game
+    merged.heroes[id] = {
+      ...base.heroes[id],
+      ...saved,
+      equipped: { ...emptyEquipped(), ...(saved.equipped || {}) },
+    };
+  }
+  merged.shards = { ...raw.shards };
+  merged.gear = Array.isArray(raw.gear) ? raw.gear : [];
+  merged.campaign = { ...base.campaign, ...(raw.campaign || {}) };
+  merged.campaign.cleared = { ...(raw.campaign?.cleared || {}) };
+  merged.team = Array.isArray(raw.team) ? raw.team.filter((s) => s && merged.heroes[s.heroId]) : base.team;
+  merged.stats = { ...base.stats, ...(raw.stats || {}) };
+  return merged;
+}
+
+let state = defaultState();
+
+function getState() {
+  return state;
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    state = migrate(raw ? JSON.parse(raw) : null);
+  } catch (err) {
+    // Private-browsing Safari can throw on read; fall back to a fresh run.
+    console.warn('[save] load failed, starting fresh', err);
+    state = defaultState();
+  }
+  return state;
+}
+
+let pending = null;
+
+/** Debounced write \u2014 battles mutate state often. */
+function persist() {
+  if (pending) return;
+  pending = setTimeout(() => {
+    pending = null;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (err) {
+      console.warn('[save] persist failed (quota or private mode)', err);
+    }
+    emit();
+  }, 60);
+}
+
+/** Write immediately \u2014 used before navigating away. */
+function persistNow() {
+  if (pending) { clearTimeout(pending); pending = null; }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (err) {
+    console.warn('[save] persist failed', err);
+  }
+  emit();
+}
+
+function resetSave() {
+  state = defaultState();
+  persistNow();
+  return state;
+}
+
+function subscribe(fn) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+
+function emit() {
+  for (const fn of listeners) {
+    try { fn(state); } catch (err) { console.error('[save] listener error', err); }
+  }
+}
+
+/* ===== src/gear/index.js ===== */
+/**
+ * gear/index.js \u2014 Public interface of the gear system.
+ *
+ * A gear *definition* lives in gear.js; a gear *instance* is what the player
+ * owns: { uid, defId, equippedBy }. Instances live in the inventory so that
+ * unequipping never loses an item.
+ */
+
+
+
+
+
+let uidCounter = 0;
+
+/** Create an owned instance of a gear definition. */
+function createGearInstance(defId, seedUid) {
+  if (!GEAR[defId]) return null;
+  const uid = seedUid || `g_${Date.now().toString(36)}_${(uidCounter++).toString(36)}`;
+  return { uid, defId, equippedBy: null };
+}
+
+/**
+ * Sum the bonuses of an equipped map ({ weapon: uid, ... }) into
+ * { flat, pct } totals. Unknown / missing uids are ignored, so a save that
+ * references deleted gear degrades gracefully.
+ */
+function bonusesFor(equipped, gearInstances) {
+  const flat = { atk: 0, hp: 0, def: 0, speed: 0 };
+  const pct = { atk: 0, hp: 0, def: 0, speed: 0 };
+  if (!equipped) return { flat, pct };
+
+  for (const slot of GEAR_SLOTS) {
+    const uid = equipped[slot];
+    if (!uid) continue;
+    const inst = gearInstances.find((g) => g.uid === uid);
+    const def = inst && getGearDef(inst.defId);
+    if (!def) continue;
+    for (const k of Object.keys(flat)) {
+      if (def.flat && def.flat[k]) flat[k] += def.flat[k];
+      if (def.pct && def.pct[k]) pct[k] += def.pct[k];
+    }
+  }
+  return { flat, pct };
+}
+
+/** Short "+12 ATK, +5% ATK" style summary for list rows. */
+function describeGear(def) {
+  if (!def) return '';
+  const parts = [];
+  for (const [k, v] of Object.entries(def.flat || {})) parts.push(`+${v} ${k.toUpperCase()}`);
+  for (const [k, v] of Object.entries(def.pct || {})) parts.push(`+${Math.round(v * 100)}% ${k.toUpperCase()}`);
+  return parts.join(' \u00b7 ');
+}
+
+/**
+ * Roll a drop from a stage's drop table.
+ * PLACEHOLDER: flat weighted roll, no pity, no level scaling.
+ * table: [{ defId, weight, chance }]
+ */
+function rollGearDrops(table) {
+  const drops = [];
+  for (const entry of table || []) {
+    if (Math.random() < (entry.chance ?? 0.35)) drops.push(entry.defId);
+  }
+  return drops;
+}
+
+/* ===== src/inventory/index.js ===== */
+/**
+ * inventory/index.js \u2014 Shared player resources: currency, shards, gear items.
+ *
+ * Every system that grants or spends resources goes through here so there is
+ * exactly one place that touches the numbers (and one place to add analytics,
+ * animations or anti-cheat later).
+ */
+
+
+
+
+
+/* ---------------- currency ---------------- */
+
+function zeni() {
+  return getState().zeni;
+}
+
+function addZeni(amount) {
+  getState().zeni += amount;
+  persist();
+}
+
+function spendZeni(amount) {
+  const s = getState();
+  if (s.zeni < amount) return false;
+  s.zeni -= amount;
+  persist();
+  return true;
+}
+
+/* ---------------- shards ---------------- */
+
+function shards(heroId) {
+  return getState().shards[heroId] || 0;
+}
+
+function addShards(heroId, amount) {
+  const s = getState();
+  s.shards[heroId] = (s.shards[heroId] || 0) + amount;
+  persist();
+}
+
+function spendShards(heroId, amount) {
+  const s = getState();
+  if ((s.shards[heroId] || 0) < amount) return false;
+  s.shards[heroId] -= amount;
+  persist();
+  return true;
+}
+
+/* ---------------- gear ---------------- */
+
+function allGear() {
+  return getState().gear;
+}
+
+function gearByUid(uid) {
+  return getState().gear.find((g) => g.uid === uid) || null;
+}
+
+function addGear(defId) {
+  const inst = createGearInstance(defId);
+  if (!inst) return null;
+  getState().gear.push(inst);
+  persist();
+  return inst;
+}
+
+/** Unequipped gear for a slot, for the equip picker. */
+function availableGearForSlot(slot) {
+  return getState().gear.filter((g) => {
+    const def = getGearDef(g.defId);
+    return def && def.slot === slot && !g.equippedBy;
+  });
+}
+
+/**
+ * Equip an item onto a hero. Handles swapping out whatever occupied the slot
+ * and stealing the item off another hero if it was equipped elsewhere.
+ */
+function equipGear(heroId, uid) {
+  const s = getState();
+  const inst = gearByUid(uid);
+  const hero = s.heroes[heroId];
+  if (!inst || !hero) return false;
+  const def = getGearDef(inst.defId);
+  if (!def) return false;
+
+  if (inst.equippedBy && inst.equippedBy !== heroId) {
+    const prev = s.heroes[inst.equippedBy];
+    if (prev && prev.equipped[def.slot] === uid) prev.equipped[def.slot] = null;
+  }
+
+  const displaced = hero.equipped[def.slot];
+  if (displaced) {
+    const old = gearByUid(displaced);
+    if (old) old.equippedBy = null;
+  }
+
+  hero.equipped[def.slot] = uid;
+  inst.equippedBy = heroId;
+  persist();
+  return true;
+}
+
+function unequipGear(heroId, slot) {
+  const s = getState();
+  const hero = s.heroes[heroId];
+  if (!hero || !GEAR_SLOTS.includes(slot)) return false;
+  const uid = hero.equipped[slot];
+  if (!uid) return false;
+  const inst = gearByUid(uid);
+  if (inst) inst.equippedBy = null;
+  hero.equipped[slot] = null;
+  persist();
+  return true;
+}
+
+/** Grant a batch of rewards from a stage clear. Returns a display summary. */
+function grantRewards({ zeni: z = 0, shards: sh = {}, gear: gearDefIds = [] } = {}) {
+  const summary = { zeni: z, shards: [], gear: [] };
+  if (z) addZeni(z);
+  for (const [heroId, amount] of Object.entries(sh)) {
+    if (!amount) continue;
+    addShards(heroId, amount);
+    summary.shards.push({ heroId, amount });
+  }
+  for (const defId of gearDefIds) {
+    const inst = addGear(defId);
+    if (inst) summary.gear.push(getGearDef(defId));
+  }
+  return summary;
+}
+const inventory = { zeni, addZeni, spendZeni, shards, addShards, spendShards, allGear, gearByUid, addGear, availableGearForSlot, equipGear, unequipGear, grantRewards };
+
+/* ===== src/skills/index.js ===== */
+/**
+ * skills/index.js \u2014 Public interface of the skill system.
+ *
+ * Responsibilities:
+ *   - report which skill slots a hero has unlocked (star rank + rarity gates)
+ *   - resolve a loadout into concrete skill objects
+ *
+ * Applying a skill's effects to units is the battle engine's job
+ * (battle/engine.js) \u2014 this module stays free of combat state so skills can be
+ * inspected from the roster UI without spinning up a battle.
+ */
+
+
+
+
+
+
+/** Star rank required for a slot, or null if the slot can never unlock. */
+function slotRequirement(slot, rarityId) {
+  if (RESERVED_SLOTS.includes(slot)) return null; // transformation \u2014 future pass
+  if (slot === 'passive' && !rarityOf(rarityId).hasPassive) return null;
+  const req = SKILL_SLOT_UNLOCK[slot];
+  return req === undefined ? null : req;
+}
+
+function isSlotUnlocked(slot, rarityId, star) {
+  const req = slotRequirement(slot, rarityId);
+  return req !== null && star >= req;
+}
+
+/**
+ * Human-readable reason a slot is locked, for the Stars tab.
+ */
+function slotLockLabel(slot, rarityId) {
+  if (RESERVED_SLOTS.includes(slot)) return 'Future';
+  if (slot === 'passive' && !rarityOf(rarityId).hasPassive) return 'Epic+';
+  const req = slotRequirement(slot, rarityId);
+  return req === null ? '\u2014' : `${req}\u2605`;
+}
+
+/**
+ * Every slot for a hero with its skill + lock state. Drives the Stars tab and
+ * the skills list, and is also what the battle engine filters on.
+ */
+function loadoutSlots(loadout, rarityId, star) {
+  return SKILL_SLOTS.map((slot) => {
+    const skill = loadout && loadout[slot] ? getSkill(loadout[slot]) : null;
+    const requirement = slotRequirement(slot, rarityId);
+    return {
+      slot,
+      skill,
+      requirement,
+      unlocked: requirement !== null && star >= requirement && !!skill,
+      lockLabel: slotLockLabel(slot, rarityId),
+      reserved: RESERVED_SLOTS.includes(slot),
+    };
+  });
+}
+
+/** The skills a unit can actually use in combat right now. */
+function activeSkills(loadout, rarityId, star) {
+  const out = { attack: null, technique: null, ultimate: null, passive: null };
+  for (const entry of loadoutSlots(loadout, rarityId, star)) {
+    if (entry.unlocked && entry.slot in out) out[entry.slot] = entry.skill;
+  }
+  return out;
+}
+
+/* ===== src/hero/index.js ===== */
+/**
+ * hero/index.js \u2014 Public interface of the hero system.
+ *
+ * Turns a hero *definition* (static, hero/heroes.js) plus the player's *hero
+ * state* (owned / star / level / equipped, in the save) into the concrete
+ * numbers the rest of the game uses.
+ *
+ * Nothing outside this module should multiply base stats by anything.
+ */
+
+
+
+
+
+
+
+
+
+
+function heroSave(heroId) {
+  return getState().heroes[heroId] || null;
+}
+
+function isOwned(heroId) {
+  const hs = heroSave(heroId);
+  return !!(hs && hs.owned);
+}
+
+/**
+ * Stats before gear, at a given star + level.
+ * PLACEHOLDER: `speed` deliberately does NOT scale with star or level \u2014 it
+ * sets combat pacing, and letting it inflate makes battles unreadable. Only
+ * gear moves it.
+ */
+function baseStatsAt(def, star, level = 1) {
+  const rarity = rarityOf(def.rarity);
+  const starMult = STAR_STAT_MULT[Math.min(star, MAX_STARS)] ?? 1;
+  const levelMult = 1 + LEVEL_STAT_STEP * (level - 1);
+  const scale = rarity.statMult * starMult * levelMult;
+  return {
+    atk: Math.round(def.baseStats.atk * scale),
+    hp: Math.round(def.baseStats.hp * scale),
+    def: Math.round(def.baseStats.def * scale),
+    speed: def.baseStats.speed,
+  };
+}
+
+/** Final stats including equipped gear. */
+function statsFor(heroId, override = {}) {
+  const def = getHeroDef(heroId);
+  if (!def) return { atk: 0, hp: 0, def: 0, speed: 1 };
+  const hs = heroSave(heroId) || { star: 0, level: 1, equipped: {} };
+  const star = override.star ?? hs.star;
+  const level = override.level ?? hs.level;
+  const equipped = override.equipped ?? hs.equipped;
+
+  const base = baseStatsAt(def, star, level);
+  const { flat, pct } = bonusesFor(equipped, getState().gear);
+
+  return {
+    atk: Math.round((base.atk + flat.atk) * (1 + pct.atk)),
+    hp: Math.round((base.hp + flat.hp) * (1 + pct.hp)),
+    def: Math.round((base.def + flat.def) * (1 + pct.def)),
+    speed: +((base.speed + flat.speed) * (1 + pct.speed)).toFixed(3),
+  };
+}
+
+function powerOf(heroId, override = {}) {
+  const hs = heroSave(heroId) || { star: 0 };
+  return computePower(statsFor(heroId, override), override.star ?? hs.star);
+}
+
+function teamPower(team = getState().team) {
+  return team.reduce((sum, slot) => sum + (slot?.heroId ? powerOf(slot.heroId) : 0), 0);
+}
+
+/** Skills usable right now, given the hero's star rank. */
+function skillsFor(heroId) {
+  const def = getHeroDef(heroId);
+  const hs = heroSave(heroId);
+  if (!def || !hs) return { attack: null, technique: null, ultimate: null, passive: null };
+  return activeSkills(def.loadout, def.rarity, hs.star);
+}
+
+/** Every slot with lock state \u2014 drives the Stars tab. */
+function slotsFor(heroId) {
+  const def = getHeroDef(heroId);
+  const hs = heroSave(heroId) || { star: 0 };
+  if (!def) return [];
+  return loadoutSlots(def.loadout, def.rarity, hs.star);
+}
+
+/* ---------------- unlocking ---------------- */
+
+function unlockInfo(heroId) {
+  const def = getHeroDef(heroId);
+  const rarity = rarityOf(def.rarity);
+  const have = inventory.shards(heroId);
+  const need = rarity.shardsToUnlock;
+  return { have, need, canUnlock: !isOwned(heroId) && have >= need };
+}
+
+function unlockHero(heroId) {
+  const info = unlockInfo(heroId);
+  if (!info.canUnlock) return false;
+  if (!inventory.spendShards(heroId, info.need)) return false;
+  const hs = heroSave(heroId);
+  hs.owned = true;
+  hs.star = getHeroDef(heroId).startStar ?? 1;
+  persist();
+  return true;
+}
+
+/* ---------------- star promotion ---------------- */
+
+function promoteInfo(heroId) {
+  const def = getHeroDef(heroId);
+  const hs = heroSave(heroId);
+  if (!def || !hs) return null;
+  const atMax = hs.star >= MAX_STARS;
+  const cost = atMax ? 0 : STAR_PROMOTE_SHARDS[hs.star];
+  const have = inventory.shards(heroId);
+  const current = baseStatsAt(def, hs.star, hs.level);
+  const next = atMax ? current : baseStatsAt(def, hs.star + 1, hs.level);
+  return { star: hs.star, atMax, cost, have, canPromote: !atMax && have >= cost, current, next };
+}
+
+function promote(heroId) {
+  const info = promoteInfo(heroId);
+  if (!info || !info.canPromote) return false;
+  if (!inventory.spendShards(heroId, info.cost)) return false;
+  heroSave(heroId).star += 1;
+  persist();
+  return true;
+}
+
+/* ---------------- levelling ---------------- */
+
+function levelInfo(heroId) {
+  const hs = heroSave(heroId);
+  if (!hs) return null;
+  const atMax = hs.level >= MAX_LEVEL;
+  const cost = atMax ? 0 : levelUpCost(hs.level);
+  return { level: hs.level, atMax, cost, have: inventory.zeni(), canLevel: !atMax && inventory.zeni() >= cost };
+}
+
+function levelUp(heroId) {
+  const info = levelInfo(heroId);
+  if (!info || !info.canLevel) return false;
+  if (!inventory.spendZeni(info.cost)) return false;
+  heroSave(heroId).level += 1;
+  persist();
+  return true;
+}
+
+/* ---------------- roster view model ---------------- */
+
+function rosterEntries() {
+  return HERO_IDS.map((id) => {
+    const def = getHeroDef(id);
+    const hs = heroSave(id);
+    const owned = !!hs?.owned;
+    return {
+      id, def, rarity: rarityOf(def.rarity), owned,
+      star: hs?.star ?? 0,
+      level: hs?.level ?? 1,
+      power: owned ? powerOf(id) : 0,
+      unlock: unlockInfo(id),
+    };
+  }).sort((a, b) => (b.owned - a.owned) || (b.rarity.order - a.rarity.order) || b.power - a.power);
+}
+
+/* ===== src/progression/index.js ===== */
+/**
+ * progression/index.js \u2014 Campaign state: which stages are open, what a clear
+ * pays out, and how the enemy team for a stage is built.
+ */
+
+
+
+
+
+
+
+
+
+
+function isCleared(stageId) {
+  return !!getState().campaign.cleared[stageId];
+}
+
+/**
+ * A stage is playable when the previous stage is cleared. Power is a *warning*
+ * gate, not a hard lock \u2014 the player can attempt an over-tuned fight and lose,
+ * which reads better than a greyed-out button.
+ * PLACEHOLDER: flip `locked` to include power if a hard gate is preferred.
+ */
+function stageList() {
+  const power = teamPower();
+  return STAGES.map((stage, idx) => {
+    const prevCleared = idx === 0 || isCleared(STAGES[idx - 1].id);
+    return {
+      stage,
+      cleared: isCleared(stage.id),
+      locked: !prevCleared,
+      underpowered: power < stage.requiredPower,
+      power,
+    };
+  });
+}
+
+function nextStage() {
+  const list = stageList();
+  return (list.find((s) => !s.cleared && !s.locked) || list[list.length - 1]).stage;
+}
+
+/** Build the concrete enemy units for a stage (pre-battle preview + combat). */
+function buildEnemyTeam(stageId) {
+  const stage = getStage(stageId);
+  if (!stage) return [];
+  return stage.enemies.map((entry, i) => {
+    const def = getEnemyDef(entry.defId);
+    if (!def) return null;
+    const scale = entry.scale ?? 1;
+    return {
+      uid: `e${i}`,
+      defId: def.id,
+      name: def.name,
+      rarity: def.rarity,
+      row: entry.row || 'front',
+      art: def.art,
+      skills: def.skills,
+      stats: {
+        atk: Math.round(def.stats.atk * scale),
+        hp: Math.round(def.stats.hp * scale),
+        def: Math.round(def.stats.def * scale),
+        speed: def.stats.speed,
+      },
+    };
+  }).filter(Boolean);
+}
+
+/** Rough "how hard is this" number, shown next to the team's power. */
+function stagePower(stageId) {
+  return buildEnemyTeam(stageId).reduce(
+    (sum, e) => sum + Math.round(e.stats.atk * 2.4 + e.stats.hp * 0.22 + e.stats.def * 1.8),
+    0
+  );
+}
+
+/**
+ * Record a victory and pay out. First clear adds a one-time bonus.
+ * Returns a summary for the results screen.
+ */
+function completeStage(stageId) {
+  const stage = getStage(stageId);
+  if (!stage) return null;
+  const first = !isCleared(stageId);
+
+  const shards = { ...(stage.rewards.shards || {}) };
+  let zeni = stage.rewards.zeni || 0;
+  if (first && stage.firstClear) {
+    zeni += stage.firstClear.zeni || 0;
+    for (const [heroId, amount] of Object.entries(stage.firstClear.shards || {})) {
+      shards[heroId] = (shards[heroId] || 0) + amount;
+    }
+  }
+
+  const gear = rollGearDrops(stage.rewards.gearTable);
+  const summary = inventory.grantRewards({ zeni, shards, gear });
+
+  const st = getState();
+  st.campaign.cleared[stageId] = true;
+  st.campaign.highestCleared = Math.max(st.campaign.highestCleared, stageId);
+  st.stats.battlesWon += 1;
+  persist();
+
+  return { ...summary, firstClear: first, stage };
+}
+
+function recordDefeat() {
+  getState().stats.battlesLost += 1;
+  persist();
+}
+
+/* ===== src/battle/targeting.js ===== */
+/**
+ * battle/targeting.js \u2014 Who a skill hits.
+ *
+ * FORMATION RULE (adjustable via TARGETING_MODE in config.js):
+ *   'strict'   \u2014 single-target *basic* attacks can only hit the enemy front
+ *                row while any front-row unit is alive. Back row is protected.
+ *   'priority' \u2014 back row is targetable but only chosen when nothing in the
+ *                front row is available.
+ *
+ * Deliberate exception: `lowestHp` and `highestAtk` targeting IGNORE rows.
+ * That is what makes techniques and ultimates feel different from auto-attacks
+ * and keeps a back-row glass cannon genuinely at risk. Change `respectsRows`
+ * below to make row protection absolute.
+ */
+
+
+
+const respectsRows = {
+  frontFirst: true,
+  lowestHp: false,
+  highestAtk: false,
+  allEnemies: false,
+  self: false,
+  allies: false,
+  lowestHpAlly: false,
+};
+
+function livingOpponents(battle, unit) {
+  return battle.units.filter((u) => u.side !== unit.side && u.alive);
+}
+
+function livingAllies(battle, unit) {
+  return battle.units.filter((u) => u.side === unit.side && u.alive);
+}
+
+/** Apply the formation rule to a candidate pool. */
+function applyRowRule(candidates) {
+  const front = candidates.filter((u) => u.row === 'front');
+  if (TARGETING_MODE === 'strict') {
+    return front.length ? front : candidates;
+  }
+  // 'priority': back row only when the front row is empty of choices
+  return front.length ? front : candidates;
+}
+
+/**
+ * Resolve a targeting mode into an array of units.
+ * Returns [] when nothing is targetable (caller should skip the skill).
+ */
+function resolveTargets(battle, unit, mode) {
+  switch (mode) {
+    case 'self':
+      return unit.alive ? [unit] : [];
+
+    case 'allies':
+      return livingAllies(battle, unit);
+
+    case 'lowestHpAlly': {
+      const allies = livingAllies(battle, unit);
+      if (!allies.length) return [];
+      return [allies.reduce((a, b) => (a.hp / a.maxHp <= b.hp / b.maxHp ? a : b))];
+    }
+
+    case 'allEnemies':
+      return livingOpponents(battle, unit);
+
+    case 'lowestHp': {
+      const pool = livingOpponents(battle, unit);
+      if (!pool.length) return [];
+      return [pool.reduce((a, b) => (a.hp <= b.hp ? a : b))];
+    }
+
+    case 'highestAtk': {
+      const pool = livingOpponents(battle, unit);
+      if (!pool.length) return [];
+      return [pool.reduce((a, b) => (a.stats.atk >= b.stats.atk ? a : b))];
+    }
+
+    case 'frontFirst':
+    default: {
+      const pool = livingOpponents(battle, unit);
+      if (!pool.length) return [];
+      const allowed = respectsRows[mode] === false ? pool : applyRowRule(pool);
+      // PLACEHOLDER: random pick inside the allowed pool. Swap for
+      // "stick to current target" or "lowest HP in row" to taste.
+      return [allowed[Math.floor(Math.random() * allowed.length)]];
+    }
+  }
+}
+
+/* ===== src/battle/engine.js ===== */
+/**
+ * battle/engine.js \u2014 Real-time auto-battle simulation.
+ *
+ * Not turn-based: every unit runs its own timers and acts the moment they
+ * come due, so both teams act simultaneously.
+ *
+ * Per unit, per tick:
+ *   1. tick buffs/debuffs down
+ *   2. tick the ultimate charge meter; fire it the instant it fills
+ *      (ULTIMATE_MODE === 'auto'; 'tap' defers to requestUltimate())
+ *   3. tick the technique cooldown; fire it the instant it is off cooldown
+ *   4. tick the auto-attack timer; fire when due
+ *
+ * The engine is headless \u2014 it emits events and never touches the DOM, so the
+ * same simulation can be replayed, fast-forwarded or run in a test.
+ */
+
+
+
+
+
+let uidSeq = 0;
+
+function makeUnit(desc, side) {
+  const skills = {};
+  for (const [slot, id] of Object.entries(desc.skills || {})) {
+    const skill = typeof id === 'string' ? getSkill(id) : id;
+    if (skill) skills[slot] = skill;
+  }
+  const maxHp = Math.max(1, Math.round(desc.stats.hp));
+  return {
+    uid: desc.uid || `u${uidSeq++}`,
+    side,
+    heroId: desc.heroId || null,
+    defId: desc.defId || null,
+    name: desc.name,
+    rarity: desc.rarity,
+    level: desc.level ?? 1,
+    star: desc.star ?? 0,
+    row: desc.row === 'back' ? 'back' : 'front',
+    art: desc.art,
+    stats: { ...desc.stats },
+    maxHp,
+    hp: maxHp,
+    alive: true,
+    skills,
+    buffs: [],
+    // PLACEHOLDER: small random offset so units don't all swing in lockstep.
+    attackTimer: Math.random() * 0.4,
+    attackInterval: COMBAT.baseAttackInterval / Math.max(0.2, desc.stats.speed || 1),
+    techniqueTimer: skills.technique ? (skills.technique.cooldown || 8) * 0.6 : Infinity,
+    ultimateCharge: 0,
+    ultimateReady: false,
+    passiveFired: false,
+  };
+}
+
+function effectiveStat(unit, stat) {
+  let pct = 0;
+  for (const b of unit.buffs) if (b.stat === stat) pct += b.pct;
+  return Math.max(0, unit.stats[stat] * (1 + pct));
+}
+
+/**
+ * PLACEHOLDER damage formula:
+ *   atk * mult * K / (K + effectiveDef) , then variance and crit.
+ * Defence is a soft mitigation curve, so stacking DEF never reaches immunity.
+ */
+function computeDamage(attacker, target, effect) {
+  const atk = effectiveStat(attacker, 'atk');
+  const def = effectiveStat(target, 'def') * (1 - (effect.defIgnore || 0));
+  const base = atk * (effect.mult ?? 1) * (COMBAT.defenseConstant / (COMBAT.defenseConstant + def));
+  const variance = 1 + (Math.random() * 2 - 1) * COMBAT.damageVariance;
+  const crit = Math.random() < COMBAT.critChance;
+  const amount = Math.max(1, Math.round(base * variance * (crit ? COMBAT.critMult : 1)));
+  return { amount, crit };
+}
+
+function addCharge(unit, amount) {
+  if (!unit.skills.ultimate || unit.ultimateReady) return;
+  unit.ultimateCharge = Math.min(COMBAT.ultimateChargeMax, unit.ultimateCharge + amount);
+}
+
+function createBattle({ playerUnits = [], enemyUnits = [], stageId = null } = {}) {
+  const units = [
+    ...playerUnits.map((d) => makeUnit(d, 'player')),
+    ...enemyUnits.map((d) => makeUnit(d, 'enemy')),
+  ];
+
+  const battle = {
+    stageId,
+    units,
+    elapsed: 0,
+    state: 'running',      // 'running' | 'victory' | 'defeat'
+    events: [],
+    _accumulator: 0,
+    log: [],
+  };
+
+  battle.player = () => battle.units.filter((u) => u.side === 'player');
+  battle.enemy = () => battle.units.filter((u) => u.side === 'enemy');
+  battle.unitById = (uid) => battle.units.find((u) => u.uid === uid) || null;
+
+  // Passives with a battleStart trigger land before the first swing.
+  for (const unit of units) {
+    const passive = unit.skills.passive;
+    if (passive && passive.trigger === 'battleStart') {
+      firePassive(battle, unit, passive);
+    }
+  }
+
+  /** Player-activated ultimates (ULTIMATE_MODE === 'tap'). */
+  battle.requestUltimate = (uid) => {
+    const unit = battle.unitById(uid);
+    if (!unit || !unit.alive || !unit.ultimateReady) return false;
+    castSkill(battle, unit, unit.skills.ultimate, 'ultimate');
+    unit.ultimateCharge = 0;
+    unit.ultimateReady = false;
+    return true;
+  };
+
+  /**
+   * Advance the simulation. `dt` is wall-clock seconds; internally the battle
+   * runs on fixed COMBAT.tickMs steps so results don't depend on frame rate.
+   * Returns the events produced during this call.
+   */
+  battle.update = (dt) => {
+    battle.events = [];
+    if (battle.state !== 'running') return battle.events;
+
+    battle._accumulator += Math.min(dt, 0.25); // clamp: tab-switch catch-up
+    const step = COMBAT.tickMs / 1000;
+
+    while (battle._accumulator >= step && battle.state === 'running') {
+      battle._accumulator -= step;
+      tick(battle, step);
+    }
+    return battle.events;
+  };
+
+  return battle;
+}
+
+function tick(battle, dt) {
+  battle.elapsed += dt;
+
+  for (const unit of battle.units) {
+    if (!unit.alive) continue;
+
+    // 1. buffs expire
+    if (unit.buffs.length) {
+      unit.buffs = unit.buffs.filter((b) => {
+        b.remaining -= dt;
+        return b.remaining > 0;
+      });
+    }
+
+    // 2. ultimate meter
+    if (unit.skills.ultimate) {
+      if (!unit.ultimateReady) {
+        addCharge(unit, COMBAT.ultimateChargePerSecond * dt);
+        if (unit.ultimateCharge >= COMBAT.ultimateChargeMax) {
+          unit.ultimateReady = true;
+          battle.events.push({ t: 'ultReady', uid: unit.uid });
+        }
+      }
+      if (unit.ultimateReady && ULTIMATE_MODE === 'auto') {
+        castSkill(battle, unit, unit.skills.ultimate, 'ultimate');
+        unit.ultimateCharge = 0;
+        unit.ultimateReady = false;
+        continue; // one action per tick keeps the readout legible
+      }
+    }
+
+    // 3. technique
+    if (unit.skills.technique) {
+      unit.techniqueTimer -= dt;
+      if (unit.techniqueTimer <= 0) {
+        const fired = castSkill(battle, unit, unit.skills.technique, 'technique');
+        unit.techniqueTimer = unit.skills.technique.cooldown || 8;
+        if (fired) continue;
+      }
+    }
+
+    // 4. auto-attack
+    if (unit.skills.attack) {
+      unit.attackTimer -= dt;
+      if (unit.attackTimer <= 0) {
+        unit.attackTimer = unit.attackInterval;
+        castSkill(battle, unit, unit.skills.attack, 'attack');
+      }
+    }
+  }
+
+  checkEnd(battle);
+}
+
+/** Returns true if the skill actually went off (had a legal target). */
+function castSkill(battle, caster, skill, slot) {
+  if (!skill || !caster.alive) return false;
+  const targets = resolveTargets(battle, caster, skill.targeting || 'frontFirst');
+  const needsTarget = (skill.effects || []).some((e) => e.kind === 'damage');
+  if (needsTarget && !targets.length) return false;
+
+  battle.events.push({ t: 'skill', uid: caster.uid, skillId: skill.id, slot, name: skill.name, icon: skill.icon });
+
+  for (const effect of skill.effects || []) {
+    applyEffect(battle, caster, effect, targets, { skill, slot });
+  }
+  return true;
+}
+
+function applyEffect(battle, caster, effect, targets, ctx) {
+  switch (effect.kind) {
+    case 'damage': {
+      const hits = effect.hits || 1;
+      for (let h = 0; h < hits; h++) {
+        for (const target of targets) {
+          if (!target.alive) continue;
+          dealDamage(battle, caster, target, effect, ctx);
+        }
+      }
+      break;
+    }
+
+    case 'heal': {
+      const amount = Math.round(effectiveStat(caster, 'atk') * (effect.mult ?? 1));
+      for (const target of targets) {
+        if (!target.alive) continue;
+        target.hp = Math.min(target.maxHp, target.hp + amount);
+        battle.events.push({ t: 'heal', uid: target.uid, amount });
+      }
+      break;
+    }
+
+    case 'selfDamage': {
+      const amount = Math.max(1, Math.round(caster.maxHp * (effect.pctMaxHp || 0)));
+      caster.hp = Math.max(0, caster.hp - amount);
+      battle.events.push({ t: 'damage', uid: caster.uid, from: caster.uid, amount, crit: false, self: true });
+      if (caster.hp <= 0) killUnit(battle, caster);
+      break;
+    }
+
+    case 'buff': {
+      const pool = effect.target === 'allies'
+        ? battle.units.filter((u) => u.side === caster.side && u.alive)
+        : [caster];
+      for (const target of pool) {
+        target.buffs.push({ stat: effect.stat, pct: effect.pct, remaining: effect.seconds });
+        battle.events.push({ t: 'buff', uid: target.uid, stat: effect.stat, pct: effect.pct });
+      }
+      break;
+    }
+
+    case 'debuff': {
+      for (const target of targets) {
+        if (!target.alive) continue;
+        target.buffs.push({ stat: effect.stat, pct: -Math.abs(effect.pct), remaining: effect.seconds });
+        battle.events.push({ t: 'debuff', uid: target.uid, stat: effect.stat, pct: effect.pct });
+      }
+      break;
+    }
+
+    case 'charge':
+      addCharge(caster, effect.amount || 0);
+      break;
+
+    default:
+      console.warn('[battle] unknown effect kind', effect.kind);
+  }
+}
+
+function dealDamage(battle, attacker, target, effect, ctx = {}) {
+  const { amount, crit } = computeDamage(attacker, target, effect);
+  target.hp = Math.max(0, target.hp - amount);
+  battle.events.push({
+    t: 'damage', uid: target.uid, from: attacker.uid,
+    amount, crit, slot: ctx.slot || null,
+  });
+
+  addCharge(attacker, COMBAT.ultimateChargeOnHitDealt);
+  addCharge(target, COMBAT.ultimateChargeOnHitTaken);
+
+  if (target.hp <= 0) {
+    killUnit(battle, target);
+  } else {
+    checkLowHpPassive(battle, target);
+  }
+
+  // on-hit passives \u2014 `fromPassive` stops a passive proccing itself
+  if (!ctx.fromPassive) {
+    const passive = attacker.skills.passive;
+    if (passive && passive.trigger === 'onHitDealt' && Math.random() < (passive.chance ?? 1)) {
+      firePassive(battle, attacker, passive, [target]);
+    }
+  }
+}
+
+function checkLowHpPassive(battle, unit) {
+  const passive = unit.skills.passive;
+  if (!passive || passive.trigger !== 'lowHp' || unit.passiveFired) return;
+  if (unit.hp / unit.maxHp <= (passive.hpThreshold ?? 0.5)) {
+    unit.passiveFired = true;
+    firePassive(battle, unit, passive);
+  }
+}
+
+function firePassive(battle, unit, passive, targets) {
+  const resolved = targets || resolveTargets(battle, unit, passive.targeting || 'self');
+  battle.events.push({
+    t: 'passive', uid: unit.uid, skillId: passive.id, name: passive.name, icon: passive.icon,
+  });
+  for (const effect of passive.effects || []) {
+    applyEffect(battle, unit, effect, resolved, { skill: passive, slot: 'passive', fromPassive: true });
+  }
+}
+
+function killUnit(battle, unit) {
+  if (!unit.alive) return;
+  unit.alive = false;
+  unit.hp = 0;
+  unit.ultimateReady = false;
+  battle.events.push({ t: 'death', uid: unit.uid });
+}
+
+function checkEnd(battle) {
+  if (battle.state !== 'running') return;
+  const playersAlive = battle.units.some((u) => u.side === 'player' && u.alive);
+  const enemiesAlive = battle.units.some((u) => u.side === 'enemy' && u.alive);
+
+  if (!enemiesAlive) {
+    battle.state = 'victory';
+  } else if (!playersAlive) {
+    battle.state = 'defeat';
+  } else if (battle.elapsed >= COMBAT.maxBattleSeconds) {
+    // PLACEHOLDER: a timeout counts as a loss. Could become a judged result
+    // (most remaining HP%) later.
+    battle.state = 'defeat';
+  } else {
+    return;
+  }
+  battle.events.push({ t: 'end', result: battle.state });
+}
+
+/* ===== src/battle/index.js ===== */
+/**
+ * battle/index.js \u2014 Public interface of the battle system.
+ *
+ * Bridges saved player/campaign data into the headless engine so the engine
+ * itself never imports the save layer.
+ */
+
+
+
+
+
+
+
+
+
+/** Turn the saved team ([{heroId,row}]) into engine unit descriptors. */
+function buildPlayerUnits(team = getState().team) {
+  return team
+    .filter((slot) => slot && slot.heroId)
+    .slice(0, TEAM_SIZE)
+    .map((slot, i) => {
+      const def = getHeroDef(slot.heroId);
+      const hs = getState().heroes[slot.heroId];
+      if (!def || !hs) return null;
+      const skills = skillsFor(slot.heroId);
+      return {
+        uid: `p${i}`,
+        heroId: def.id,
+        name: def.name,
+        rarity: def.rarity,
+        row: slot.row || def.preferredRow,
+        art: def.art,
+        level: hs.level,
+        star: hs.star,
+        stats: statsFor(slot.heroId),
+        // Only unlocked slots make it into combat \u2014 a 0\u2605 hero really does
+        // fight with nothing but its auto-attack.
+        skills: Object.fromEntries(
+          Object.entries(skills).filter(([, s]) => !!s).map(([slotName, s]) => [slotName, s.id])
+        ),
+      };
+    })
+    .filter(Boolean);
+}
+
+function startStageBattle(stageId) {
+  return createBattle({
+    stageId,
+    playerUnits: buildPlayerUnits(),
+    enemyUnits: buildEnemyTeam(stageId),
+  });
+}
+
+/**
+ * Headless run used for balance checks (see tools/simulate.js). Returns the
+ * result plus how long the fight took.
+ */
+function simulate(battle, { maxSeconds = 120, step = 0.05 } = {}) {
+  let guard = Math.ceil(maxSeconds / step) + 10;
+  while (battle.state === 'running' && guard-- > 0) battle.update(step);
+  return {
+    result: battle.state,
+    seconds: +battle.elapsed.toFixed(1),
+    survivors: battle.units.filter((u) => u.side === 'player' && u.alive).length,
+    enemyHpLeft: battle.units.filter((u) => u.side === 'enemy').reduce((s, u) => s + u.hp, 0),
+  };
+}
+
+/* ===== src/ui/dom.js ===== */
+/**
+ * ui/dom.js \u2014 Minimal DOM helpers. No framework, no build step.
+ */
+
+function h(tag, attrs = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === 'class') node.className = v;
+    else if (k === 'html') node.innerHTML = v;
+    else if (k === 'text') node.textContent = v;
+    else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (k === 'style' && typeof v === 'object') {
+      // Custom properties (--foo) are invisible to Object.assign \u2014 they must
+      // go through setProperty, which is how rarity colours reach the CSS.
+      for (const [prop, val] of Object.entries(v)) {
+        if (prop.startsWith('--')) node.style.setProperty(prop, val);
+        else node.style[prop] = val;
+      }
+    }
+    else if (k === 'dataset') Object.assign(node.dataset, v);
+    else node.setAttribute(k, v === true ? '' : v);
+  }
+  for (const child of [].concat(children)) {
+    if (child == null || child === false) continue;
+    node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child);
+  }
+  return node;
+}
+
+function clear(node) {
+  while (node.firstChild) node.removeChild(node.firstChild);
+  return node;
+}
+
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+/** Bind clicks by [data-action] within a root \u2014 cheap event delegation. */
+function onAction(root, handlers) {
+  root.addEventListener('click', (ev) => {
+    const target = ev.target.closest('[data-action]');
+    if (!target || !root.contains(target)) return;
+    const fn = handlers[target.dataset.action];
+    if (fn) { ev.preventDefault(); fn(target, ev); }
+  });
+}
+
+function fmt(n) {
+  return Math.round(n).toLocaleString('en-US');
+}
+
+/** Star pip row, e.g. \u2605\u2605\u2605\u2606\u2606 */
+function starRow(star, max = 5) {
+  let out = '';
+  for (let i = 0; i < max; i++) out += `<span class="pip ${i < star ? 'on' : ''}">\u2605</span>`;
+  return `<span class="stars">${out}</span>`;
+}
+
+/** Brief non-blocking message at the top of the screen. */
+function toast(message, kind = 'info') {
+  const host = document.getElementById('toasts') || document.body;
+  const node = h('div', { class: `toast toast-${kind}`, text: message });
+  host.appendChild(node);
+  setTimeout(() => node.classList.add('out'), 1800);
+  setTimeout(() => node.remove(), 2200);
+}
+
+/* ===== src/ui/avatar.js ===== */
+/**
+ * ui/avatar.js \u2014 PLACEHOLDER CHARACTER ART.
+ *
+ * Every character is drawn as an inline SVG from a handful of colour/shape
+ * parameters on the hero definition (`art`). This is stand-in art: it exists
+ * so the prototype reads as a game on a phone screen without shipping any
+ * real or borrowed artwork. Replacing it with sprites means swapping this one
+ * module \u2014 nothing else knows how a character is drawn.
+ */
+
+const EYE = '#1f2937';
+
+function hair(style, colour, cx, cy, rx, ry, skin = '#f2c9a0') {
+  switch (style) {
+    case 'spiky': {
+      const spikes = [];
+      const count = 9;
+      for (let i = 0; i < count; i++) {
+        const a = Math.PI + (Math.PI * i) / (count - 1);
+        const x = cx + Math.cos(a) * rx * 1.02;
+        const y = cy + Math.sin(a) * ry * 1.02;
+        // Tip radii are the largest that keep every spike inside the viewBox
+        // for both the bust (cy 44, ry 24) and the body (cy 30, ry 17).
+        const tx = cx + Math.cos(a) * rx * 1.8;
+        const ty = cy + Math.sin(a) * ry * 1.68;
+        const px = cx + Math.cos(a + 0.34) * rx * 1.02;
+        const py = cy + Math.sin(a + 0.34) * ry * 1.02;
+        spikes.push(`<polygon points="${x},${y} ${tx},${ty} ${px},${py}" fill="${colour}"/>`);
+      }
+      return `${spikes.join('')}<path d="M${cx - rx},${cy} a${rx},${ry} 0 0 1 ${rx * 2},0 z" fill="${colour}"/>`;
+    }
+    case 'mane': {
+      return `<path d="M${cx - rx * 1.5},${cy + ry * 2.6} Q${cx - rx * 1.9},${cy - ry * 1.1} ${cx},${cy - ry * 1.25}
+        Q${cx + rx * 1.9},${cy - ry * 1.1} ${cx + rx * 1.5},${cy + ry * 2.6}
+        Q${cx + rx * 0.9},${cy + ry * 1.2} ${cx},${cy + ry * 1.1}
+        Q${cx - rx * 0.9},${cy + ry * 1.2} ${cx - rx * 1.5},${cy + ry * 2.6} z" fill="${colour}"/>`;
+    }
+    case 'long': {
+      return `<path d="M${cx - rx * 1.25},${cy + ry * 1.9} Q${cx - rx * 1.4},${cy - ry} ${cx},${cy - ry * 1.15}
+        Q${cx + rx * 1.4},${cy - ry} ${cx + rx * 1.25},${cy + ry * 1.9}
+        Q${cx + rx * 0.7},${cy + ry * 0.6} ${cx},${cy + ry * 0.55}
+        Q${cx - rx * 0.7},${cy + ry * 0.6} ${cx - rx * 1.25},${cy + ry * 1.9} z" fill="${colour}"/>`;
+    }
+    case 'bowl': {
+      return `<path d="M${cx - rx * 1.06},${cy - ry * 0.02} a${rx * 1.06},${ry * 1.0} 0 0 1 ${rx * 2.12},0 z"
+        fill="${colour}"/>`;
+    }
+    case 'widowsPeak': {
+      return `<path d="M${cx - rx},${cy - ry * 0.1} a${rx},${ry} 0 0 1 ${rx * 2},0
+        l${-rx * 0.2},${-ry * 0.15} l${-rx * 0.8},${ry * 0.5} l${-rx * 0.8},${-ry * 0.5} z" fill="${colour}"/>`;
+    }
+    case 'turban': {
+      // Antennae are drawn first so the turban sits in front of their base;
+      // the turban itself must stop well above the eyes (cy + 0.12ry).
+      return `
+        <path d="M${cx - rx * 0.5},${cy - ry * 0.9} q${-rx * 0.14},${-ry * 0.6} ${rx * 0.12},${-ry * 0.85}"
+          stroke="${skin}" stroke-width="${rx * 0.13}" fill="none" stroke-linecap="round"/>
+        <path d="M${cx + rx * 0.5},${cy - ry * 0.9} q${rx * 0.14},${-ry * 0.6} ${-rx * 0.12},${-ry * 0.85}"
+          stroke="${skin}" stroke-width="${rx * 0.13}" fill="none" stroke-linecap="round"/>
+        <path d="M${cx - rx * 1.06},${cy - ry * 0.32} a${rx * 1.06},${ry * 0.86} 0 0 1 ${rx * 2.12},0
+          l0,${ry * 0.2} l${-rx * 2.12},0 z" fill="${colour}"/>
+        <rect x="${cx - rx * 1.14}" y="${cy - ry * 0.2}" width="${rx * 2.28}" height="${ry * 0.2}"
+          rx="${ry * 0.1}" fill="${colour}" opacity="0.72"/>`;
+    }
+    case 'saibaman': {
+      return `<path d="M${cx},${cy - ry * 1.85} q${rx * 0.2},${ry * 0.55} ${-rx * 0.05},${ry * 0.9}"
+        stroke="${colour === 'none' ? '#3f6212' : colour}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    }
+    case 'bald':
+    case 'thirdEye':
+    case 'none':
+    default:
+      return '';
+  }
+}
+
+function face(style, cx, cy, rx, ry, opts = {}) {
+  const w = rx * 0.2;
+  const h = ry * 0.26;
+  const dy = cy + ry * 0.12;
+  const dx = rx * 0.42;
+  if (style === 'saibaman') {
+    return `
+      <ellipse cx="${cx - dx}" cy="${dy}" rx="${w * 1.5}" ry="${h * 1.3}" fill="#111827"/>
+      <ellipse cx="${cx + dx}" cy="${dy}" rx="${w * 1.5}" ry="${h * 1.3}" fill="#111827"/>
+      <ellipse cx="${cx - dx}" cy="${dy - h * 0.3}" rx="${w * 0.5}" ry="${h * 0.45}" fill="#fef08a"/>
+      <ellipse cx="${cx + dx}" cy="${dy - h * 0.3}" rx="${w * 0.5}" ry="${h * 0.45}" fill="#fef08a"/>`;
+  }
+  const third = style === 'thirdEye'
+    ? `<ellipse cx="${cx}" cy="${cy - ry * 0.42}" rx="${w * 0.85}" ry="${h * 0.85}" fill="${EYE}"/>`
+    : '';
+  return `
+    <ellipse cx="${cx - dx}" cy="${dy}" rx="${w}" ry="${h}" fill="${EYE}"/>
+    <ellipse cx="${cx + dx}" cy="${dy}" rx="${w}" ry="${h}" fill="${EYE}"/>
+    ${third}
+    ${opts.mouth === false ? '' : `<path d="M${cx - rx * 0.25},${cy + ry * 0.52} q${rx * 0.25},${ry * 0.16} ${rx * 0.5},0"
+      stroke="${EYE}" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.65"/>`}`;
+}
+
+/** Head-and-shoulders bust \u2014 roster cards, hero detail, battle portraits. */
+function bustSVG(art = {}, { className = '' } = {}) {
+  const a = { skin: '#f2c9a0', hair: '#1b1b23', hairStyle: 'spiky', gi: '#f97316', trim: '#1d4ed8', ...art };
+  const cx = 50, cy = 44, rx = 21, ry = 24;
+  const backHair = ['long', 'mane'].includes(a.hairStyle) ? hair(a.hairStyle, a.hair, cx, cy, rx, ry, a.skin) : '';
+  const frontHair = backHair ? '' : hair(a.hairStyle, a.hair, cx, cy, rx, ry, a.skin);
+
+  return `<svg class="avatar-svg ${className}" viewBox="0 0 100 100" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    ${backHair}
+    <path d="M14,100 Q14,74 34,68 L66,68 Q86,74 86,100 Z" fill="${a.gi}"/>
+    <path d="M34,68 L50,86 L66,68 L58,66 L50,76 L42,66 Z" fill="${a.trim}"/>
+    <rect x="43" y="60" width="14" height="12" fill="${a.skin}"/>
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${a.skin}"/>
+    ${frontHair}
+    ${face(a.hairStyle, cx, cy, rx, ry)}
+  </svg>`;
+}
+
+/** Full body \u2014 battlefield units. `facing` flips enemies to face the player. */
+function bodySVG(art = {}, { facing = 'right', className = '' } = {}) {
+  const a = { skin: '#f2c9a0', hair: '#1b1b23', hairStyle: 'spiky', gi: '#f97316', trim: '#1d4ed8', ...art };
+  const cx = 50, cy = 30, rx = 15, ry = 17;
+  const backHair = ['long', 'mane'].includes(a.hairStyle) ? hair(a.hairStyle, a.hair, cx, cy, rx, ry, a.skin) : '';
+  const frontHair = backHair ? '' : hair(a.hairStyle, a.hair, cx, cy, rx, ry, a.skin);
+  const flip = facing === 'left' ? 'transform="scale(-1,1) translate(-100,0)"' : '';
+
+  return `<svg class="avatar-svg body ${className}" viewBox="0 0 100 150" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <g ${flip}>
+      <ellipse cx="50" cy="146" rx="26" ry="5" fill="rgba(0,0,0,0.32)"/>
+      ${backHair}
+      <path d="M40,92 L36,140 L46,140 L50,100 L54,140 L64,140 L60,92 Z" fill="${a.trim}"/>
+      <path d="M33,60 Q30,52 40,49 L60,49 Q70,52 67,60 L64,94 L36,94 Z" fill="${a.gi}"/>
+      <rect x="34" y="82" width="32" height="7" fill="${a.trim}"/>
+      <path d="M36,54 L24,80 L31,84 L41,60 Z" fill="${a.gi}"/>
+      <path d="M64,54 L76,80 L69,84 L59,60 Z" fill="${a.gi}"/>
+      <circle cx="26" cy="83" r="5" fill="${a.skin}"/>
+      <circle cx="74" cy="83" r="5" fill="${a.skin}"/>
+      <rect x="45" y="42" width="10" height="10" fill="${a.skin}"/>
+      <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${a.skin}"/>
+      ${frontHair}
+      ${face(a.hairStyle, cx, cy, rx, ry, { mouth: false })}
+    </g>
+  </svg>`;
+}
+
+/* ===== src/ui/screens/campaign.js ===== */
+const __screen_campaign = (() => {
+/**
+ * ui/screens/campaign.js \u2014 Linear story stage list.
+ */
+
+
+
+
+
+
+
+
+function render(host) {
+  const power = teamPower();
+  const list = stageList();
+
+  host.appendChild(h('div', {
+    class: 'power-banner',
+    html: `<div class="pb-label">Team Power</div>
+           <div class="pb-value">\u26a1 ${fmt(power)}</div>
+           <button class="btn ghost small" data-action="edit-team">Edit Team</button>`,
+  }));
+
+  const wrap = h('div', { class: 'stage-list' });
+
+  for (const entry of list) {
+    const { stage, cleared, locked, underpowered } = entry;
+    const enemies = buildEnemyTeam(stage.id);
+    const previews = enemies.slice(0, 4).map((e) => {
+      const r = rarityOf(e.rarity);
+      return `<span class="enemy-chip" style="--rc:${r.color}">${bustSVG(e.art)}</span>`;
+    }).join('');
+
+    const statusClass = locked ? 'locked' : cleared ? 'cleared' : underpowered ? 'risky' : 'ready';
+
+    wrap.appendChild(h('div', {
+      class: `stage-card ${statusClass}`,
+      dataset: { stage: stage.id },
+      html: `
+        <div class="stage-num">${stage.id}</div>
+        <div class="stage-body">
+          <div class="stage-name">${stage.name} ${cleared ? '<span class="tick">\u2713</span>' : ''}</div>
+          <div class="stage-sub">${stage.subtitle}</div>
+          <div class="enemy-row">${previews}${enemies.length > 4 ? `<span class="more">+${enemies.length - 4}</span>` : ''}</div>
+          <div class="stage-meta">
+            <span class="gate ${underpowered ? 'warn' : 'ok'}">\u26a1 ${fmt(stage.requiredPower)} recommended</span>
+          </div>
+        </div>
+        <div class="stage-action">
+          ${locked
+            ? '<span class="lock">\ud83d\udd12</span>'
+            : `<button class="btn ${underpowered ? 'warn' : 'primary'} small" data-action="play" data-stage="${stage.id}">${cleared ? 'Replay' : 'Fight'}</button>`}
+        </div>`,
+    }));
+  }
+
+  host.appendChild(wrap);
+
+  host.appendChild(h('p', {
+    class: 'note',
+    text: 'Recommended power is a warning, not a wall \u2014 you can attempt an over-tuned fight and lose.',
+  }));
+
+  onAction(host, {
+    play: (el) => navigate('formation', { stageId: Number(el.dataset.stage) }),
+    'edit-team': () => navigate('formation', { stageId: null }),
+  });
+}
+return { render };
+})();
+
+/* ===== src/ui/screens/roster.js ===== */
+const __screen_roster = (() => {
+/**
+ * ui/screens/roster.js \u2014 Hero grid.
+ *
+ * Owned heroes show level + stars; unowned heroes are greyed out with a
+ * shard-collection fraction (e.g. "5/15") toward unlocking, mirroring the
+ * reference roster screen.
+ */
+
+
+
+
+
+
+function render(host) {
+  const entries = rosterEntries();
+  const owned = entries.filter((e) => e.owned).length;
+
+  host.appendChild(h('div', {
+    class: 'power-banner',
+    html: `<div class="pb-label">Collection</div>
+           <div class="pb-value">${owned} / ${entries.length} heroes</div>`,
+  }));
+
+  const grid = h('div', { class: 'hero-grid' });
+
+  for (const entry of entries) {
+    const { id, def, rarity, owned: isOwned, star, level, unlock } = entry;
+    const canUnlock = unlock.canUnlock;
+
+    grid.appendChild(h('button', {
+      class: `hero-card ${isOwned ? '' : 'locked'} ${canUnlock ? 'unlockable' : ''}`,
+      style: { '--rarity': rarity.color, '--glow': rarity.glow },
+      dataset: { action: isOwned ? 'open' : 'unlock', hero: id },
+      html: `
+        <span class="rarity-tag">${rarity.short}</span>
+        <span class="card-art">${bustSVG(def.art)}</span>
+        <span class="card-name">${def.name}</span>
+        ${isOwned
+          ? `<span class="card-sub">Lv.${level} \u00b7 \u26a1${fmt(entry.power)}</span>
+             <span class="card-stars">${starRow(star)}</span>`
+          : `<span class="shard-frac ${canUnlock ? 'ready' : ''}">${unlock.have}/${unlock.need}</span>
+             <span class="card-sub">${canUnlock ? 'Tap to summon' : 'Shards needed'}</span>`}`,
+    }));
+  }
+
+  host.appendChild(grid);
+  host.appendChild(h('p', { class: 'note', text: 'Shards drop from campaign stages. Collect enough and a hero joins the team.' }));
+
+  onAction(host, {
+    open: (el) => navigate('heroDetail', { heroId: el.dataset.hero }),
+    unlock: (el) => {
+      const heroId = el.dataset.hero;
+      if (unlockHero(heroId)) {
+        toast(`${heroId.toUpperCase()} joined your team!`, 'good');
+        navigate('heroDetail', { heroId });
+      } else {
+        toast('Not enough shards yet.', 'warn');
+        refresh();
+      }
+    },
+  });
+}
+return { render };
+})();
+
+/* ===== src/ui/screens/bag.js ===== */
+const __screen_bag = (() => {
+/**
+ * ui/screens/bag.js \u2014 Shared inventory: currency, hero shards, gear.
+ */
+
+
+
+
+
+
+
+
+
+
+function render(host) {
+  const state = getState();
+
+  host.appendChild(h('div', {
+    class: 'power-banner',
+    html: `<div class="pb-label">Zeni</div><div class="pb-value">\ud83d\udcb0 ${fmt(state.zeni)}</div>`,
+  }));
+
+  /* ---- shards ---- */
+  const shardRows = HERO_IDS
+    .filter((id) => (state.shards[id] || 0) > 0 || !isOwned(id))
+    .map((id) => {
+      const def = getHeroDef(id);
+      const info = unlockInfo(id);
+      const owned = isOwned(id);
+      const r = rarityOf(def.rarity);
+      return `<div class="shard-row" style="--rc:${r.color}">
+          <span class="sr-art">${bustSVG(def.art)}</span>
+          <span class="sr-text"><b>${def.name}</b><small>${owned ? 'Unlocked \u00b7 shards go to promotions' : (info.canUnlock ? 'Ready to summon' : `${info.have}/${info.need} to summon`)}</small></span>
+          <span class="sr-count">\ud83d\udd37 ${inventory.shards(id)}</span>
+        </div>`;
+    }).join('');
+
+  host.appendChild(h('section', {
+    class: 'panel',
+    html: `<h2 class="panel-title">Hero Shards</h2>${shardRows || '<p class="note">No shards yet \u2014 clear campaign stages.</p>'}`,
+  }));
+
+  /* ---- gear ---- */
+  const gearRows = state.gear.map((inst) => {
+    const def = getGearDef(inst.defId);
+    if (!def) return '';
+    const r = rarityOf(def.rarity);
+    const holder = inst.equippedBy ? getHeroDef(inst.equippedBy) : null;
+    return `<div class="gear-row static" style="--gr:${r.color}">
+        <span class="gi">${def.icon}</span>
+        <span class="gt"><b>${def.name}</b><small>${describeGear(def)}</small></span>
+        <span class="gr-tag">${holder ? holder.name : r.short}</span>
+      </div>`;
+  }).join('');
+
+  host.appendChild(h('section', {
+    class: 'panel',
+    html: `<h2 class="panel-title">Gear (${state.gear.length})</h2>${gearRows || '<p class="note">No gear yet \u2014 it drops from campaign stages.</p>'}`,
+  }));
+
+  host.appendChild(h('section', {
+    class: 'panel',
+    html: `<h2 class="panel-title">Record</h2>
+      <p class="note">Won ${state.stats.battlesWon} \u00b7 Lost ${state.stats.battlesLost} \u00b7 Cleared ${Object.keys(state.campaign.cleared).length} stages</p>
+      <button class="btn ghost wide" data-action="reset">Reset Progress</button>`,
+  }));
+
+  // Two-tap confirmation rather than confirm(): a sandboxed embed (and some
+  // in-app browsers) will not show a native modal at all.
+  let resetArmed = false;
+  onAction(host, {
+    reset: (el) => {
+      if (!resetArmed) {
+        resetArmed = true;
+        el.textContent = 'Tap again to erase everything';
+        el.classList.add('danger');
+        setTimeout(() => {
+          if (!resetArmed) return;
+          resetArmed = false;
+          el.textContent = 'Reset Progress';
+          el.classList.remove('danger');
+        }, 4000);
+        return;
+      }
+      resetArmed = false;
+      resetSave();
+      toast('Progress reset.', 'warn');
+      navigate('campaign', {}, { replace: true });
+    },
+  });
+}
+return { render };
+})();
+
+/* ===== src/ui/screens/heroDetail.js ===== */
+const __screen_heroDetail = (() => {
+/**
+ * ui/screens/heroDetail.js \u2014 Hero detail with Stats / Stars / Skills tabs,
+ * mirroring the reference hero screens (gear slots around the portrait,
+ * star promotion with a stat preview, locked skill slots).
+ */
+
+
+
+
+
+
+
+
+
+let activeTab = 'stats';
+
+function render(host, { heroId }) {
+  const def = getHeroDef(heroId);
+  const hs = heroSave(heroId);
+  if (!def || !hs?.owned) {
+    host.appendChild(h('p', { class: 'note', text: 'Hero not unlocked.' }));
+    return;
+  }
+  const rarity = rarityOf(def.rarity);
+  host.style.setProperty('--rarity', rarity.color);
+  host.style.setProperty('--glow', rarity.glow);
+
+  host.appendChild(h('div', {
+    class: 'hero-hero',
+    html: `
+      <span class="rarity-badge">${rarity.name}</span>
+      <div class="hero-name">${def.name}</div>
+      <div class="hero-title">${def.title}</div>`,
+  }));
+
+  const body = h('div', { class: 'tab-body' });
+  const tabs = h('div', {
+    class: 'tab-bar',
+    html: ['stats', 'stars', 'skills']
+      .map((t) => `<button class="tab-btn ${t === activeTab ? 'active' : ''}" data-action="tab" data-tab="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`)
+      .join(''),
+  });
+
+  host.appendChild(body);
+  host.appendChild(tabs);
+
+  const draw = () => {
+    clear(body);
+    if (activeTab === 'stats') renderStats(body, heroId);
+    else if (activeTab === 'stars') renderStars(body, heroId);
+    else renderSkills(body, heroId);
+  };
+  draw();
+
+  onAction(host, {
+    tab: (el) => {
+      activeTab = el.dataset.tab;
+      for (const b of tabs.querySelectorAll('.tab-btn')) b.classList.toggle('active', b.dataset.tab === activeTab);
+      draw();
+    },
+  });
+}
+
+/* ---------------- Stats tab ---------------- */
+
+function renderStats(body, heroId) {
+  const def = getHeroDef(heroId);
+  const hs = heroSave(heroId);
+  const stats = statsFor(heroId);
+  const lvl = levelInfo(heroId);
+
+  const gearNodes = GEAR_SLOTS.map((slot) => {
+    const uid = hs.equipped[slot];
+    const inst = uid ? inventory.gearByUid(uid) : null;
+    const gdef = inst ? getGearDef(inst.defId) : null;
+    return `<button class="gear-slot slot-${slot} ${gdef ? 'filled' : ''}"
+              data-action="gear" data-slot="${slot}"
+              style="--gr:${gdef ? rarityOf(gdef.rarity).color : 'transparent'}"
+              aria-label="${GEAR_SLOT_META[slot].name}">
+              <span class="gi">${gdef ? gdef.icon : GEAR_SLOT_META[slot].icon}</span>
+            </button>`;
+  }).join('');
+
+  body.appendChild(h('div', {
+    class: 'portrait-stage',
+    html: `
+      <div class="portrait-art">${bustSVG(def.art)}</div>
+      ${gearNodes}
+      <div class="power-plate">\u26a1 ${fmt(powerOf(heroId))}</div>`,
+  }));
+
+  body.appendChild(h('div', {
+    class: 'stat-panel',
+    html: `
+      <div class="level-line">Lv.${hs.level}</div>
+      <div class="stat-grid">
+        <div class="stat"><span class="sn">\u2694\ufe0f ATK</span><span class="sv">${fmt(stats.atk)}</span></div>
+        <div class="stat"><span class="sn">\u2764\ufe0f HP</span><span class="sv">${fmt(stats.hp)}</span></div>
+        <div class="stat"><span class="sn">\ud83d\udee1\ufe0f DEF</span><span class="sv">${fmt(stats.def)}</span></div>
+        <div class="stat"><span class="sn">\ud83d\udca8 SPD</span><span class="sv">${stats.speed.toFixed(2)}</span></div>
+      </div>
+      <button class="btn primary wide ${lvl.canLevel ? '' : 'disabled'}" data-action="levelup">
+        ${lvl.atMax ? 'Max Level' : `Upgrade <span class="cost">\ud83d\udcb0 ${fmt(lvl.cost)} / ${fmt(lvl.have)}</span>`}
+      </button>`,
+  }));
+
+  body.appendChild(h('p', { class: 'note', text: def.lore }));
+
+  onAction(body, {
+    levelup: () => {
+      if (levelUp(heroId)) { toast('Level up!', 'good'); refresh(); }
+      else toast('Not enough zeni.', 'warn');
+    },
+    gear: (el) => openGearSheet(heroId, el.dataset.slot),
+  });
+}
+
+/* ---------------- Stars tab ---------------- */
+
+function renderStars(body, heroId) {
+  const info = promoteInfo(heroId);
+  const slots = slotsFor(heroId);
+
+  const statRows = ['atk', 'hp', 'def'].map((k) => `
+    <div class="promo-row">
+      <span class="pk">${k.toUpperCase()}</span>
+      <span class="pv">${fmt(info.current[k])}</span>
+      <span class="parrow">\u279c</span>
+      <span class="pv next">${info.atMax ? '\u2014' : fmt(info.next[k])}</span>
+    </div>`).join('');
+
+  const slotIcons = slots.map((s) => `
+    <div class="skill-slot ${s.unlocked ? 'on' : 'off'} ${s.reserved ? 'reserved' : ''}"
+         title="${s.skill ? s.skill.name : s.slot}">
+      <span class="si">${s.unlocked && s.skill ? s.skill.icon : '\ud83d\udd12'}</span>
+      ${s.unlocked ? '' : `<span class="req">${s.lockLabel}</span>`}
+    </div>`).join('');
+
+  body.appendChild(h('div', {
+    class: 'stars-panel',
+    html: `
+      <div class="big-stars">${starRow(info.star, MAX_STARS)}</div>
+      <div class="star-caption">${info.star}\u2605 ${info.atMax ? '\u00b7 Max rank' : `\u00b7 next rank ${info.star + 1}\u2605`}</div>
+      <div class="promo-table">${statRows}</div>
+      <div class="slot-row">${slotIcons}</div>
+      <button class="btn gold wide ${info.canPromote ? '' : 'disabled'}" data-action="promote">
+        ${info.atMax ? 'Fully Promoted' : `Promote <span class="cost">\ud83d\udd37 ${info.have}/${info.cost}</span>`}
+      </button>`,
+  }));
+
+  body.appendChild(h('p', {
+    class: 'note',
+    text: 'Promoting raises stats to the next rank\u2019s fixed value and unlocks skill slots. The fifth slot is reserved for transformations \u2014 a later addition.',
+  }));
+
+  onAction(body, {
+    promote: () => {
+      if (promote(heroId)) { toast('Promoted!', 'good'); refresh(); }
+      else toast('Not enough shards.', 'warn');
+    },
+  });
+}
+
+/* ---------------- Skills tab ---------------- */
+
+const SLOT_LABEL = {
+  attack: 'Auto-Attack', technique: 'Auto-Technique',
+  ultimate: 'Ultimate', passive: 'Passive', transform: 'Transformation',
+};
+
+function renderSkills(body, heroId) {
+  const slots = slotsFor(heroId);
+  const list = h('div', { class: 'skill-list' });
+
+  for (const s of slots) {
+    const name = s.skill ? s.skill.name : (s.reserved ? 'Reserved' : 'Empty');
+    const desc = s.reserved
+      ? 'A transformation slot for a later build \u2014 not implemented yet.'
+      : s.skill ? s.skill.desc : 'This hero has no skill for this slot.';
+
+    list.appendChild(h('div', {
+      class: `skill-row ${s.unlocked ? '' : 'locked'}`,
+      html: `
+        <span class="skill-icon">${s.unlocked && s.skill ? s.skill.icon : '\ud83d\udd12'}</span>
+        <span class="skill-text">
+          <span class="skill-name">${name}
+            ${s.unlocked ? '' : `<span class="lock-tag">${s.lockLabel}</span>`}
+          </span>
+          <span class="skill-slot-label">${SLOT_LABEL[s.slot]}${s.skill?.cooldown ? ` \u00b7 ${s.skill.cooldown}s cooldown` : ''}</span>
+          <span class="skill-desc">${desc}</span>
+        </span>`,
+    }));
+  }
+
+  body.appendChild(list);
+  body.appendChild(h('p', {
+    class: 'note',
+    text: 'Auto-attacks fire on the unit\u2019s own timer, techniques the moment they leave cooldown, and ultimates the instant the meter fills.',
+  }));
+}
+
+/* ---------------- Gear picker sheet ---------------- */
+
+function openGearSheet(heroId, slot) {
+  const hs = heroSave(heroId);
+  const equippedUid = hs.equipped[slot];
+  const options = inventory.availableGearForSlot(slot);
+
+  const rows = options.map((inst) => {
+    const gdef = getGearDef(inst.defId);
+    const r = rarityOf(gdef.rarity);
+    return `<button class="gear-row" data-action="equip" data-uid="${inst.uid}" style="--gr:${r.color}">
+        <span class="gi">${gdef.icon}</span>
+        <span class="gt"><b>${gdef.name}</b><small>${describeGear(gdef)}</small></span>
+        <span class="gr-tag">${r.short}</span>
+      </button>`;
+  }).join('');
+
+  const sheet = h('div', {
+    class: 'sheet-backdrop',
+    html: `
+      <div class="sheet">
+        <div class="sheet-title">${GEAR_SLOT_META[slot].name}</div>
+        ${equippedUid ? '<button class="btn ghost wide" data-action="unequip">Unequip current</button>' : ''}
+        <div class="gear-rows">${rows || '<p class="note">No spare gear for this slot. Gear drops from campaign stages.</p>'}</div>
+        <button class="btn ghost wide" data-action="close">Close</button>
+      </div>`,
+  });
+
+  onAction(sheet, {
+    equip: (el) => {
+      inventory.equipGear(heroId, el.dataset.uid);
+      sheet.remove();
+      toast('Equipped.', 'good');
+      refresh();
+    },
+    unequip: () => {
+      inventory.unequipGear(heroId, slot);
+      sheet.remove();
+      refresh();
+    },
+    close: () => sheet.remove(),
+  });
+  sheet.addEventListener('click', (ev) => { if (ev.target === sheet) sheet.remove(); });
+
+  document.body.appendChild(sheet);
+}
+return { render };
+})();
+
+/* ===== src/ui/screens/formation.js ===== */
+const __screen_formation = (() => {
+/**
+ * ui/screens/formation.js \u2014 Pre-battle confirmation: pick 3 heroes and put
+ * each in the front or back row, then start the auto-battle.
+ *
+ * Front row soaks single-target basic attacks; the back row is protected
+ * until the front row is down (see battle/targeting.js for the exact rule).
+ */
+
+
+
+
+
+
+
+
+
+function render(host, { stageId }) {
+  const state = getState();
+  const stage = stageId ? getStage(stageId) : null;
+  const power = teamPower();
+
+  if (stage) {
+    const enemies = buildEnemyTeam(stage.id);
+    const under = power < stage.requiredPower;
+    host.appendChild(h('div', {
+      class: 'battle-brief',
+      html: `
+        <div class="brief-title">${stage.id}. ${stage.name}</div>
+        <div class="brief-sub">${stage.subtitle}</div>
+        <div class="enemy-lineup">
+          ${enemies.map((e) => {
+            const r = rarityOf(e.rarity);
+            return `<div class="lineup-unit" style="--rc:${r.color}">
+                <div class="lu-art">${bustSVG(e.art)}</div>
+                <div class="lu-name">${e.name}</div>
+                <div class="lu-row">${e.row === 'back' ? 'Back' : 'Front'}</div>
+              </div>`;
+          }).join('')}
+        </div>
+        <div class="power-compare ${under ? 'warn' : 'ok'}">
+          Your power \u26a1 ${fmt(power)} \u00b7 recommended \u26a1 ${fmt(stage.requiredPower)}
+          ${under ? '<span class="warn-tag">Underpowered</span>' : ''}
+        </div>`,
+    }));
+  } else {
+    host.appendChild(h('div', {
+      class: 'power-banner',
+      html: `<div class="pb-label">Team Power</div><div class="pb-value">\u26a1 ${fmt(power)}</div>`,
+    }));
+  }
+
+  /* ---- formation slots ---- */
+  const field = h('div', { class: 'formation-field' });
+  for (const rowName of ['back', 'front']) {
+    const rowEl = h('div', { class: `form-row form-${rowName}`, html: `<div class="row-label">${rowName === 'front' ? 'FRONT \u2014 takes the hits' : 'BACK \u2014 protected'}</div>` });
+    const slots = h('div', { class: 'row-slots' });
+
+    const inRow = state.team.filter((s) => s && s.row === rowName);
+    for (const slot of inRow) {
+      const def = getHeroDef(slot.heroId);
+      const hsv = state.heroes[slot.heroId];
+      const r = rarityOf(def.rarity);
+      slots.appendChild(h('div', {
+        class: 'form-unit',
+        style: { '--rarity': r.color, '--glow': r.glow },
+        html: `
+          <button class="fu-art" data-action="swap" data-hero="${slot.heroId}">${bustSVG(def.art)}</button>
+          <div class="fu-name">${def.name}</div>
+          <div class="fu-sub">Lv.${hsv.level} \u26a1${fmt(powerOf(slot.heroId))}</div>
+          <div class="fu-stars">${starRow(hsv.star)}</div>
+          <button class="btn ghost tiny" data-action="toggle-row" data-hero="${slot.heroId}">
+            Move to ${rowName === 'front' ? 'back' : 'front'}
+          </button>`,
+      }));
+    }
+
+    if (rowName === 'front' && state.team.length < TEAM_SIZE) {
+      slots.appendChild(h('button', { class: 'form-unit empty', dataset: { action: 'add' }, html: '<span class="plus">\uff0b</span><span>Add hero</span>' }));
+    }
+
+    rowEl.appendChild(slots);
+    field.appendChild(rowEl);
+  }
+  host.appendChild(field);
+
+  host.appendChild(h('div', {
+    class: 'action-bar',
+    html: stage
+      ? `<button class="btn primary wide ${state.team.length ? '' : 'disabled'}" data-action="start">Start Battle</button>`
+      : '<button class="btn ghost wide" data-action="done">Done</button>',
+  }));
+
+  onAction(host, {
+    'toggle-row': (el) => {
+      const slot = state.team.find((s) => s.heroId === el.dataset.hero);
+      if (!slot) return;
+      slot.row = slot.row === 'front' ? 'back' : 'front';
+      persist();
+      refresh();
+    },
+    swap: (el) => openHeroPicker(el.dataset.hero),
+    add: () => openHeroPicker(null),
+    start: () => {
+      if (!state.team.length) return toast('Add at least one hero.', 'warn');
+      navigate('battle', { stageId });
+    },
+    done: () => navigate('campaign', {}, { replace: true }),
+  });
+}
+
+/** Pick a hero for a slot; `replacingHeroId` null means "add a new slot". */
+function openHeroPicker(replacingHeroId) {
+  const state = getState();
+  const inTeam = new Set(state.team.map((s) => s.heroId));
+  const candidates = rosterEntries().filter((e) => e.owned && (!inTeam.has(e.id) || e.id === replacingHeroId));
+
+  const sheet = h('div', {
+    class: 'sheet-backdrop',
+    html: `
+      <div class="sheet">
+        <div class="sheet-title">${replacingHeroId ? 'Swap hero' : 'Add hero'}</div>
+        <div class="pick-grid">
+          ${candidates.map((e) => `
+            <button class="hero-card small ${e.id === replacingHeroId ? 'current' : ''}"
+                    style="--rarity:${e.rarity.color};--glow:${e.rarity.glow}"
+                    data-action="pick" data-hero="${e.id}">
+              <span class="rarity-tag">${e.rarity.short}</span>
+              <span class="card-art">${bustSVG(e.def.art)}</span>
+              <span class="card-name">${e.def.name}</span>
+              <span class="card-sub">\u26a1${fmt(e.power)}</span>
+            </button>`).join('') || '<p class="note">No other heroes available.</p>'}
+        </div>
+        ${replacingHeroId ? '<button class="btn ghost wide" data-action="remove">Remove from team</button>' : ''}
+        <button class="btn ghost wide" data-action="close">Close</button>
+      </div>`,
+  });
+
+  onAction(sheet, {
+    pick: (el) => {
+      const heroId = el.dataset.hero;
+      const def = getHeroDef(heroId);
+      if (replacingHeroId) {
+        const slot = state.team.find((s) => s.heroId === replacingHeroId);
+        if (slot) slot.heroId = heroId;
+      } else if (state.team.length < TEAM_SIZE) {
+        state.team.push({ heroId, row: def.preferredRow });
+      }
+      persist();
+      sheet.remove();
+      refresh();
+    },
+    remove: () => {
+      state.team = state.team.filter((s) => s.heroId !== replacingHeroId);
+      persist();
+      sheet.remove();
+      refresh();
+    },
+    close: () => sheet.remove(),
+  });
+  sheet.addEventListener('click', (ev) => { if (ev.target === sheet) sheet.remove(); });
+  document.body.appendChild(sheet);
+}
+return { render };
+})();
+
+/* ===== src/ui/screens/battle.js ===== */
+const __screen_battle = (() => {
+/**
+ * ui/screens/battle.js \u2014 Real-time auto-battle presentation.
+ *
+ * Side-view lanes: player team on the left, enemies on the right, back row set
+ * behind and above the front row. The engine (battle/engine.js) owns the
+ * simulation; this file only draws what it emits \u2014 HP bars, floating damage
+ * numbers, skill call-outs, and the bottom portrait row with each hero's own
+ * technique countdown and ultimate-ready indicator.
+ */
+
+
+
+
+
+
+
+
+let raf = null;
+let battle = null;
+let nodes = new Map();
+let speed = 1;
+let finished = false;
+
+function dispose() {
+  if (raf) cancelAnimationFrame(raf);
+  raf = null;
+  battle = null;
+  nodes = new Map();
+  finished = false;
+}
+
+function render(host, { stageId }) {
+  dispose();
+  const stage = getStage(stageId);
+  battle = startStageBattle(stageId);
+  speed = 1;
+
+  const screen = h('div', { class: 'battle-screen' });
+
+  /* ---- top bar ---- */
+  const top = h('div', {
+    class: 'bt-top',
+    html: `
+      <span class="bt-stage">${stage ? `${stage.id}. ${stage.name}` : 'Battle'}</span>
+      <span class="bt-timer" id="bt-timer">0.0s</span>
+      <button class="btn ghost tiny" id="bt-speed">x1</button>`,
+  });
+  screen.appendChild(top);
+
+  /* ---- arena ---- */
+  const arena = h('div', { class: 'arena' });
+  const sides = {
+    player: h('div', { class: 'side side-player' }),
+    enemy: h('div', { class: 'side side-enemy' }),
+  };
+  const lanes = {
+    player: { back: h('div', { class: 'lane lane-back' }), front: h('div', { class: 'lane lane-front' }) },
+    enemy: { front: h('div', { class: 'lane lane-front' }), back: h('div', { class: 'lane lane-back' }) },
+  };
+  sides.player.append(lanes.player.back, lanes.player.front);
+  sides.enemy.append(lanes.enemy.front, lanes.enemy.back);
+  arena.append(sides.player, sides.enemy);
+  screen.appendChild(arena);
+
+  for (const unit of battle.units) {
+    const r = rarityOf(unit.rarity);
+    const node = h('div', {
+      class: `unit ${unit.side} row-${unit.row}`,
+      style: { '--rarity': r.color, '--aura': unit.art?.aura || r.color },
+      html: `
+        <div class="u-callout"></div>
+        <div class="u-fx"></div>
+        <div class="u-art">${bodySVG(unit.art, { facing: unit.side === 'player' ? 'right' : 'left' })}</div>
+        <div class="u-bar"><span class="u-fill"></span></div>
+        <div class="u-name">${unit.name}</div>`,
+    });
+    lanes[unit.side][unit.row].appendChild(node);
+    nodes.set(unit.uid, {
+      root: node,
+      fill: node.querySelector('.u-fill'),
+      fx: node.querySelector('.u-fx'),
+      callout: node.querySelector('.u-callout'),
+      art: node.querySelector('.u-art'),
+    });
+  }
+
+  /* ---- bottom portrait row (per-hero cooldown timers) ---- */
+  const dock = h('div', { class: 'bt-dock' });
+  for (const unit of battle.units.filter((u) => u.side === 'player')) {
+    const r = rarityOf(unit.rarity);
+    const card = h('button', {
+      class: 'dock-card',
+      style: { '--rarity': r.color, '--glow': r.glow },
+      dataset: { uid: unit.uid },
+      html: `
+        <span class="dc-timer">\u2014</span>
+        <span class="dc-art">${bustSVG(unit.art)}</span>
+        <span class="dc-ult"><span class="dc-ult-fill"></span></span>
+        <span class="dc-name">${unit.name}</span>
+        <span class="dc-hp"><span class="dc-hp-fill"></span></span>`,
+    });
+    // ULTIMATE_MODE === 'tap' would make this the activation control; in 'auto'
+    // the tap is a no-op and the ready state is purely informational.
+    card.addEventListener('click', () => {
+      if (ULTIMATE_MODE === 'tap') battle.requestUltimate(unit.uid);
+    });
+    dock.appendChild(card);
+    const n = nodes.get(unit.uid);
+    n.dock = card;
+    n.dockTimer = card.querySelector('.dc-timer');
+    n.dockUlt = card.querySelector('.dc-ult-fill');
+    n.dockHp = card.querySelector('.dc-hp-fill');
+  }
+  screen.appendChild(dock);
+
+  host.appendChild(screen);
+
+  top.querySelector('#bt-speed').addEventListener('click', (ev) => {
+    speed = speed === 1 ? 2 : speed === 2 ? 3 : 1;
+    ev.currentTarget.textContent = `x${speed}`;
+  });
+
+  const timerEl = top.querySelector('#bt-timer');
+  let last = performance.now();
+
+  const frame = (now) => {
+    const dt = Math.min((now - last) / 1000, 0.25);
+    last = now;
+
+    const events = battle.update(dt * speed);
+    for (const ev of events) handleEvent(ev);
+    paint(timerEl);
+
+    if (battle.state === 'running') {
+      raf = requestAnimationFrame(frame);
+    } else if (!finished) {
+      finished = true;
+      endBattle(stageId);
+    }
+  };
+  raf = requestAnimationFrame(frame);
+}
+
+/* ---------------- event -> DOM ---------------- */
+
+function handleEvent(ev) {
+  const n = nodes.get(ev.uid);
+  switch (ev.t) {
+    case 'damage': {
+      if (!n) return;
+      floater(n.fx, `-${fmt(ev.amount)}`, ev.crit ? 'crit' : (ev.self ? 'self' : 'dmg'));
+      pulse(n.art, 'hit');
+      const from = nodes.get(ev.from);
+      if (from && ev.from !== ev.uid) pulse(from.art, 'lunge');
+      break;
+    }
+    case 'heal':
+      if (n) floater(n.fx, `+${fmt(ev.amount)}`, 'heal');
+      break;
+    case 'skill':
+      if (n && ev.slot !== 'attack') callout(n.callout, `${ev.icon || ''} ${ev.name}`, ev.slot);
+      break;
+    case 'passive':
+      if (n) callout(n.callout, `${ev.icon || ''} ${ev.name}`, 'passive');
+      break;
+    case 'buff':
+      if (n) floater(n.fx, `${ev.stat.toUpperCase()} \u25b2`, 'buff');
+      break;
+    case 'debuff':
+      if (n) floater(n.fx, `${ev.stat.toUpperCase()} \u25bc`, 'debuff');
+      break;
+    case 'death':
+      if (n) n.root.classList.add('dead');
+      break;
+    default:
+      break;
+  }
+}
+
+function floater(host, text, kind) {
+  const node = h('span', { class: `float ${kind}`, text });
+  // PLACEHOLDER: jitter so simultaneous numbers don't stack into one
+  // unreadable blob. Vertical offset matters more than horizontal.
+  node.style.setProperty('--dx', `${(Math.random() * 46 - 23).toFixed(0)}px`);
+  node.style.setProperty('--dy', `${(Math.random() * 26 - 8).toFixed(0)}px`);
+  host.appendChild(node);
+  setTimeout(() => node.remove(), 950);
+}
+
+function callout(host, text, kind) {
+  host.textContent = text;
+  host.className = `u-callout show ${kind}`;
+  clearTimeout(host._t);
+  host._t = setTimeout(() => { host.className = 'u-callout'; }, 900);
+}
+
+function pulse(node, cls) {
+  node.classList.remove(cls);
+  // force reflow so the animation restarts on rapid repeat hits
+  void node.offsetWidth;
+  node.classList.add(cls);
+}
+
+/* ---------------- per-frame paint ---------------- */
+
+function paint(timerEl) {
+  timerEl.textContent = `${battle.elapsed.toFixed(1)}s`;
+
+  for (const unit of battle.units) {
+    const n = nodes.get(unit.uid);
+    if (!n) continue;
+    const pct = Math.max(0, unit.hp / unit.maxHp) * 100;
+    n.fill.style.width = `${pct}%`;
+    n.fill.classList.toggle('low', pct < 30);
+
+    if (!n.dock) continue;
+    n.dockHp.style.width = `${pct}%`;
+
+    if (!unit.alive) {
+      n.dock.classList.add('down');
+      n.dockTimer.textContent = 'KO';
+      n.dockUlt.style.width = '0%';
+      continue;
+    }
+
+    // Individual technique cooldown countdown, as in the reference dock.
+    if (unit.skills.technique) {
+      n.dockTimer.textContent = `${Math.max(0, unit.techniqueTimer).toFixed(1)}s`;
+    } else {
+      n.dockTimer.textContent = '\u2014';
+    }
+
+    const chargePct = unit.skills.ultimate
+      ? (unit.ultimateCharge / COMBAT.ultimateChargeMax) * 100
+      : 0;
+    n.dockUlt.style.width = `${Math.min(100, chargePct)}%`;
+    n.dock.classList.toggle('ult-ready', !!unit.ultimateReady);
+  }
+}
+
+/* ---------------- resolution ---------------- */
+
+function endBattle(stageId) {
+  const won = battle.state === 'victory';
+  const survivors = battle.units.filter((u) => u.side === 'player' && u.alive).length;
+  const seconds = battle.elapsed;
+
+  const rewards = won ? completeStage(stageId) : (recordDefeat(), null);
+
+  setTimeout(() => {
+    navigate('results', { stageId, won, survivors, seconds, rewards });
+  }, 1000);
+}
+return { dispose, render };
+})();
+
+/* ===== src/ui/screens/results.js ===== */
+const __screen_results = (() => {
+/**
+ * ui/screens/results.js \u2014 Post-battle summary and reward payout display.
+ */
+
+
+
+
+
+
+
+
+function render(host, { stageId, won, survivors, seconds, rewards }) {
+  const stage = getStage(stageId);
+
+  const rewardRows = [];
+  if (rewards) {
+    if (rewards.zeni) rewardRows.push(`<div class="reward"><span class="ri">\ud83d\udcb0</span><span>${fmt(rewards.zeni)} Zeni</span></div>`);
+    for (const s of rewards.shards) {
+      const def = getHeroDef(s.heroId);
+      rewardRows.push(`<div class="reward"><span class="ri shard">${bustSVG(def.art)}</span><span>${def.name} Shard \u00d7${s.amount}</span></div>`);
+    }
+    for (const g of rewards.gear) {
+      const r = rarityOf(g.rarity);
+      rewardRows.push(`<div class="reward"><span class="ri" style="color:${r.color}">${g.icon}</span><span>${g.name}</span></div>`);
+    }
+  }
+
+  const next = stageList().find((s) => !s.cleared && !s.locked);
+
+  host.appendChild(h('div', {
+    class: `results ${won ? 'win' : 'lose'}`,
+    html: `
+      <div class="res-banner">${won ? 'VICTORY' : 'DEFEAT'}</div>
+      <div class="res-stage">${stage ? `${stage.id}. ${stage.name}` : ''}</div>
+      <div class="res-line">${seconds.toFixed(1)}s \u00b7 ${survivors} hero${survivors === 1 ? '' : 'es'} standing</div>
+      ${rewards?.firstClear ? '<div class="first-clear">First Clear Bonus!</div>' : ''}
+      <div class="reward-list">
+        ${won ? (rewardRows.join('') || '<p class="note">No drops this time.</p>')
+              : '<p class="note">No rewards. Promote a hero, equip gear, or rethink your formation.</p>'}
+      </div>
+      <div class="res-actions">
+        ${won && next
+          ? `<button class="btn primary wide" data-action="next" data-stage="${next.stage.id}">Next: ${next.stage.name}</button>`
+          : `<button class="btn primary wide" data-action="retry" data-stage="${stageId}">${won ? 'Fight Again' : 'Retry'}</button>`}
+        <button class="btn ghost wide" data-action="roster">Manage Heroes</button>
+        <button class="btn ghost wide" data-action="campaign">Campaign</button>
+      </div>`,
+  }));
+
+  onAction(host, {
+    next: (el) => navigate('formation', { stageId: Number(el.dataset.stage) }, { replace: true }),
+    retry: (el) => navigate('formation', { stageId: Number(el.dataset.stage) }, { replace: true }),
+    roster: () => navigate('roster', {}, { replace: true }),
+    campaign: () => navigate('campaign', {}, { replace: true }),
+  });
+}
+return { render };
+})();
+
+/* ===== src/ui/app.js ===== */
+/**
+ * ui/app.js \u2014 Screen router and app shell.
+ *
+ * Screens are plain modules exporting `render(container, params)` and an
+ * optional `dispose()`. Adding a screen is a one-line registry change.
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+const SCREENS = { campaign: __screen_campaign, roster: __screen_roster, bag: __screen_bag, heroDetail: __screen_heroDetail, formation: __screen_formation, battle: __screen_battle, results: __screen_results };
+
+const TITLES = {
+  campaign: 'Campaign',
+  roster: 'Heroes',
+  bag: 'Bag',
+  heroDetail: 'Hero',
+  formation: 'Formation',
+  battle: 'Battle',
+  results: 'Results',
+};
+
+/** Screens that hide the shell chrome. */
+const FULLSCREEN = new Set(['battle', 'results']);
+
+/** Which tab lights up for a given screen. */
+const TAB_OF = { campaign: 'campaign', roster: 'roster', bag: 'bag', heroDetail: 'roster', formation: 'campaign' };
+
+let current = null;
+let history = [];
+
+function navigate(name, params = {}, { replace = false } = {}) {
+  const screen = SCREENS[name];
+  if (!screen) { console.error('[app] unknown screen', name); return; }
+
+  if (current && SCREENS[current.name]?.dispose) {
+    try { SCREENS[current.name].dispose(); } catch (err) { console.error(err); }
+  }
+
+  if (current && !replace) history.push(current);
+  if (FULLSCREEN.has(name)) history = history.filter((h) => !FULLSCREEN.has(h.name));
+
+  current = { name, params };
+
+  const host = $('#screen');
+  clear(host);
+  host.dataset.screen = name;
+  document.body.dataset.screen = name;
+
+  $('#screen-title').textContent = TITLES[name] || name;
+  $('#topbar').hidden = FULLSCREEN.has(name);
+  $('#tabbar').hidden = FULLSCREEN.has(name);
+  $('.back-btn').hidden = history.length === 0 || FULLSCREEN.has(name);
+
+  for (const tab of document.querySelectorAll('.tab')) {
+    tab.classList.toggle('active', tab.dataset.tab === TAB_OF[name]);
+  }
+
+  host.scrollTop = 0;
+  screen.render(host, params);
+  refreshWallet();
+}
+
+function back() {
+  const prev = history.pop();
+  if (!prev) return navigate('campaign', {}, { replace: true });
+  const keep = history;
+  navigate(prev.name, prev.params, { replace: true });
+  history = keep;
+}
+
+/** Re-render the current screen in place (after a purchase, promote, etc). */
+function refresh() {
+  if (!current) return;
+  const keep = history.slice();
+  navigate(current.name, current.params, { replace: true });
+  history = keep;
+}
+
+function currentScreen() {
+  return current;
+}
+
+function refreshWallet() {
+  const chip = $('#wallet-zeni .val');
+  if (chip) chip.textContent = fmt(getState().zeni);
+}
+
+function initShell() {
+  document.querySelector('.back-btn').addEventListener('click', back);
+  for (const tab of document.querySelectorAll('.tab')) {
+    tab.addEventListener('click', () => {
+      history = [];
+      navigate(tab.dataset.tab, {}, { replace: true });
+    });
+  }
+  subscribe(refreshWallet);
+  refreshWallet();
+}
+
+/* ===== src/main.js ===== */
+/**
+ * main.js \u2014 Entry point. Loads the save, boots the shell, shows the campaign.
+ */
+
+
+
+
+load();
+initShell();
+navigate('campaign', {}, { replace: true });
+
+// iOS can discard a backgrounded tab without a beforeunload; pagehide is the
+// reliable moment to flush.
+window.addEventListener('pagehide', persistNow);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') persistNow();
+});
+
+// Surface module errors on-device, where there is no console.
+window.addEventListener('error', (ev) => {
+  const box = document.getElementById('toasts');
+  if (!box) return;
+  box.insertAdjacentHTML('beforeend', `<div class="toast toast-warn">${ev.message}</div>`);
+});
+</script>

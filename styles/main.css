@@ -1,3 +1,15 @@
+/* Anton by The Anton Project Authors, SIL Open Font License 1.1.
+   Vendored (latin subset) rather than loaded from a font CDN so the game works
+   offline, on a LAN with no internet, and inside a sandboxed embed.
+   Full licence: assets/anton-OFL.txt */
+@font-face {
+  font-family: 'Anton';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/anton-latin.woff2') format('woff2');
+}
+
 /* main.css — shell, roster, hero detail, campaign, bag.
    Mobile-first portrait; every size is tuned for a ~390px-wide iPhone. */
 
@@ -15,6 +27,10 @@
   --bad: #f87171;
   --gold: #fbbf24;
   --radius: 14px;
+  /* Anton: condensed heavy caps — a fighting-game title-card voice, and the
+     narrow width buys real room for long hero and stage names at 390px.
+     Body text stays on the system UI stack, which is what iOS renders best. */
+  --font-display: 'Anton', 'Arial Narrow', 'Helvetica Neue Condensed', 'Haettenschweiler', system-ui, sans-serif;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --topbar-h: 52px;
@@ -75,7 +91,10 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   padding: 0 0 3px;
 }
 
-.screen-title { font-weight: 700; font-size: 17px; flex: 1; }
+.screen-title {
+  font-family: var(--font-display);
+  font-size: 21px; letter-spacing: 0.02em; flex: 1;
+}
 
 .wallet-chip {
   display: inline-flex; align-items: center; gap: 6px;
@@ -133,7 +152,14 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 .btn.small { padding: 8px 13px; font-size: 13px; border-radius: 9px; }
 .btn.tiny { padding: 5px 9px; font-size: 11px; border-radius: 8px; }
 .btn.disabled { opacity: 0.42; pointer-events: none; }
+.btn.danger { background: linear-gradient(180deg, #ef4444, #b91c1c); border-color: #fca5a5; color: #fff; }
 .btn .cost { font-weight: 500; font-size: 12px; opacity: 0.85; display: block; }
+
+:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
 
 .note { color: var(--muted); font-size: 12.5px; line-height: 1.5; margin: 12px 2px 0; }
 
@@ -188,7 +214,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 .stage-card.cleared .stage-num { background: linear-gradient(180deg, #16a34a, #14532d); }
 
 .stage-body { flex: 1; min-width: 0; }
-.stage-name { font-weight: 700; font-size: 15px; }
+.stage-name { font-family: var(--font-display); font-size: 17px; letter-spacing: 0.01em; text-wrap: balance; }
 .stage-name .tick { color: var(--good); }
 .stage-sub { color: var(--muted); font-size: 12px; margin-top: 1px; line-height: 1.35; }
 
@@ -242,7 +268,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   padding: 1px 5px; border-radius: 5px;
 }
 .card-art { width: 100%; aspect-ratio: 1 / 1; display: block; }
-.card-name { font-size: 12.5px; font-weight: 700; margin-top: 2px; }
+.card-name { font-family: var(--font-display); font-size: 14px; letter-spacing: 0.02em; margin-top: 2px; }
 .card-sub { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .card-stars { margin-top: 1px; }
 
@@ -259,13 +285,13 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 
 /* ---------------- hero detail ---------------- */
 
-.hero-hero { text-align: center; margin-bottom: 10px; }
+.hero-hero { text-align: center; margin-bottom: 6px; }
 .rarity-badge {
   display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
   text-transform: uppercase; color: #0b1020; background: var(--rarity, #64748b);
   padding: 2px 9px; border-radius: 999px;
 }
-.hero-name { font-size: 24px; font-weight: 850; margin-top: 4px; }
+.hero-name { font-family: var(--font-display); font-size: 30px; letter-spacing: 0.01em; margin-top: 3px; text-wrap: balance; }
 .hero-title { font-size: 12px; color: var(--muted); }
 
 .tab-bar {
@@ -290,8 +316,10 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 
 .portrait-stage {
   position: relative;
-  aspect-ratio: 1 / 1;
-  max-width: 320px;
+  /* Slightly shorter than square so the stat row and Upgrade button clear the
+     sticky tab bar without scrolling on a small phone. */
+  aspect-ratio: 1 / 0.86;
+  max-width: 300px;
   margin: 0 auto;
   border-radius: 18px;
   background:
@@ -328,7 +356,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 
 .stat-panel {
   background: var(--panel); border: 1px solid var(--panel-line);
-  border-radius: var(--radius); padding: 12px; margin-top: 12px;
+  border-radius: var(--radius); padding: 10px; margin-top: 10px;
 }
 .level-line { text-align: center; font-size: 19px; font-weight: 800; color: var(--gold); }
 .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0 4px; }
@@ -410,7 +438,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   animation: sheetUp 0.22s ease;
 }
 @keyframes sheetUp { from { transform: translateY(24px); opacity: 0; } }
-.sheet-title { font-weight: 750; font-size: 16px; margin-bottom: 12px; }
+.sheet-title { font-family: var(--font-display); font-size: 19px; margin-bottom: 12px; }
 
 .gear-rows { display: flex; flex-direction: column; gap: 8px; }
 .gear-row, .shard-row {
@@ -434,7 +462,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   background: var(--panel); border: 1px solid var(--panel-line);
   border-radius: var(--radius); padding: 12px; margin-bottom: 14px;
 }
-.brief-title { font-weight: 800; font-size: 16px; }
+.brief-title { font-family: var(--font-display); font-size: 19px; letter-spacing: 0.01em; }
 .brief-sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
 .enemy-lineup { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
 .lineup-unit { text-align: center; width: 62px; }
@@ -442,7 +470,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   width: 62px; height: 62px; border-radius: 11px; overflow: hidden;
   border: 1.5px solid var(--rc); background: rgba(0, 0, 0, 0.3);
 }
-.lu-name { font-size: 11px; font-weight: 700; margin-top: 3px; }
+.lu-name { font-family: var(--font-display); font-size: 12.5px; margin-top: 3px; }
 .lu-row { font-size: 9.5px; color: var(--muted); text-transform: uppercase; }
 
 .power-compare { font-size: 12.5px; }
@@ -469,7 +497,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.25));
 }
 .fu-art { width: 100%; aspect-ratio: 1/1; background: none; border: 0; padding: 0; display: block; }
-.fu-name { font-size: 12.5px; font-weight: 700; }
+.fu-name { font-family: var(--font-display); font-size: 14px; }
 .fu-sub { font-size: 10px; color: var(--muted); }
 .fu-stars { margin-bottom: 5px; }
 .form-unit.empty {
@@ -488,10 +516,10 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   text-align: center;
   display: flex; flex-direction: column;
 }
-.res-banner { font-size: 38px; font-weight: 900; letter-spacing: 0.06em; }
+.res-banner { font-family: var(--font-display); font-size: 52px; letter-spacing: 0.05em; }
 .results.win .res-banner { color: var(--gold); text-shadow: 0 0 26px rgba(251, 191, 36, 0.55); }
 .results.lose .res-banner { color: var(--bad); }
-.res-stage { font-size: 15px; font-weight: 700; margin-top: 6px; }
+.res-stage { font-family: var(--font-display); font-size: 18px; margin-top: 6px; }
 .res-line { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
 .first-clear {
   margin: 10px auto 0; display: inline-block;
