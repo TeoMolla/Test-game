@@ -12,8 +12,8 @@ import { h, fmt, clear } from '../dom.js';
 import { bodySVG, bustSVG } from '../avatar.js';
 import { spriteSet, bustHTML } from '../sprites.js';
 import { createAnimator } from '../spriteAnimator.js';
-import { startStageBattle } from '../../battle/index.js';
-import { getStage, completeStage, recordDefeat } from '../../progression/index.js';
+import { startEncounterBattle } from '../../battle/index.js';
+import { encounterInfo, completeEncounter, recordDefeat } from '../../progression/index.js';
 import { rarityOf, COMBAT, ULTIMATE_MODE } from '../../config.js';
 import { navigate } from '../app.js';
 
@@ -32,10 +32,10 @@ export function dispose() {
   finished = false;
 }
 
-export function render(host, { stageId }) {
+export function render(host, { ref }) {
   dispose();
-  const stage = getStage(stageId);
-  battle = startStageBattle(stageId);
+  const info = encounterInfo(ref);
+  battle = startEncounterBattle(ref);
   speed = 1;
 
   const screen = h('div', { class: 'battle-screen' });
@@ -44,7 +44,7 @@ export function render(host, { stageId }) {
   const top = h('div', {
     class: 'bt-top',
     html: `
-      <span class="bt-stage">${stage ? `${stage.id}. ${stage.name}` : 'Battle'}</span>
+      <span class="bt-stage">${info ? info.title : 'Battle'}</span>
       <span class="bt-timer" id="bt-timer">0.0s</span>
       <button class="btn ghost tiny" id="bt-speed">x1</button>`,
   });
@@ -165,7 +165,7 @@ export function render(host, { stageId }) {
       raf = requestAnimationFrame(frame);
     } else if (!finished) {
       finished = true;
-      endBattle(stageId);
+      endBattle(ref);
     }
   };
   raf = requestAnimationFrame(frame);
@@ -410,7 +410,7 @@ function paint(timerEl) {
 
 /* ---------------- resolution ---------------- */
 
-function endBattle(stageId) {
+function endBattle(ref) {
   // A finishing ultimate ends the battle on the tick that started the
   // time-stop, so the matching 'unfreeze' never arrives. Clear it here.
   document.querySelector('.battle-screen')?.classList.remove('time-stop');
@@ -420,9 +420,9 @@ function endBattle(stageId) {
   const survivors = battle.units.filter((u) => u.side === 'player' && u.alive).length;
   const seconds = battle.elapsed;
 
-  const rewards = won ? completeStage(stageId) : (recordDefeat(), null);
+  const rewards = won ? completeEncounter(ref) : (recordDefeat(), null);
 
   setTimeout(() => {
-    navigate('results', { stageId, won, survivors, seconds, rewards });
+    navigate('results', { ref, won, survivors, seconds, rewards });
   }, 1000);
 }

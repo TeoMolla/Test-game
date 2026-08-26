@@ -10,6 +10,7 @@ import { getState, subscribe } from '../save/index.js';
 import { PROTAGONIST_ID } from '../hero/heroes.js';
 
 import * as campaign from './screens/campaign.js';
+import * as dungeons from './screens/dungeons.js';
 import * as roster from './screens/roster.js';
 import * as companions from './screens/companions.js';
 import * as bag from './screens/bag.js';
@@ -18,10 +19,11 @@ import * as formation from './screens/formation.js';
 import * as battle from './screens/battle.js';
 import * as results from './screens/results.js';
 
-const SCREENS = { campaign, roster, companions, bag, heroDetail, formation, battle, results };
+const SCREENS = { campaign, dungeons, roster, companions, bag, heroDetail, formation, battle, results };
 
 const TITLES = {
   campaign: 'Campaign',
+  dungeons: 'Dungeons',
   roster: 'Hero',
   companions: 'Companions',
   bag: 'Bag',
@@ -36,10 +38,8 @@ const FULLSCREEN = new Set(['battle', 'results']);
 
 /** Which tab lights up for a given screen. */
 const TAB_OF = {
-  campaign: 'campaign', roster: 'roster', companions: 'companions', bag: 'bag',
-  // A companion opened from either place still belongs to the companion tab;
-  // the protagonist belongs to his own.
-  formation: 'campaign',
+  campaign: 'campaign', dungeons: 'dungeons', roster: 'roster',
+  companions: 'companions', bag: 'bag',
 };
 
 let current = null;
@@ -99,8 +99,14 @@ export function currentScreen() {
 
 /** Which tab should light up. Hero detail depends on whose detail it is. */
 function tabFor(name, params) {
+  // A companion opened from either place still belongs to the companion tab;
+  // the protagonist belongs to his own.
   if (name === 'heroDetail') {
     return params?.heroId === PROTAGONIST_ID ? 'roster' : 'companions';
+  }
+  // The pre-battle screen belongs to whichever list the fight came from.
+  if (name === 'formation') {
+    return params?.ref?.kind === 'dungeon' ? 'dungeons' : 'campaign';
   }
   return TAB_OF[name];
 }

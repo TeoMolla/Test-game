@@ -23,6 +23,11 @@ Progress saves to `localStorage`, so it survives closing the tab.
 
 - **Campaign** — 6 story stages, Saibamen → Raditz → Nappa → Vegeta, each with a
   recommended team power and its own enemy team.
+- **Dungeons** — repeatable gear runs, on their own tab, deliberately outside
+  the story. The Z Dungeon holds one arc per saga; the Saiyan Saga is built and
+  Namek is a greyed-out signpost for what comes next. Four difficulties —
+  Easy (Raditz), Normal (Nappa), Hard (Vegeta) and the bonus Extreme (all
+  three at once) — each opened by clearing the one below it.
 - **Formation** — pick up to 3 heroes and assign each to the front or back row
   before the fight.
 - **Sprites** — Goku is drawn art: 16 frames driving idle, a wind-up /
@@ -71,7 +76,9 @@ Progress saves to `localStorage`, so it survives closing the tab.
 - **Levelling** — the two tracks are deliberately different. Your hero is
   *blooded*: battle XP is his alone, and his level is derived from lifetime XP
   rather than stored. Companions are *trained*, through the slots above.
-- **Gear** — weapon/chest/gloves/boots, dropped from stages, equip/unequip.
+- **Gear** — weapon/chest/gloves/boots, equip/unequip. Story stages drop
+  specific named pieces tied to their beat; dungeons drop *quality*, which is
+  what makes their difficulty tiers mean anything.
 - **Bag** — zeni, shards, gear, record, reset.
 
 ## Module map
@@ -86,7 +93,7 @@ systems talk through those interfaces only.
 | `src/skills/` | Skill definitions; which slots a hero has unlocked |
 | `src/battle/` | Headless real-time combat loop, targeting, damage |
 | `src/gear/` | Equipment definitions, bonus totals, drop rolls |
-| `src/progression/` | Stages, enemy units, stage gating and reward payout |
+| `src/progression/` | Stages, dungeons, enemy units, gating and reward payout |
 | `src/inventory/` | Zeni, shards, gear ownership — the only place resources move |
 | `src/save/` | The player-state object and its localStorage persistence |
 | `src/ui/` | Screens, the sprite layer, and the placeholder avatar renderer |
@@ -94,6 +101,13 @@ systems talk through those interfaces only.
 `src/battle/engine.js` never touches the DOM and never imports the save layer —
 it emits events, and `src/ui/screens/battle.js` draws them. That's what lets the
 same simulation run headless in `tools/simulate.mjs`.
+
+The battle and results screens do not know whether a fight came from the story
+or a dungeon. Both are handed an *encounter reference* — `{kind:'stage',...}`
+or `{kind:'dungeon',...}` — which `progression/` resolves into a name, a
+lineup, a recommended power and something to call on victory. That is why
+adding dungeons touched neither screen's logic, and why a third source of
+fights would touch neither either.
 
 ### Sprites
 
@@ -179,7 +193,7 @@ simulation and what is on screen never disagree.
 
 ### The economy
 
-Three resources, three jobs, all fed by the same stages:
+Four resources, four jobs. The first three all come from story stages:
 
 | | earned from | spent on | role |
 | --- | --- | --- | --- |
@@ -198,6 +212,13 @@ be spent.
 Shards do double duty now. They recruit a companion, and every star after that
 raises what its bond lends your hero — so shards for a companion you will never
 field are still worth collecting.
+
+Gear is the exception, and that is the point of dungeons. A dungeon pays gear
+and zeni and **nothing else** — no XP, no beans, no shards. Keeping the payout
+tables disjoint is what lets a dungeon be farmed freely without inflating the
+companion economy above, and it gives the gear track a source the player
+controls rather than arriving as a side effect of pushing the story. There are
+no run limits yet; keys or daily attempts are the obvious next layer.
 
 `tools/economy.mjs` prints both curves side by side and, most usefully, which
 resource is actually binding as the hero climbs. Beans should be the constraint
@@ -218,13 +239,20 @@ dominate that line, the curve needs rebalancing, not the gates.
 ### Balance harness
 
 ```bash
-node tools/simulate.mjs 40     # 40 runs per stage
+node tools/simulate.mjs 40            # 40 runs per campaign stage
+node tools/simulate-dungeons.mjs 40   # same, per dungeon difficulty
 ```
 
-Runs every stage headless against a starting, early-mid, mid and late-game team
-and prints win rate, average duration and average survivors. The campaign's
+Runs every fight headless against a starting, early-mid, mid and late-game team
+and prints win rate, average duration and average survivors. The
 `requiredPower` gates are derived from its output rather than guessed, so that
-"you are underpowered" honestly predicts a loss at every stage.
+"you are underpowered" honestly predicts a loss.
+
+The dungeon harness answers one narrow question: does the difficulty ladder
+behave like a ladder? It currently reads Easy 100% / Normal 0% at early-mid,
+Hard 40% at mid, Extreme 63% at late-mid and 100% at late — so each tier is
+clearable by a team one step stronger than the one below, and Extreme stays a
+wall until well after the story is finished.
 
 ## Reference material
 

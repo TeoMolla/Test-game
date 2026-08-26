@@ -7,6 +7,7 @@
  */
 
 import { GEAR, GEAR_SLOTS, GEAR_SLOT_META, getGearDef, GEAR_IDS } from './gear.js';
+import { RARITY_ORDER } from '../config.js';
 
 export { GEAR, GEAR_SLOTS, GEAR_SLOT_META, getGearDef, GEAR_IDS };
 
@@ -63,4 +64,50 @@ export function rollGearDrops(table) {
     if (Math.random() < (entry.chance ?? 0.35)) drops.push(entry.defId);
   }
   return drops;
+}
+
+/** Every gear id of a given rarity. */
+export function gearIdsByRarity(rarity) {
+  return GEAR_IDS.filter((id) => GEAR[id].rarity === rarity);
+}
+
+/**
+ * Dungeon-style drop: roll a RARITY from weights, then a random item of that
+ * rarity. This is the difference between the two systems — a campaign stage
+ * drops specific named items tied to its story beat, a dungeon drops "gear of
+ * roughly this quality", which is what makes difficulty tiers mean something.
+ *
+ * A rarity with no items defined yet (epic, ssr) walks back down the ladder
+ * rather than dropping nothing, so adding higher-rarity gear later needs no
+ * change to any dungeon's table.
+ *
+ * spec: { rolls, weights: { common: 80, uncommon: 20, ... } }
+ */
+export function rollGearTable(spec) {
+  const weights = Object.entries(spec?.weights || {}).filter(([, w]) => w > 0);
+  const total = weights.reduce((sum, [, w]) => sum + w, 0);
+  if (!total) return [];
+
+  const drops = [];
+  for (let i = 0; i < (spec.rolls || 1); i += 1) {
+    let roll = Math.random() * total;
+    let rarity = weights[weights.length - 1][0];
+    for (const [id, w] of weights) {
+      roll -= w;
+      if (roll <= 0) { rarity = id; break; }
+    }
+    const id = pickOfRarityOrBelow(rarity);
+    if (id) drops.push(id);
+  }
+  return drops;
+}
+
+function pickOfRarityOrBelow(rarity) {
+  let idx = RARITY_ORDER.indexOf(rarity);
+  if (idx < 0) idx = 0;
+  for (let i = idx; i >= 0; i -= 1) {
+    const pool = gearIdsByRarity(RARITY_ORDER[i]);
+    if (pool.length) return pool[Math.floor(Math.random() * pool.length)];
+  }
+  return null;
 }

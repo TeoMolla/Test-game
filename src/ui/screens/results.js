@@ -6,12 +6,14 @@ import { h, fmt, onAction } from '../dom.js';
 import { bustSVG } from '../avatar.js';
 import { bustHTML } from '../sprites.js';
 import { getHeroDef, levelOf } from '../../hero/index.js';
-import { getStage, stageList } from '../../progression/index.js';
+import {
+  encounterInfo, stageList, stageRef, dungeonRef, dungeonList,
+} from '../../progression/index.js';
 import { rarityOf } from '../../config.js';
 import { navigate } from '../app.js';
 
-export function render(host, { stageId, won, survivors, seconds, rewards }) {
-  const stage = getStage(stageId);
+export function render(host, { ref, won, survivors, seconds, rewards }) {
+  const info = encounterInfo(ref);
 
   const rewardRows = [];
   if (rewards) {
@@ -39,32 +41,56 @@ export function render(host, { stageId, won, survivors, seconds, rewards }) {
     }
   }
 
-  const next = stageList().find((s) => !s.cleared && !s.locked);
+  // What to offer next depends on where the fight came from: the story moves
+  // you forward, a dungeon offers the difficulty you just unlocked.
+  const follow = won ? nextEncounter(ref) : null;
+  const home = ref?.kind === 'dungeon'
+    ? { screen: 'dungeons', label: 'Dungeons' }
+    : { screen: 'campaign', label: 'Campaign' };
 
   host.appendChild(h('div', {
     class: `results ${won ? 'win' : 'lose'}`,
     html: `
       <div class="res-banner">${won ? 'VICTORY' : 'DEFEAT'}</div>
-      <div class="res-stage">${stage ? `${stage.id}. ${stage.name}` : ''}</div>
+      <div class="res-stage">${info ? info.title : ''}</div>
       <div class="res-line">${seconds.toFixed(1)}s · ${survivors} hero${survivors === 1 ? '' : 'es'} standing</div>
       ${rewards?.firstClear ? '<div class="first-clear">First Clear Bonus!</div>' : ''}
+      ${rewards?.unlocked ? `<div class="first-clear unlock">${rewards.unlocked} Unlocked!</div>` : ''}
       <div class="reward-list">
         ${won ? (rewardRows.join('') || '<p class="note">No drops this time.</p>')
               : '<p class="note">No rewards. Promote a hero, equip gear, or rethink your formation.</p>'}
       </div>
       <div class="res-actions">
-        ${won && next
-          ? `<button class="btn primary wide" data-action="next" data-stage="${next.stage.id}">Next: ${next.stage.name}</button>`
-          : `<button class="btn primary wide" data-action="retry" data-stage="${stageId}">${won ? 'Fight Again' : 'Retry'}</button>`}
+        ${follow
+          ? `<button class="btn primary wide" data-action="next">Next: ${follow.label}</button>`
+          : `<button class="btn primary wide" data-action="retry">${won ? 'Fight Again' : 'Retry'}</button>`}
         <button class="btn ghost wide" data-action="roster">Manage Heroes</button>
-        <button class="btn ghost wide" data-action="campaign">Campaign</button>
+        <button class="btn ghost wide" data-action="home">${home.label}</button>
       </div>`,
   }));
 
   onAction(host, {
-    next: (el) => navigate('formation', { stageId: Number(el.dataset.stage) }, { replace: true }),
-    retry: (el) => navigate('formation', { stageId: Number(el.dataset.stage) }, { replace: true }),
+    next: () => navigate('formation', { ref: follow.ref }, { replace: true }),
+    retry: () => navigate('formation', { ref }, { replace: true }),
     roster: () => navigate('roster', {}, { replace: true }),
-    campaign: () => navigate('campaign', {}, { replace: true }),
+    home: () => navigate(home.screen, {}, { replace: true }),
   });
+}
+
+/**
+ * The natural follow-up after a win. A story clear points at the next stage;
+ * a dungeon clear points at the difficulty that clear just opened, and stops
+ * offering one at Extreme.
+ */
+function nextEncounter(ref) {
+  if (ref?.kind === 'dungeon') {
+    const entry = dungeonList().find((d) => d.dungeon.id === ref.dungeonId);
+    const idx = entry?.tiers.findIndex((t) => t.tier === ref.tier) ?? -1;
+    const up = idx >= 0 ? entry.tiers[idx + 1] : null;
+    return up
+      ? { label: `${up.meta.name} — ${up.def.title}`, ref: dungeonRef(ref.dungeonId, up.tier) }
+      : null;
+  }
+  const next = stageList().find((s) => !s.cleared && !s.locked);
+  return next ? { label: next.stage.name, ref: stageRef(next.stage.id) } : null;
 }

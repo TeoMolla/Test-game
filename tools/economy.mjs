@@ -12,7 +12,7 @@
 
 import { STAGES } from '../src/progression/stages.js';
 import {
-  xpToReach, allyTrainZeni, allyTrainSenzu, ALLY_LEVEL_CAP_OFFSET, levelFromXp,
+  xpToReach, slotTrainZeni, slotTrainSenzu, COMPANION_LEVEL_CAP_OFFSET, levelFromXp,
 } from '../src/config.js';
 
 const money = (n) => Math.round(n).toLocaleString('en-US');
@@ -30,7 +30,7 @@ for (const s of STAGES) {
     `    | +${f.senzu || 0} senzu, +${money(f.zeni || 0)} zeni`);
 }
 console.log(`\nA full first playthrough: ${money(firstXp)} XP, ${firstSenzu} senzu, ${money(firstZeni)} zeni`);
-console.log(`  -> that puts the hero at Lv.${levelFromXp(firstXp)}, so the ally cap is Lv.${levelFromXp(firstXp) + ALLY_LEVEL_CAP_OFFSET}`);
+console.log(`  -> that puts the hero at Lv.${levelFromXp(firstXp)}, so the companion cap is Lv.${levelFromXp(firstXp) + COMPANION_LEVEL_CAP_OFFSET}`);
 
 const best = STAGES[STAGES.length - 1];
 console.log(`\nFARMING ${best.name}: ${best.rewards.xp} xp · ${best.rewards.senzu} senzu · ${money(best.rewards.zeni)} zeni per run`);
@@ -41,7 +41,7 @@ for (const level of [5, 10, 15, 20, 25, 30]) {
   const xp = xpToReach(level);
   const heroRuns = Math.ceil((xp - firstXp) / best.rewards.xp);
   let senzu = 0, zeni = 0;
-  for (let l = 1; l < level; l++) { senzu += allyTrainSenzu(l); zeni += allyTrainZeni(l); }
+  for (let l = 1; l < level; l++) { senzu += slotTrainSenzu(l); zeni += slotTrainZeni(l); }
   const allyRuns = Math.ceil((senzu - firstSenzu) / best.rewards.senzu);
   console.log(
     `Lv.${String(level).padEnd(4)} ${money(xp).padStart(14)} ${String(Math.max(0, heroRuns)).padStart(6)}  |` +
@@ -49,15 +49,15 @@ for (const level of [5, 10, 15, 20, 25, 30]) {
 }
 
 console.log('\nWHAT BINDS, AS THE HERO CLIMBS (two allies trained in step)');
-console.log('hero Lv   ally cap   senzu banked   senzu to cap x2   binding');
+console.log('hero Lv   companion cap   senzu banked   senzu to cap x2   binding');
 let banked = firstSenzu, runs = 0;
 for (let heroLevel = levelFromXp(firstXp); heroLevel <= 24; heroLevel += 3) {
   const need = Math.max(0, xpToReach(heroLevel) - firstXp);
   runs = Math.ceil(need / best.rewards.xp);
   banked = firstSenzu + runs * best.rewards.senzu;
-  const cap = heroLevel + ALLY_LEVEL_CAP_OFFSET;
+  const cap = heroLevel + COMPANION_LEVEL_CAP_OFFSET;
   let cost = 0;
-  for (let l = 1; l < cap; l++) cost += allyTrainSenzu(l);
+  for (let l = 1; l < cap; l++) cost += slotTrainSenzu(l);
   cost *= 2;
   console.log(
     `${String(heroLevel).padStart(7)} ${String(cap).padStart(10)} ${String(banked).padStart(14)} ` +

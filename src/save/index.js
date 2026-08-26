@@ -14,7 +14,7 @@ import { TEAM_SIZE, COMPANION_SLOTS, xpToReach, levelFromXp } from '../config.js
 // The key is deliberately NOT versioned: bumping it would orphan every save on
 // every device. SCHEMA_VERSION plus migrate() handle format changes in place.
 const STORAGE_KEY = 'dbz-rpg-prototype:v1';
-const SCHEMA_VERSION = 5;
+const SCHEMA_VERSION = 6;
 
 /** PLACEHOLDER: starting purse. */
 const STARTING_ZENI = 800;
@@ -61,6 +61,8 @@ export function defaultState() {
     shards: { ...STARTING_SHARDS },
     gear: [],
     campaign: { cleared: {}, highestCleared: 0 },
+    // Dungeon clears, keyed `${dungeonId}:${tier}` — see progression/dungeons.js.
+    dungeons: { cleared: {} },
     team: startingTeam,
     // One level per companion slot. Every companion fights at the lowest.
     companionSlots: Array.from({ length: COMPANION_SLOTS }, () => ({ level: 1 })),
@@ -105,6 +107,8 @@ function migrate(raw) {
   merged.gear = Array.isArray(raw.gear) ? raw.gear : [];
   merged.campaign = { ...base.campaign, ...(raw.campaign || {}) };
   merged.campaign.cleared = { ...(raw.campaign?.cleared || {}) };
+  // v6 adds dungeons. An older save simply has none cleared.
+  merged.dungeons = { cleared: { ...(raw.dungeons?.cleared || {}) } };
   merged.team = Array.isArray(raw.team) ? raw.team.filter((s) => s && merged.heroes[s.heroId]) : base.team;
   merged.stats = { ...base.stats, ...(raw.stats || {}) };
 

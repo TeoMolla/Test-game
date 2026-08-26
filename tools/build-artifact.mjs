@@ -34,6 +34,7 @@ const MODULES = [
   'src/gear/gear.js',
   'src/progression/enemies.js',
   'src/progression/stages.js',
+  'src/progression/dungeons.js',
   'src/save/index.js',
   'src/gear/index.js',
   'src/inventory/index.js',
@@ -49,7 +50,10 @@ const MODULES = [
   'src/ui/spriteAnimator.js',
 ];
 
-const SCREENS = ['campaign', 'roster', 'bag', 'heroDetail', 'formation', 'battle', 'results'];
+const SCREENS = [
+  'campaign', 'dungeons', 'roster', 'companions', 'bag',
+  'heroDetail', 'formation', 'battle', 'results',
+];
 
 /** Modules imported elsewhere as `import * as name` need a real namespace object. */
 const NAMESPACES = { inventory: 'src/inventory/index.js' };
@@ -187,6 +191,7 @@ ${css}
 
   <nav id="tabbar">
     <button class="tab" data-tab="campaign"><span class="ico">&#128506;&#65039;</span><span>Campaign</span></button>
+    <button class="tab" data-tab="dungeons"><span class="ico">&#127744;</span><span>Dungeons</span></button>
     <button class="tab" data-tab="roster"><span class="ico">&#128293;</span><span>Hero</span></button>
     <button class="tab" data-tab="companions"><span class="ico">&#128101;</span><span>Companions</span></button>
     <button class="tab" data-tab="bag"><span class="ico">&#127890;</span><span>Bag</span></button>

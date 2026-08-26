@@ -11,23 +11,25 @@ import { bustSVG } from '../avatar.js';
 import { bustHTML } from '../sprites.js';
 import { getState, persist, enforceProtagonist } from '../../save/index.js';
 import { getHeroDef, powerOf, teamPower, allyEntries, isProtagonist, levelOf } from '../../hero/index.js';
-import { getStage, buildEnemyTeam } from '../../progression/index.js';
+import { encounterInfo } from '../../progression/index.js';
 import { rarityOf, TEAM_SIZE } from '../../config.js';
 import { navigate, refresh } from '../app.js';
 
-export function render(host, { stageId }) {
+export function render(host, { ref }) {
   const state = getState();
-  const stage = stageId ? getStage(stageId) : null;
+  // No ref means "just edit the team" — reached from the Campaign banner.
+  const info = ref ? encounterInfo(ref) : null;
   const power = teamPower();
 
-  if (stage) {
-    const enemies = buildEnemyTeam(stage.id);
-    const under = power < stage.requiredPower;
+  if (info) {
+    const enemies = info.enemies;
+    const under = power < info.requiredPower;
     host.appendChild(h('div', {
-      class: 'battle-brief',
+      class: `battle-brief ${info.kind}`,
+      style: info.accent ? { '--tier': info.accent } : {},
       html: `
-        <div class="brief-title">${stage.id}. ${stage.name}</div>
-        <div class="brief-sub">${stage.subtitle}</div>
+        <div class="brief-title">${info.title}</div>
+        <div class="brief-sub">${info.subtitle}</div>
         <div class="enemy-lineup">
           ${enemies.map((e) => {
             const r = rarityOf(e.rarity);
@@ -39,7 +41,7 @@ export function render(host, { stageId }) {
           }).join('')}
         </div>
         <div class="power-compare ${under ? 'warn' : 'ok'}">
-          Your power ⚡ ${fmt(power)} · recommended ⚡ ${fmt(stage.requiredPower)}
+          Your power ⚡ ${fmt(power)} · recommended ⚡ ${fmt(info.requiredPower)}
           ${under ? '<span class="warn-tag">Underpowered</span>' : ''}
         </div>`,
     }));
@@ -90,7 +92,7 @@ export function render(host, { stageId }) {
 
   host.appendChild(h('div', {
     class: 'action-bar',
-    html: stage
+    html: info
       ? `<button class="btn primary wide ${state.team.length ? '' : 'disabled'}" data-action="start">Start Battle</button>`
       : '<button class="btn ghost wide" data-action="done">Done</button>',
   }));
@@ -107,7 +109,7 @@ export function render(host, { stageId }) {
     add: () => openHeroPicker(null),
     start: () => {
       if (!state.team.length) return toast('Add at least one hero.', 'warn');
-      navigate('battle', { stageId });
+      navigate('battle', { ref });
     },
     done: () => navigate('campaign', {}, { replace: true }),
   });

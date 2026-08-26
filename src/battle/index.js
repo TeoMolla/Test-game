@@ -8,7 +8,7 @@
 import { createBattle, effectiveStat } from './engine.js';
 import { getState } from '../save/index.js';
 import { getHeroDef, statsFor, skillsFor, levelOf } from '../hero/index.js';
-import { buildEnemyTeam } from '../progression/index.js';
+import { buildEnemyTeam, buildEncounterEnemies } from '../progression/index.js';
 import { TEAM_SIZE } from '../config.js';
 
 export { createBattle, effectiveStat };
@@ -48,6 +48,19 @@ export function startStageBattle(stageId) {
     stageId,
     playerUnits: buildPlayerUnits(),
     enemyUnits: buildEnemyTeam(stageId),
+  });
+}
+
+/**
+ * Start a fight from an encounter reference (a story stage or a dungeon tier).
+ * The engine is told nothing about where the enemies came from — it only ever
+ * sees two lists of units.
+ */
+export function startEncounterBattle(ref) {
+  return createBattle({
+    stageId: ref?.stageId ?? null,
+    playerUnits: buildPlayerUnits(),
+    enemyUnits: buildEncounterEnemies(ref),
   });
 }
 

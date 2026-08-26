@@ -4,7 +4,7 @@
 
 import { h, fmt, onAction } from '../dom.js';
 import { bustSVG } from '../avatar.js';
-import { stageList, buildEnemyTeam } from '../../progression/index.js';
+import { stageList, buildEnemyTeam, stageRef } from '../../progression/index.js';
 import { teamPower } from '../../hero/index.js';
 import { rarityOf } from '../../config.js';
 import { navigate } from '../app.js';
@@ -61,7 +61,7 @@ export function render(host) {
   }));
 
   onAction(host, {
-    play: (el) => navigate('formation', { stageId: Number(el.dataset.stage) }),
-    'edit-team': () => navigate('formation', { stageId: null }),
+    play: (el) => navigate('formation', { ref: stageRef(el.dataset.stage) }),
+    'edit-team': () => navigate('formation', { ref: null }),
   });
 }
