@@ -41,14 +41,20 @@ Progress saves to `localStorage`, so it survives closing the tab.
   cooldown, ultimate the instant its meter fills. Floating damage numbers, per-unit
   HP bars, and a bottom portrait row showing each hero's technique countdown and
   ultimate-ready state.
-- **Your hero** — Goku is the protagonist: he leads every team, cannot be
-  benched, and is the only character who wears gear. He sits in his own panel
-  above the collection rather than as one card among six.
-- **Companions** — two equipped slots fight beside your hero; the rest of the
-  collection stays home. Recruited with shards, starred up with shards, no gear
-  and no XP. Companions you have not met are not shown at all — the Bag tracks
-  shard progress toward them, and a Recruit button appears once you can afford
-  one.
+- **Hero** — Goku is the protagonist: he leads every team, cannot be benched,
+  and is the only character who wears gear. His tab is deliberately quiet: team
+  power, his own card, and the two companions currently fighting beside him.
+  Nothing to manage, nothing to buy — it answers "how strong am I right now"
+  and gets out of the way.
+- **Companions** — a separate tab holding everything you *do* to the
+  collection: the two slot levels, recruiting, and the owned-only grid you tap
+  into to star someone up. Splitting it this way keeps the roster's growing
+  management surface off the screen you check between fights. Companions you
+  have not met are not shown at all — the Bag tracks shard progress toward
+  them, and a Recruit button appears here once you can afford one.
+- **Two equipped slots** fight beside your hero; the rest of the collection
+  stays home. Companions are recruited with shards, starred up with shards, and
+  wear no gear and earn no XP.
 - **Companion slots carry the level, not the companions.** Each of the two
   slots has its own level bought with senzu beans and zeni, and every companion
   you own fights at the level of the *lowest* slot. Running one slot ahead buys

@@ -1,39 +1,35 @@
 /**
- * ui/screens/roster.js — Hero grid.
+ * ui/screens/roster.js — Your hero.
  *
- * Owned heroes show level + stars; unowned heroes are greyed out with a
- * shard-collection fraction (e.g. "5/15") toward unlocking, mirroring the
- * reference roster screen.
+ * This screen is about the protagonist: his power, his stats, and who is
+ * standing beside him. Managing the collection — levelling the slots, starring
+ * companions up, recruiting — lives on the Companions screen, so this one does
+ * not turn into a console.
  */
 
-import { h, fmt, onAction, starRow, toast } from '../dom.js';
+import { h, fmt, onAction, starRow } from '../dom.js';
 import { bustSVG } from '../avatar.js';
 import { bustHTML } from '../sprites.js';
 import {
-  rosterEntries, allyEntries, recruitableEntries, unlockHero, PROTAGONIST_ID,
-  statsFor, teamPower, slotInfo, trainSlot, companionLevel, getHeroDef,
+  rosterEntries, PROTAGONIST_ID, statsFor, teamPower,
+  companionLevel, getHeroDef, bondOf,
 } from '../../hero/index.js';
-import { COMPANION_SLOTS } from '../../config.js';
 import { getState } from '../../save/index.js';
-import { navigate, refresh } from '../app.js';
+import { navigate } from '../app.js';
 
 export function render(host) {
-  const allies = allyEntries();
-  const owned = allies.filter((e) => e.owned).length;
-
-  /* ---- team power leads the screen ----
-     Power is a team figure, not the hero's: it sums him and whichever allies
-     are in the team. Putting it on his card read as though it were his alone,
-     so it sits above everything instead. */
+  /* ---- team power leads ----
+     Power is a team figure — the hero plus whichever companions are fielded —
+     so it sits above everything rather than on his card, where it read as his
+     alone. */
   const fielded = getState().team.length;
   host.appendChild(h('div', {
     class: 'power-banner',
     html: `<div class="pb-label">Team Power</div>
            <div class="pb-value">⚡ ${fmt(teamPower())}</div>
-           <div class="pb-note">hero + ${fielded - 1} all${fielded - 1 === 1 ? 'y' : 'ies'}</div>`,
+           <div class="pb-note">hero + ${fielded - 1} compan${fielded - 1 === 1 ? 'ion' : 'ions'}</div>`,
   }));
 
-  /* ---- the protagonist gets his own panel above the collection ---- */
   const hero = rosterEntries().find((e) => e.id === PROTAGONIST_ID);
   const hStats = statsFor(hero.id);
   host.appendChild(h('button', {
@@ -50,111 +46,55 @@ export function render(host) {
       </span>`,
   }));
 
-  /* ---- companion slots ----
-     The slots carry the level, not the companions, and everyone fights at the
-     lowest of them — so the panel leads with that number and marks which slot
-     is holding it back. */
-  const team = getState().team.filter((s) => s.heroId !== PROTAGONIST_ID);
-  const slots = Array.from({ length: COMPANION_SLOTS }, (_, i) => slotInfo(i)).filter(Boolean);
+  /* ---- who is fighting beside him ----
+     Equipped companions only. The rest of the collection is not this screen's
+     business. */
+  const fieldedCompanions = getState().team
+    .filter((s) => s.heroId !== PROTAGONIST_ID)
+    .map((s) => getHeroDef(s.heroId))
+    .filter(Boolean);
 
   host.appendChild(h('div', {
     class: 'companion-head',
-    html: `<span class="ch-title">Companions</span>
+    html: `<span class="ch-title">Fighting with you</span>
            <span class="ch-level">Lv.${companionLevel()}</span>
-           <span class="ch-note">lowest slot sets the level</span>`,
+           <button class="btn ghost tiny" data-action="manage">Manage →</button>`,
   }));
 
-  const slotRow = h('div', { class: 'slot-row-2' });
-  slots.forEach((slot, i) => {
-    const occupant = team[i] ? getHeroDef(team[i].heroId) : null;
-    const held = slot.level > companionLevel();
-    slotRow.appendChild(h('div', {
-      class: `comp-slot ${slot.binding ? 'binding' : 'ahead'}`,
+  const row = h('div', { class: 'slot-row-2' });
+  for (const def of fieldedCompanions) {
+    const entry = rosterEntries().find((e) => e.id === def.id);
+    const bond = bondOf(def.id);
+    const stats = [
+      ...Object.entries(bond?.flat || {}).filter(([, v]) => v >= 0.5)
+        .map(([k, v]) => `+${fmt(v)} ${k.toUpperCase()}`),
+      ...Object.entries(bond?.pct || {}).filter(([, v]) => v >= 0.0005)
+        .map(([k, v]) => `+${(v * 100).toFixed(1)}% ${k.toUpperCase()}`),
+    ];
+    row.appendChild(h('button', {
+      class: 'comp-slot filled',
+      style: { '--rarity': entry.rarity.color },
+      dataset: { action: 'open', hero: def.id },
       html: `
-        <div class="cs-head">Slot ${i + 1} <span class="cs-lv">Lv.${slot.level}</span></div>
-        <div class="cs-art">${occupant
-          ? bustHTML(occupant.id, occupant.art, bustSVG)
-          : '<span class="cs-empty">＋</span>'}</div>
-        <div class="cs-name">${occupant ? occupant.name : 'Empty'}</div>
-        <button class="btn ${slot.binding ? 'primary' : 'ghost'} tiny wide ${slot.canTrain ? '' : 'disabled'}"
-                data-action="train-slot" data-slot="${i}">
-          ${slot.atMax ? 'Max'
-            : slot.atCap ? `Hero Lv.${slot.cap}`
-            : `🫘 ${slot.senzuCost} · 💰 ${fmt(slot.zeniCost)}`}
-        </button>
-        ${held ? '<div class="cs-warn">ahead of the other slot</div>' : ''}`,
-    }));
-  });
-  host.appendChild(slotRow);
-
-  /* ---- recruitable, when shards allow ---- */
-  const ready = recruitableEntries();
-  if (ready.length) {
-    host.appendChild(h('div', {
-      class: 'recruit-row',
-      html: ready.map((e) => `
-        <button class="btn gold small" data-action="unlock" data-hero="${e.id}">
-          Recruit ${e.def.name}
-        </button>`).join(''),
+        <div class="cs-art">${bustHTML(def.id, def.art, bustSVG)}</div>
+        <div class="cs-name">${def.name}</div>
+        <div class="cs-stars">${starRow(entry.star)}</div>
+        <div class="cs-bond">${stats.join(' · ') || '—'}</div>`,
     }));
   }
-
-  host.appendChild(h('h2', {
-    class: 'panel-title section-head',
-    text: `Collection — ${owned} recruited`,
-  }));
-
-  const grid = h('div', { class: 'hero-grid' });
-
-  for (const entry of allies) {
-    const { id, def, rarity, owned: isOwned, star, level, unlock } = entry;
-    const canUnlock = unlock.canUnlock;
-
-    grid.appendChild(h('button', {
-      class: `hero-card ${isOwned ? '' : 'locked'} ${canUnlock ? 'unlockable' : ''}`,
-      style: { '--rarity': rarity.color, '--glow': rarity.glow },
-      dataset: { action: isOwned ? 'open' : 'unlock', hero: id },
-      html: `
-        <span class="rarity-tag">${rarity.short}</span>
-        <span class="card-art">${bustHTML(id, def.art, bustSVG)}</span>
-        <span class="card-name">${def.name}</span>
-        ${isOwned
-          ? `<span class="card-sub">Lv.${level} · ⚡${fmt(entry.power)}</span>
-             <span class="card-stars">${starRow(star)}</span>`
-          : `<span class="shard-frac ${canUnlock ? 'ready' : ''}">${unlock.have}/${unlock.need}</span>
-             <span class="card-sub">${canUnlock ? 'Tap to summon' : 'Shards needed'}</span>`}`,
-    }));
+  if (!fieldedCompanions.length) {
+    row.appendChild(h('div', { class: 'comp-slot', html: '<div class="cs-empty">No companions in your team</div>' }));
   }
+  host.appendChild(row);
 
-  host.appendChild(grid);
   host.appendChild(h('p', {
     class: 'note',
-    text: 'Every companion you own lends your hero stats, fielded or not — a quarter '
-        + 'of it from the collection, all of it from the two equipped. Star them up '
-        + 'to lend more. Shard progress toward companions you have not met is in the Bag.',
+    text: 'Companions fighting beside you lend their full bond; the rest of your '
+        + 'collection lends a quarter. Manage, train and recruit them in Companions.',
   }));
 
   onAction(host, {
-    'train-slot': (el) => {
-      const i = Number(el.dataset.slot);
-      const info = slotInfo(i);
-      if (trainSlot(i)) {
-        toast(info.binding ? 'Companions grew stronger.' : 'Slot raised — the other slot still sets the level.', 'good');
-        refresh();
-      } else if (info?.atCap) toast(`Your hero must reach Lv.${info.cap + 1} first.`, 'warn');
-      else if (info && info.haveSenzu < info.senzuCost) toast('Not enough senzu beans.', 'warn');
-      else toast('Not enough zeni.', 'warn');
-    },
     open: (el) => navigate('heroDetail', { heroId: el.dataset.hero }),
-    unlock: (el) => {
-      const heroId = el.dataset.hero;
-      if (unlockHero(heroId)) {
-        toast(`${heroId.toUpperCase()} joined your team!`, 'good');
-        navigate('heroDetail', { heroId });
-      } else {
-        toast('Not enough shards yet.', 'warn');
-        refresh();
-      }
-    },
+    manage: () => navigate('companions', {}, { replace: true }),
   });
 }

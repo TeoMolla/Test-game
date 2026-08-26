@@ -7,20 +7,23 @@
 
 import { clear, $, fmt } from './dom.js';
 import { getState, subscribe } from '../save/index.js';
+import { PROTAGONIST_ID } from '../hero/heroes.js';
 
 import * as campaign from './screens/campaign.js';
 import * as roster from './screens/roster.js';
+import * as companions from './screens/companions.js';
 import * as bag from './screens/bag.js';
 import * as heroDetail from './screens/heroDetail.js';
 import * as formation from './screens/formation.js';
 import * as battle from './screens/battle.js';
 import * as results from './screens/results.js';
 
-const SCREENS = { campaign, roster, bag, heroDetail, formation, battle, results };
+const SCREENS = { campaign, roster, companions, bag, heroDetail, formation, battle, results };
 
 const TITLES = {
   campaign: 'Campaign',
-  roster: 'Heroes',
+  roster: 'Hero',
+  companions: 'Companions',
   bag: 'Bag',
   heroDetail: 'Hero',
   formation: 'Formation',
@@ -32,7 +35,12 @@ const TITLES = {
 const FULLSCREEN = new Set(['battle', 'results']);
 
 /** Which tab lights up for a given screen. */
-const TAB_OF = { campaign: 'campaign', roster: 'roster', bag: 'bag', heroDetail: 'roster', formation: 'campaign' };
+const TAB_OF = {
+  campaign: 'campaign', roster: 'roster', companions: 'companions', bag: 'bag',
+  // A companion opened from either place still belongs to the companion tab;
+  // the protagonist belongs to his own.
+  formation: 'campaign',
+};
 
 let current = null;
 let history = [];
@@ -61,7 +69,7 @@ export function navigate(name, params = {}, { replace = false } = {}) {
   $('.back-btn').hidden = history.length === 0 || FULLSCREEN.has(name);
 
   for (const tab of document.querySelectorAll('.tab')) {
-    tab.classList.toggle('active', tab.dataset.tab === TAB_OF[name]);
+    tab.classList.toggle('active', tab.dataset.tab === tabFor(name, params));
   }
 
   host.scrollTop = 0;
@@ -87,6 +95,14 @@ export function refresh() {
 
 export function currentScreen() {
   return current;
+}
+
+/** Which tab should light up. Hero detail depends on whose detail it is. */
+function tabFor(name, params) {
+  if (name === 'heroDetail') {
+    return params?.heroId === PROTAGONIST_ID ? 'roster' : 'companions';
+  }
+  return TAB_OF[name];
 }
 
 function refreshWallet() {

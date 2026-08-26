@@ -187,7 +187,8 @@ ${css}
 
   <nav id="tabbar">
     <button class="tab" data-tab="campaign"><span class="ico">&#128506;&#65039;</span><span>Campaign</span></button>
-    <button class="tab" data-tab="roster"><span class="ico">&#128101;</span><span>Heroes</span></button>
+    <button class="tab" data-tab="roster"><span class="ico">&#128293;</span><span>Hero</span></button>
+    <button class="tab" data-tab="companions"><span class="ico">&#128101;</span><span>Companions</span></button>
     <button class="tab" data-tab="bag"><span class="ico">&#127890;</span><span>Bag</span></button>
   </nav>
 </div>
