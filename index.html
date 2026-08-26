@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Z-Fighters — Auto-Battle Prototype</title>
+  <!-- Mobile-first, portrait, iPhone Safari target. viewport-fit=cover +
+       env(safe-area-inset-*) in CSS keeps the tab bar clear of the home bar. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0b1020">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%94%B6%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/battle.css">
+</head>
+<body>
+  <div id="app">
+    <header id="topbar">
+      <button class="back-btn" data-action="back" aria-label="Back" hidden>‹</button>
+      <div class="screen-title" id="screen-title">Campaign</div>
+      <div class="wallet">
+        <span class="wallet-chip" id="wallet-zeni"><span class="ico">💰</span><span class="val">0</span></span>
+      </div>
+    </header>
+
+    <main id="screen" aria-live="polite"></main>
+
+    <nav id="tabbar">
+      <button class="tab" data-tab="campaign"><span class="ico">🗺️</span><span>Campaign</span></button>
+      <button class="tab" data-tab="roster"><span class="ico">👥</span><span>Heroes</span></button>
+      <button class="tab" data-tab="bag"><span class="ico">🎒</span><span>Bag</span></button>
+    </nav>
+  </div>
+
+  <div id="toasts"></div>
+
+  <noscript>This prototype requires JavaScript.</noscript>
+  <!-- ES modules require an http(s) origin: serve the folder, don't open the
+       file directly (see README). -->
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
