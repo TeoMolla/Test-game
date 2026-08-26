@@ -53,6 +53,7 @@ function makeUnit(desc, side) {
     engages: engagesInMelee(desc.row === 'back' ? 'back' : 'front', skills.attack),
     readyAt: 0,
     targetUid: null,
+    recover: 0,
     techniqueTimer: skills.technique ? (skills.technique.cooldown || 8) * 0.6 : Infinity,
     ultimateCharge: 0,
     ultimateReady: false,
@@ -96,6 +97,8 @@ export function createBattle({ playerUnits = [], enemyUnits = [], stageId = null
     stageId,
     units,
     elapsed: 0,
+    freeze: 0,             // seconds of held time left after an ultimate
+    frozenTotal: 0,        // seconds spent in time-stop, excluded from `elapsed`
     state: 'running',      // 'running' | 'victory' | 'defeat'
     events: [],
     _accumulator: 0,
@@ -126,6 +129,7 @@ export function createBattle({ playerUnits = [], enemyUnits = [], stageId = null
   battle.requestUltimate = (uid) => {
     const unit = battle.unitById(uid);
     if (!unit || !unit.alive || !unit.ultimateReady) return false;
+    if (unit.recover > 0 || battle.freeze > 0) return false;
     castSkill(battle, unit, unit.skills.ultimate, 'ultimate');
     unit.ultimateCharge = 0;
     unit.ultimateReady = false;
@@ -146,6 +150,19 @@ export function createBattle({ playerUnits = [], enemyUnits = [], stageId = null
 
     while (battle._accumulator >= step && battle.state === 'running') {
       battle._accumulator -= step;
+
+      // Time-stop: the world is held, so the clock does not advance and no
+      // timer moves. The ultimate's animation is on the wall clock and plays
+      // straight through it.
+      if (battle.freeze > 0) {
+        battle.freeze -= step;
+        battle.frozenTotal += step;
+        if (battle.freeze <= 0) {
+          battle.freeze = 0;
+          battle.events.push({ t: 'unfreeze' });
+        }
+        continue;
+      }
       tick(battle, step);
     }
     return battle.events;
@@ -158,6 +175,9 @@ function tick(battle, dt) {
   battle.elapsed += dt;
 
   for (const unit of battle.units) {
+    // An ultimate fired earlier in this same pass: nobody else gets to act on
+    // the tick that started the time-stop.
+    if (battle.freeze > 0) break;
     if (!unit.alive) continue;
 
     // 1. buffs expire
@@ -171,24 +191,30 @@ function tick(battle, dt) {
     // Still closing the distance — no attacking, charging or cooling down yet.
     if (battle.elapsed < unit.readyAt) continue;
 
-    // 2. ultimate meter
-    if (unit.skills.ultimate) {
-      if (!unit.ultimateReady) {
-        addCharge(unit, COMBAT.ultimateChargePerSecond * dt);
-        if (unit.ultimateCharge >= COMBAT.ultimateChargeMax) {
-          unit.ultimateReady = true;
-          battle.events.push({ t: 'ultReady', uid: unit.uid });
-        }
-      }
-      if (unit.ultimateReady && ULTIMATE_MODE === 'auto') {
-        castSkill(battle, unit, unit.skills.ultimate, 'ultimate');
-        unit.ultimateCharge = 0;
-        unit.ultimateReady = false;
-        continue; // one action per tick keeps the readout legible
+    // 2. ultimate meter. Charging continues through recovery; only acting stops.
+    if (unit.skills.ultimate && !unit.ultimateReady) {
+      addCharge(unit, COMBAT.ultimateChargePerSecond * dt);
+      if (unit.ultimateCharge >= COMBAT.ultimateChargeMax) {
+        unit.ultimateReady = true;
+        battle.events.push({ t: 'ultReady', uid: unit.uid });
       }
     }
 
-    // 3. technique
+    // 3. recovering from the last cast — no skill, no swing, no exceptions.
+    if (unit.recover > 0) {
+      unit.recover -= dt;
+      continue;
+    }
+
+    // 4. ultimate
+    if (unit.ultimateReady && ULTIMATE_MODE === 'auto') {
+      castSkill(battle, unit, unit.skills.ultimate, 'ultimate');
+      unit.ultimateCharge = 0;
+      unit.ultimateReady = false;
+      continue; // one action per tick keeps the readout legible
+    }
+
+    // 5. technique
     if (unit.skills.technique) {
       unit.techniqueTimer -= dt;
       if (unit.techniqueTimer <= 0) {
@@ -198,7 +224,7 @@ function tick(battle, dt) {
       }
     }
 
-    // 4. auto-attack
+    // 6. auto-attack
     if (unit.skills.attack) {
       unit.attackTimer -= dt;
       if (unit.attackTimer <= 0) {
@@ -222,6 +248,19 @@ function castSkill(battle, caster, skill, slot) {
 
   for (const effect of skill.effects || []) {
     applyEffect(battle, caster, effect, targets, { skill, slot });
+  }
+
+  // A cast leaves the unit recovering, so a technique and an ultimate can never
+  // land on top of each other.
+  if (slot === 'technique' || slot === 'ultimate') {
+    caster.recover = COMBAT.castRecoverySeconds;
+  }
+  if (slot === 'ultimate') {
+    battle.freeze = Math.max(battle.freeze, COMBAT.ultimateFreezeSeconds);
+    battle.events.push({
+      t: 'freeze', uid: caster.uid, skillId: skill.id,
+      name: skill.name, icon: skill.icon, seconds: COMBAT.ultimateFreezeSeconds,
+    });
   }
   return true;
 }

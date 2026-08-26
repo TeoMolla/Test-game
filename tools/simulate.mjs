@@ -35,9 +35,9 @@ function playerUnits(team) {
 function run(label, team) {
   const power = team.reduce((s, t) => s + powerOf(t.heroId), 0);
   console.log(`\n=== ${label} — team power ${power} ===`);
-  console.log('stage                       gate   wins   avg s  avg survivors');
+  console.log('stage                       gate   wins   sim s  real s  avg survivors');
   for (const stage of STAGES) {
-    let wins = 0, seconds = 0, survivors = 0;
+    let wins = 0, seconds = 0, survivors = 0, wall = 0;
     for (let i = 0; i < RUNS; i++) {
       const battle = createBattle({
         stageId: stage.id,
@@ -47,12 +47,14 @@ function run(label, team) {
       const res = simulate(battle);
       if (res.result === 'victory') { wins++; survivors += res.survivors; }
       seconds += res.seconds;
+      wall += res.wall;
     }
     const name = `${stage.id}. ${stage.name}`.padEnd(26);
     console.log(
       `${name} ${String(stage.requiredPower).padStart(5)}  ` +
       `${String(Math.round((wins / RUNS) * 100) + '%').padStart(4)}  ` +
       `${(seconds / RUNS).toFixed(1).padStart(6)}  ` +
+      `${(wall / RUNS).toFixed(1).padStart(6)}  ` +
       `${wins ? (survivors / wins).toFixed(2) : '—'}`
     );
   }

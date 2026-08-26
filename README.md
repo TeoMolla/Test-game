@@ -34,6 +34,8 @@ Progress saves to `localStorage`, so it survives closing the tab.
   are actually fighting; ranged and back-row units hold and support. Attackers
   sharing a target fan out around it, so a group visibly closes in on one
   defender. Nobody acts until they have arrived.
+- **Ultimates** — firing one stops time: everything else holds while the cast
+  plays out alone. A unit never fires a technique and an ultimate together.
 - **Battle** — real-time, side-view lanes. Every unit runs its own timers:
   auto-attack on its attack interval, auto-technique the moment it leaves
   cooldown, ultimate the instant its meter fills. Floating damage numbers, per-unit
@@ -135,6 +137,15 @@ Four rules are written as switches rather than hard-coded:
 - `engagesInMelee(row, attackSkill)` — who runs in. Front row with a
   non-`ranged` auto-attack, currently; it is what gives the formation choice
   its teeth, since the back row trades safety for holding position.
+
+`COMBAT.ultimateFreezeSeconds` holds the whole world when an ultimate fires —
+timers, cooldowns, the battle clock, every other unit. The cast's own animation
+runs off the wall clock, so it plays straight through the hold and has the
+screen to itself. The dim-and-desaturate staging in `battle.css` is a
+placeholder for the real cut-in. `COMBAT.castRecoverySeconds` is the companion
+rule: after any technique or ultimate that unit does nothing at all for a beat,
+which is what stops a hero firing its technique on the tick after its ultimate
+and reading as both at once.
 
 `COMBAT.approachSeconds` sets how long closing takes. The engine gates every
 unit's first action on the same value the run-in animates over, so the

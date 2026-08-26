@@ -61,6 +61,10 @@ export function simulate(battle, { maxSeconds = 120, step = 0.05 } = {}) {
   return {
     result: battle.state,
     seconds: +battle.elapsed.toFixed(1),
+    // Time-stop is held outside `elapsed`, so a fight lasts this much longer
+    // on the clock than the simulation says.
+    frozen: +battle.frozenTotal.toFixed(1),
+    wall: +(battle.elapsed + battle.frozenTotal).toFixed(1),
     survivors: battle.units.filter((u) => u.side === 'player' && u.alive).length,
     enemyHpLeft: battle.units.filter((u) => u.side === 'enemy').reduce((s, u) => s + u.hp, 0),
   };

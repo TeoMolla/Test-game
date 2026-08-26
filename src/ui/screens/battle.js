@@ -214,6 +214,25 @@ function handleEvent(ev) {
     case 'debuff':
       if (n) floater(n.fx, `${ev.stat.toUpperCase()} ▼`, 'debuff');
       break;
+    case 'freeze': {
+      // PLACEHOLDER staging for the real cut-in: hold everything but the
+      // caster, so the ultimate has the screen to itself.
+      const screen = document.querySelector('.battle-screen');
+      if (screen) {
+        screen.style.setProperty('--freeze-ms', `${Math.round((ev.seconds * 1000) / Math.max(0.25, speed))}ms`);
+        screen.classList.add('time-stop');
+      }
+      for (const other of nodes.values()) other.root.classList.remove('caster');
+      if (n) n.root.classList.add('caster');
+      break;
+    }
+
+    case 'unfreeze': {
+      document.querySelector('.battle-screen')?.classList.remove('time-stop');
+      for (const other of nodes.values()) other.root.classList.remove('caster');
+      break;
+    }
+
     case 'death':
       if (!n) break;
       if (n.animator) {
@@ -392,6 +411,11 @@ function paint(timerEl) {
 /* ---------------- resolution ---------------- */
 
 function endBattle(stageId) {
+  // A finishing ultimate ends the battle on the tick that started the
+  // time-stop, so the matching 'unfreeze' never arrives. Clear it here.
+  document.querySelector('.battle-screen')?.classList.remove('time-stop');
+  for (const n of nodes.values()) n.root.classList.remove('caster');
+
   const won = battle.state === 'victory';
   const survivors = battle.units.filter((u) => u.side === 'player' && u.alive).length;
   const seconds = battle.elapsed;

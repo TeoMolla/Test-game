@@ -24,6 +24,31 @@
   border-radius: 999px; padding: 3px 11px;
 }
 
+/* ---- time-stop ----
+   PLACEHOLDER staging for the ultimate cut-in that will replace it: the world
+   dims and desaturates, the caster stays lit, and every other animation holds
+   where it is. The frame-by-frame sprite clip runs off the wall clock, so the
+   ultimate itself plays straight through. */
+
+.battle-screen.time-stop .arena::before { opacity: 1; }
+
+.time-stop .unit:not(.caster) {
+  filter: grayscale(0.75) brightness(0.5);
+}
+/* Hold everyone else mid-motion — mid-swing, mid-recoil, numbers mid-flight. */
+.time-stop .unit:not(.caster) .u-art,
+.time-stop .unit:not(.caster) .float {
+  animation-play-state: paused;
+}
+.time-stop .unit.caster .u-art {
+  filter: drop-shadow(0 0 14px var(--aura)) brightness(1.08);
+}
+.time-stop .bt-timer { opacity: 0.45; }
+
+.unit:not(.caster), .unit.caster .u-art, .bt-timer {
+  transition: filter 130ms ease, opacity 130ms ease;
+}
+
 /* ---- arena ---- */
 
 .arena {
@@ -34,6 +59,21 @@
   min-height: 0;
   position: relative;
 }
+/* the time-stop wash; sits above the ground and below the units */
+.arena::before {
+  content: '';
+  position: absolute; inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(120% 90% at 50% 45%, rgba(8, 12, 30, 0.25), rgba(4, 7, 18, 0.72));
+  /* snap in, ease out — the hit should land, not fade in */
+  transition: opacity 260ms ease;
+}
+.battle-screen.time-stop .arena::before {
+  transition: opacity 90ms ease;
+}
+
 /* ground plane */
 .arena::after {
   content: '';
@@ -271,6 +311,7 @@
 @media (prefers-reduced-motion: reduce) {
   .u-art.hit, .u-art.lunge, .dock-card.ult-ready, .hero-card.unlockable { animation: none; }
   .unit.advancing .u-art { animation: none; }
+  .arena::before { transition: none; }
   .unit { transition: opacity 0.35s ease; }
   .u-beam.fire { animation: none; width: var(--beam-len, 150px); opacity: 1; }
 }

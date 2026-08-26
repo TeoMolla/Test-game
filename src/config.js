@@ -153,6 +153,25 @@ export const COMBAT = {
    * scrappier brawl.
    */
   approachSeconds: 0.55,
+
+  /**
+   * Everything stops when an ultimate goes off — timers, cooldowns, the battle
+   * clock, every other unit. The cast's own animation keeps playing, because
+   * that runs on the wall clock rather than the simulation, so the moment is
+   * held for the ultimate alone.
+   * This is where the cut-in, flash and camera work will hang once they exist.
+   * PLACEHOLDER: long enough to land, short enough not to stall the fight.
+   */
+  ultimateFreezeSeconds: 0.7,
+
+  /**
+   * After any technique or ultimate, that unit does nothing at all for this
+   * long — no second skill, no auto-attack. Without it a hero whose ultimate
+   * comes up on one tick can fire its technique on the very next one, 50ms
+   * later, which reads on screen as both firing at once.
+   * PLACEHOLDER: about a third of an attack interval.
+   */
+  castRecoverySeconds: 0.5,
 };
 
 /**
