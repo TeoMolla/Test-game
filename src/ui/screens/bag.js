@@ -7,7 +7,7 @@ import { bustSVG } from '../avatar.js';
 import { bustHTML } from '../sprites.js';
 import { getState, resetSave } from '../../save/index.js';
 import { getHeroDef, HERO_IDS, isOwned, unlockInfo } from '../../hero/index.js';
-import { getGearDef, describeGear } from '../../gear/index.js';
+import { getGearDef, describeGear, sortGear } from '../../gear/index.js';
 import { rarityOf } from '../../config.js';
 import * as inventory from '../../inventory/index.js';
 import { navigate, refresh } from '../app.js';
@@ -53,21 +53,27 @@ export function render(host) {
   }));
 
   /* ---- gear ---- */
-  const gearRows = state.gear.map((inst) => {
+  // Best first: with fixed-level drops the bag fills up with near-identical
+  // pieces, and the only question being asked of this list is "what is my best
+  // option for this slot".
+  const gearRows = sortGear(state.gear).map((inst) => {
     const def = getGearDef(inst.defId);
     if (!def) return '';
     const r = rarityOf(def.rarity);
     const holder = inst.equippedBy ? getHeroDef(inst.equippedBy) : null;
     return `<div class="gear-row static" style="--gr:${r.color}">
         <span class="gi">${def.icon}</span>
-        <span class="gt"><b>${def.name}</b><small>${describeGear(def)}</small></span>
+        <span class="gt">
+          <b>${def.name} <span class="glv">Lv.${inst.level}</span></b>
+          <small>${describeGear(def, inst.level)}</small>
+        </span>
         <span class="gr-tag">${holder ? holder.name : r.short}</span>
       </div>`;
   }).join('');
 
   host.appendChild(h('section', {
     class: 'panel',
-    html: `<h2 class="panel-title">Gear (${state.gear.length})</h2>${gearRows || '<p class="note">No gear yet — it drops from campaign stages.</p>'}`,
+    html: `<h2 class="panel-title">Gear (${state.gear.length})</h2>${gearRows || '<p class="note">No gear yet — story stages drop a little, dungeons drop the rest.</p>'}`,
   }));
 
   host.appendChild(h('section', {

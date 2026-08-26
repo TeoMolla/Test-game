@@ -14,6 +14,16 @@
  *   rewards         granted on every clear: zeni, XP, senzu beans, shards, gear
  *   firstClear      one-time bonus on the first clear
  *
+ * GEAR FROM THE STORY is deliberately poor: common only, and at low levels.
+ * The campaign's job is XP, beans and shards; gear is what dungeons are for.
+ * What the story does give is a floor — each boss stage drops one GUARANTEED
+ * piece at a level above anything the stage itself rolls, so beating a boss
+ * always hands you a usable piece and an entry ticket to the next dungeon
+ * band.
+ *
+ *   gearLevel       [lo, hi] band every ordinary drop from this stage rolls in
+ *   bossDrop        { defId, level } — one guaranteed piece, boss stages only
+ *
  * PLACEHOLDER: power gates, reward amounts and drop chances are all untuned.
  */
 
@@ -31,6 +41,7 @@ export const STAGES = [
       zeni: 120,
       xp: 70,
       shards: { tien: 2 },
+      gearLevel: [1, 2],
       gearTable: [{ defId: 'training_weights', chance: 0.5 }],
     },
     firstClear: { senzu: 3, zeni: 150, shards: { tien: 3 } },
@@ -50,6 +61,7 @@ export const STAGES = [
       xp: 130,
       senzu: 1,
       shards: { tien: 2 },
+      gearLevel: [1, 3],
       gearTable: [
         { defId: 'turtle_gi', chance: 0.45 },
         { defId: 'worn_boots', chance: 0.4 },
@@ -71,9 +83,11 @@ export const STAGES = [
       xp: 240,
       senzu: 1,
       shards: { piccolo: 3 },
+      gearLevel: [1, 3],
+      bossDrop: { defId: 'bamboo_staff', level: 5 },
       gearTable: [
-        { defId: 'power_pole', chance: 0.4 },
-        { defId: 'scouter', chance: 0.35 },
+        { defId: 'bamboo_staff', chance: 0.4 },
+        { defId: 'training_weights', chance: 0.35 },
       ],
     },
     firstClear: { senzu: 4, zeni: 320, shards: { piccolo: 5 } },
@@ -94,9 +108,10 @@ export const STAGES = [
       xp: 380,
       senzu: 2,
       shards: { gohan: 3 },
+      gearLevel: [2, 4],
       gearTable: [
-        { defId: 'kame_belt', chance: 0.4 },
-        { defId: 'scouter', chance: 0.3 },
+        { defId: 'turtle_gi', chance: 0.4 },
+        { defId: 'worn_boots', chance: 0.3 },
       ],
     },
     firstClear: { senzu: 5, zeni: 380, shards: { gohan: 5 } },
@@ -116,9 +131,11 @@ export const STAGES = [
       xp: 620,
       senzu: 3,
       shards: { piccolo: 4 },
+      gearLevel: [3, 5],
+      bossDrop: { defId: 'worn_boots', level: 8 },
       gearTable: [
-        { defId: 'saiyan_boots', chance: 0.3 },
-        { defId: 'kaio_gloves', chance: 0.3 },
+        { defId: 'training_weights', chance: 0.4 },
+        { defId: 'bamboo_staff', chance: 0.3 },
       ],
     },
     firstClear: { senzu: 8, zeni: 500, shards: { piccolo: 8, gohan: 4 } },
@@ -136,9 +153,11 @@ export const STAGES = [
       xp: 950,
       senzu: 4,
       shards: { gohan: 5 },
+      gearLevel: [4, 6],
+      bossDrop: { defId: 'turtle_gi', level: 12 },
       gearTable: [
-        { defId: 'saiyan_armor', chance: 0.3 },
-        { defId: 'z_sword_shard', chance: 0.25 },
+        { defId: 'turtle_gi', chance: 0.4 },
+        { defId: 'worn_boots', chance: 0.35 },
       ],
     },
     firstClear: { senzu: 12, zeni: 900, shards: { gohan: 10, tien: 10 } },

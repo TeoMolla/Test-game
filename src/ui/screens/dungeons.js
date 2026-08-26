@@ -96,10 +96,11 @@ export function render(host) {
 
 /**
  * The reason to pick this tier over the one below, in one line that must not
- * wrap on a 390px card: how many pieces, which rarities can drop, and which
- * one is the *expected* result (filled). Exact percentages were tried here and
- * pushed the line onto three rows — the ladder is what the player is choosing
- * between, not the odds.
+ * wrap on a 390px card: how many pieces, at what LEVEL band, and which
+ * rarities can drop with the expected one filled. The level band leads the
+ * rarities because two tiers can share a rarity and differ only in level —
+ * that is the normal case on this ladder, not the exception. Exact drop
+ * percentages were tried here and pushed the line onto three rows.
  */
 function dropLine(drops) {
   if (!drops) return '';
@@ -112,5 +113,8 @@ function dropLine(drops) {
       const r = rarityOf(id);
       return `<span class="drop-pip ${id === modal ? 'modal' : ''}" style="--rc:${r.color}">${r.name}</span>`;
     });
-  return `<span class="drop-count">${drops.rolls}× gear</span>${pips.join('')}`;
+  const band = drops.level
+    ? `<span class="drop-lv">Lv.${drops.level[0]}–${drops.level[1]}</span>`
+    : '';
+  return `<span class="drop-count">${drops.rolls}× gear</span>${band}${pips.join('')}`;
 }

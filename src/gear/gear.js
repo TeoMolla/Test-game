@@ -15,6 +15,40 @@
 
 export const GEAR_SLOTS = ['weapon', 'chest', 'gloves', 'boots'];
 
+/**
+ * GEAR LEVEL — the main axis of gear progression.
+ *
+ * An item drops at a level and keeps it forever; there is no upgrading. What
+ * a level is worth: +8% of the item's own base stats, compounding linearly, so
+ * a Lv.10 piece is 1.7x its Lv.1 self and a Lv.40 piece is 4.1x.
+ *
+ * Level is NOT tied to the hero's level and has no ceiling of its own. What
+ * limits it is content: every drop source declares the band it rolls in, so
+ * the deepest thing you have unlocked is the best gear you can hold. Adding a
+ * saga raises the ceiling without touching this file.
+ *
+ * The multiplier applies to flat AND percentage bonuses alike. Percentages are
+ * the ones to watch when tuning — they compound with every other multiplier in
+ * statsFor() — so if late-game gear ever starts dwarfing the other power
+ * tracks, this constant is the knob, not the drop tables.
+ *
+ * PLACEHOLDER: 0.08 is a first pass, checked against tools/simulate.mjs.
+ */
+export const GEAR_LEVEL_STEP = 0.08;
+
+export function gearLevelMult(level = 1) {
+  return 1 + (Math.max(1, level) - 1) * GEAR_LEVEL_STEP;
+}
+
+/** An item's actual bonuses at a given level. */
+export function statsAtLevel(def, level = 1) {
+  const mult = gearLevelMult(level);
+  const scale = (obj) => Object.fromEntries(
+    Object.entries(obj || {}).map(([k, v]) => [k, v * mult])
+  );
+  return { flat: scale(def.flat), pct: scale(def.pct) };
+}
+
 export const GEAR_SLOT_META = {
   weapon: { name: 'Weapon', icon: '⚔️' },
   chest: { name: 'Chest', icon: '🥋' },
@@ -23,6 +57,14 @@ export const GEAR_SLOT_META = {
 };
 
 export const GEAR = {
+  // The common tier has to cover all four slots on its own: the story drops
+  // nothing else, so without a common weapon the campaign could never fill
+  // that slot at all.
+  bamboo_staff: {
+    id: 'bamboo_staff', name: 'Bamboo Training Staff', slot: 'weapon',
+    rarity: 'common', icon: '🎋',
+    flat: { atk: 9 }, pct: {},
+  },
   training_weights: {
     id: 'training_weights', name: 'Weighted Wristbands', slot: 'gloves',
     rarity: 'common', icon: '🧤',

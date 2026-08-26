@@ -12,7 +12,7 @@ import {
   promoteInfo, promote, xpInfo, isProtagonist, bondOf, levelOf,
 } from '../../hero/index.js';
 import { rarityOf, MAX_STARS } from '../../config.js';
-import { GEAR_SLOTS, GEAR_SLOT_META, getGearDef, describeGear } from '../../gear/index.js';
+import { GEAR_SLOTS, GEAR_SLOT_META, getGearDef, describeGear, sortGear } from '../../gear/index.js';
 import * as inventory from '../../inventory/index.js';
 import { refresh } from '../app.js';
 
@@ -86,6 +86,7 @@ function renderStats(body, heroId) {
               style="--gr:${gdef ? rarityOf(gdef.rarity).color : 'transparent'}"
               aria-label="${GEAR_SLOT_META[slot].name}">
               <span class="gi">${gdef ? gdef.icon : GEAR_SLOT_META[slot].icon}</span>
+              ${gdef ? `<span class="gs-lv">${inst.level}</span>` : ''}
             </button>`;
   }).join('');
 
@@ -241,12 +242,15 @@ function openGearSheet(heroId, slot) {
   const equippedUid = hs.equipped[slot];
   const options = inventory.availableGearForSlot(slot);
 
-  const rows = options.map((inst) => {
+  const rows = sortGear(options).map((inst) => {
     const gdef = getGearDef(inst.defId);
     const r = rarityOf(gdef.rarity);
     return `<button class="gear-row" data-action="equip" data-uid="${inst.uid}" style="--gr:${r.color}">
         <span class="gi">${gdef.icon}</span>
-        <span class="gt"><b>${gdef.name}</b><small>${describeGear(gdef)}</small></span>
+        <span class="gt">
+          <b>${gdef.name} <span class="glv">Lv.${inst.level}</span></b>
+          <small>${describeGear(gdef, inst.level)}</small>
+        </span>
         <span class="gr-tag">${r.short}</span>
       </button>`;
   }).join('');
@@ -257,7 +261,7 @@ function openGearSheet(heroId, slot) {
       <div class="sheet">
         <div class="sheet-title">${GEAR_SLOT_META[slot].name}</div>
         ${equippedUid ? '<button class="btn ghost wide" data-action="unequip">Unequip current</button>' : ''}
-        <div class="gear-rows">${rows || '<p class="note">No spare gear for this slot. Gear drops from campaign stages.</p>'}</div>
+        <div class="gear-rows">${rows || '<p class="note">No spare gear for this slot. Dungeons are where gear comes from.</p>'}</div>
         <button class="btn ghost wide" data-action="close">Close</button>
       </div>`,
   });

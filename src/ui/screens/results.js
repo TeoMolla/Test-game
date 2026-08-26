@@ -37,7 +37,10 @@ export function render(host, { ref, won, survivors, seconds, rewards }) {
     }
     for (const g of rewards.gear) {
       const r = rarityOf(g.rarity);
-      rewardRows.push(`<div class="reward"><span class="ri" style="color:${r.color}">${g.icon}</span><span>${g.name}</span></div>`);
+      rewardRows.push(`<div class="reward">
+          <span class="ri" style="color:${r.color}">${g.icon}</span>
+          <span>${g.name} <span class="glv" style="color:${r.color}">Lv.${g.level}</span></span>
+        </div>`);
     }
   }
 

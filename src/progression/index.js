@@ -108,7 +108,11 @@ export function completeStage(stageId) {
     }
   }
 
-  const gear = rollGearDrops(stage.rewards.gearTable);
+  const gear = rollGearDrops(stage.rewards.gearTable, stage.rewards.gearLevel);
+  // A boss stage always hands over one piece, at a level above anything it
+  // rolls — so clearing a boss is never a dry run and always moves the gear
+  // floor up.
+  if (stage.rewards.bossDrop) gear.push({ ...stage.rewards.bossDrop });
   const summary = inventory.grantRewards({ zeni, senzu, shards, gear });
 
   // XP is not an inventory item — it goes straight to the roster. First clears

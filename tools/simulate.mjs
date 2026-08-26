@@ -112,9 +112,9 @@ run('EARLY-MID (2★ Lv8)', [
 
 // Gear is the protagonist's and a major share of his power, so from mid-game
 // on the harness has to field it — a gearless team is not a player.
-function equipSet(defIds) {
+function equipSet(defIds, level = 1) {
   for (const defId of defIds) {
-    const inst = addGear(defId);
+    const inst = addGear(defId, level);
     if (inst) equipGear('goku', inst.uid);
   }
 }
@@ -125,8 +125,10 @@ for (const id of Object.keys(st.heroes)) {
   st.heroes[id].star = 3;
   setLevel(id, 15);
 }
-equipSet(['power_pole', 'kame_belt', 'scouter', 'worn_boots']);
-run('MID (3★ Lv15, uncommon gear)', [
+// Mid-game player: has run the Easy/Normal dungeons, so common-to-uncommon
+// gear in the Lv.10-18 band.
+equipSet(['bamboo_staff', 'turtle_gi', 'training_weights', 'worn_boots'], 14);
+run('MID (3★ Lv15, Lv14 common gear)', [
   { heroId: 'goku', row: 'front' },
   { heroId: 'piccolo', row: 'front' },
   { heroId: 'gohan', row: 'back' },
@@ -139,15 +141,18 @@ for (const id of Object.keys(st.heroes)) {
 }
 // Late-mid: the shape a player is in when stage 6 first looks reachable.
 for (const id of Object.keys(st.heroes)) { st.heroes[id].star = 4; setLevel(id, 20); }
-equipSet(['z_sword_shard', 'saiyan_armor', 'kaio_gloves', 'saiyan_boots']);
-run('LATE-MID (4★ Lv20, rare gear)', [
+// Late-mid: Hard dungeon is clearing, so uncommon in the Lv.18-28 band.
+equipSet(['power_pole', 'kame_belt', 'scouter', 'worn_boots'], 24);
+run('LATE-MID (4★ Lv20, Lv24 uncommon gear)', [
   { heroId: 'goku', row: 'front' },
   { heroId: 'piccolo', row: 'front' },
   { heroId: 'gohan', row: 'back' },
 ]);
 
+// Late: Extreme is farmable, so uncommon at the top of its Lv.28-40 band.
 for (const id of Object.keys(st.heroes)) { st.heroes[id].star = 5; setLevel(id, 30); }
-run('LATE (5★ Lv30, rare gear)', [
+equipSet(['power_pole', 'kame_belt', 'scouter', 'saiyan_boots'], 36);
+run('LATE (5★ Lv30, Lv36 gear)', [
   { heroId: 'goku', row: 'front' },
   { heroId: 'piccolo', row: 'front' },
   { heroId: 'gohan', row: 'back' },

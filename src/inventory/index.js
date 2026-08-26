@@ -79,8 +79,8 @@ export function gearByUid(uid) {
   return getState().gear.find((g) => g.uid === uid) || null;
 }
 
-export function addGear(defId) {
-  const inst = createGearInstance(defId);
+export function addGear(defId, level = 1) {
+  const inst = createGearInstance(defId, level);
   if (!inst) return null;
   getState().gear.push(inst);
   persist();
@@ -144,7 +144,7 @@ export function unequipGear(heroId, slot) {
 }
 
 /** Grant a batch of rewards from a stage clear. Returns a display summary. */
-export function grantRewards({ zeni: z = 0, senzu: sz = 0, shards: sh = {}, gear: gearDefIds = [] } = {}) {
+export function grantRewards({ zeni: z = 0, senzu: sz = 0, shards: sh = {}, gear: gearDrops = [] } = {}) {
   const summary = { zeni: z, senzu: sz, shards: [], gear: [] };
   if (z) addZeni(z);
   if (sz) addSenzu(sz);
@@ -153,9 +153,12 @@ export function grantRewards({ zeni: z = 0, senzu: sz = 0, shards: sh = {}, gear
     addShards(heroId, amount);
     summary.shards.push({ heroId, amount });
   }
-  for (const defId of gearDefIds) {
-    const inst = addGear(defId);
-    if (inst) summary.gear.push(getGearDef(defId));
+  // Gear arrives as { defId, level } — the level is rolled by whichever
+  // source granted it and is fixed from here on.
+  for (const drop of gearDrops) {
+    const { defId, level = 1 } = typeof drop === 'string' ? { defId: drop } : drop;
+    const inst = addGear(defId, level);
+    if (inst) summary.gear.push({ ...getGearDef(defId), level: inst.level, uid: inst.uid });
   }
   return summary;
 }

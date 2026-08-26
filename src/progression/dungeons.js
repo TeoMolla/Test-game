@@ -14,11 +14,17 @@
  *   tiers        one entry per difficulty, keyed by DUNGEON_TIERS
  *
  * Tier shape
- *   boss           who the tier is *about* — drives the card art and blurb
+ *   boss           who the tier is *about* — drives the card art and billing
  *   requiredPower  recommended, warned about, never enforced
  *   enemies        same descriptor the campaign uses
  *   zeni           flat payout
- *   drops          { rolls, weights } — see gear/index.js rollGearTable()
+ *   drops          { rolls, weights, level } — see gear/index.js rollGearTable()
+ *
+ * The two axes move at very different speeds on purpose. RARITY climbs slowly
+ * — the whole Saiyan Saga runs common, common, uncommon, uncommon — while
+ * LEVEL climbs every tier. That makes level the thing you are actually farming
+ * for and leaves rarity as a rare, chunky milestone, which is why a tier can
+ * be worth running even when the one below it drops the same rarity.
  *
  * PLACEHOLDER: every number here is a first-pass guess. Run limits (keys,
  * daily attempts, an energy currency) are the obvious next layer and are
@@ -32,23 +38,19 @@ export const TIER_META = {
   easy: {
     id: 'easy', name: 'Easy', short: 'I',
     color: '#4ade80', glow: 'rgba(74,222,128,0.5)',
-    blurb: 'Common gear, the odd uncommon.',
   },
   normal: {
     id: 'normal', name: 'Normal', short: 'II',
     color: '#38bdf8', glow: 'rgba(56,189,248,0.5)',
-    blurb: 'Mostly uncommon, rare on a good run.',
   },
   hard: {
     id: 'hard', name: 'Hard', short: 'III',
     color: '#c084fc', glow: 'rgba(192,132,252,0.5)',
-    blurb: 'Rare gear is the expected drop here.',
   },
   extreme: {
     id: 'extreme', name: 'Extreme', short: 'EX',
     color: '#fb7185', glow: 'rgba(251,113,133,0.55)',
     bonus: true,
-    blurb: 'All three at once. The best gear in the game.',
   },
 };
 
@@ -67,7 +69,7 @@ export const DUNGEONS = [
         requiredPower: 1800,
         enemies: [{ defId: 'raditz', row: 'front', scale: 0.9 }],
         zeni: 140,
-        drops: { rolls: 2, weights: { common: 80, uncommon: 20 } },
+        drops: { rolls: 2, weights: { common: 100 }, level: [5, 10] },
       },
       normal: {
         boss: 'nappa',
@@ -79,7 +81,7 @@ export const DUNGEONS = [
           { defId: 'saibaman_elite', row: 'back', scale: 1.0 },
         ],
         zeni: 260,
-        drops: { rolls: 2, weights: { common: 35, uncommon: 55, rare: 10 } },
+        drops: { rolls: 2, weights: { common: 100 }, level: [10, 18] },
       },
       hard: {
         boss: 'vegeta',
@@ -88,7 +90,7 @@ export const DUNGEONS = [
         requiredPower: 6300,
         enemies: [{ defId: 'vegeta', row: 'front', scale: 1.0 }],
         zeni: 420,
-        drops: { rolls: 2, weights: { uncommon: 40, rare: 60 } },
+        drops: { rolls: 2, weights: { uncommon: 100 }, level: [18, 28] },
       },
       extreme: {
         boss: 'vegeta',
@@ -96,14 +98,15 @@ export const DUNGEONS = [
         note: 'Every Saiyan who ever landed, on the field together.',
         requiredPower: 9000,
         enemies: [
-          { defId: 'vegeta', row: 'front', scale: 1.05 },
-          { defId: 'nappa', row: 'front', scale: 1.0 },
-          { defId: 'raditz', row: 'back', scale: 1.0 },
+          { defId: 'vegeta', row: 'front', scale: 1.12 },
+          { defId: 'nappa', row: 'front', scale: 1.08 },
+          { defId: 'raditz', row: 'back', scale: 1.05 },
         ],
         zeni: 700,
-        // PLACEHOLDER: tops out at rare because no epic gear exists yet. When
-        // it does, this is the tier it belongs to.
-        drops: { rolls: 3, weights: { uncommon: 15, rare: 85 } },
+        // PLACEHOLDER: rare is a bonus here rather than the expected drop —
+        // the Namek saga is where rare should become routine, and epic lands
+        // in whatever tops the ladder after that.
+        drops: { rolls: 3, weights: { uncommon: 88, rare: 12 }, level: [28, 40] },
       },
     },
   },

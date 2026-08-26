@@ -27,7 +27,8 @@ Progress saves to `localStorage`, so it survives closing the tab.
   the story. The Z Dungeon holds one arc per saga; the Saiyan Saga is built and
   Namek is a greyed-out signpost for what comes next. Four difficulties —
   Easy (Raditz), Normal (Nappa), Hard (Vegeta) and the bonus Extreme (all
-  three at once) — each opened by clearing the one below it.
+  three at once) — each opened by clearing the one below it, and each rolling
+  gear in its own level band.
 - **Formation** — pick up to 3 heroes and assign each to the front or back row
   before the fight.
 - **Sprites** — Goku is drawn art: 16 frames driving idle, a wind-up /
@@ -76,9 +77,10 @@ Progress saves to `localStorage`, so it survives closing the tab.
 - **Levelling** — the two tracks are deliberately different. Your hero is
   *blooded*: battle XP is his alone, and his level is derived from lifetime XP
   rather than stored. Companions are *trained*, through the slots above.
-- **Gear** — weapon/chest/gloves/boots, equip/unequip. Story stages drop
-  specific named pieces tied to their beat; dungeons drop *quality*, which is
-  what makes their difficulty tiers mean anything.
+- **Gear** — weapon/chest/gloves/boots, equip/unequip. Every piece drops with a
+  **level** beside its rarity and keeps it forever; there is no upgrading. A
+  level is worth +8% of the item's own base stats, so a Lv.40 piece is 4.1x its
+  Lv.1 self — which makes level, not rarity, the thing you farm.
 - **Bag** — zeni, shards, gear, record, reset.
 
 ## Module map
@@ -213,6 +215,41 @@ Shards do double duty now. They recruit a companion, and every star after that
 raises what its bond lends your hero — so shards for a companion you will never
 field are still worth collecting.
 
+### Gear levels
+
+Gear has two axes and they move at deliberately different speeds.
+
+**Rarity** climbs slowly and chunkily. The entire Saiyan Saga runs common,
+common, uncommon, uncommon, with rare appearing only as a 12% bonus on Extreme.
+Rare becoming routine is Namek's job.
+
+**Level** climbs every tier, and is what you are actually farming. It is set at
+drop time and never changes — no upgrading, no re-rolling. There is no level
+cap and no tie to the hero's level; the only limit is content, because every
+drop source declares the band it rolls in:
+
+| source | rarity | level |
+| --- | --- | --- |
+| Story stages 1–6 | common only | 1–6, rising with the arc |
+| Boss stages (3, 5, 6) | common, **guaranteed** | 5 / 8 / 12 |
+| Easy dungeon — Raditz | common | 5–10 |
+| Normal dungeon — Nappa | common | 10–18 |
+| Hard dungeon — Vegeta | uncommon | 18–28 |
+| Extreme — all three | uncommon, 12% rare | 28–40 |
+
+Two consequences worth stating. The story is a poor gear source on purpose —
+its job is XP, beans and shards — but each boss hands over one guaranteed piece
+above anything that stage rolls, so clearing a boss is never a dry run and
+always moves your gear floor up. And Easy and Normal drop the *same rarity*:
+the only reason to run the harder one is level, which is exactly the point of
+making level the main axis.
+
+Adding a saga raises the ceiling with no code change — a new tier just declares
+a higher band. `GEAR_LEVEL_STEP` in `src/gear/gear.js` is the knob if late-game
+gear ever starts dwarfing the other power tracks.
+
+### Where the payouts split
+
 Gear is the exception, and that is the point of dungeons. A dungeon pays gear
 and zeni and **nothing else** — no XP, no beans, no shards. Keeping the payout
 tables disjoint is what lets a dungeon be farmed freely without inflating the
@@ -233,7 +270,7 @@ node tools/economy.mjs
 
 Power is meant to read as a sum of several tracks rather than a proxy for any
 one of them. `tools/simulate.mjs` prints the split for each profile — currently
-about **29-38% level, 42-58% stars, 17-25% gear, 5-11% bonds**. If one track ever starts to
+about **28-38% level, 38-51% stars, 15-27% gear, 5-11% bonds**. If one track ever starts to
 dominate that line, the curve needs rebalancing, not the gates.
 
 ### Balance harness

@@ -783,6 +783,9 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 
 .tc-drops { display: flex; align-items: center; gap: 4px; margin-top: 5px; }
 .drop-count { font-size: 10.5px; font-weight: 700; color: var(--text); flex: none; }
+/* Two tiers often share a rarity and differ only here, so the band is the
+   headline number on the card, not a footnote. */
+.drop-lv { font-size: 10.5px; font-weight: 800; color: var(--gold); flex: none; }
 .drop-pip {
   font-size: 9.5px; padding: 1px 5px; border-radius: 999px; white-space: nowrap;
   color: color-mix(in srgb, var(--rc) 70%, var(--muted));
@@ -800,3 +803,19 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 
 /* A dungeon brief keeps its tier colour through the pre-battle screen. */
 .battle-brief.dungeon { border-left: 3px solid var(--tier, var(--panel-line)); }
+
+/* ---------------- gear levels ---------------- */
+
+/* The level is the number that actually differs between two copies of the same
+   item, so it reads as part of the name rather than as metadata beside it. */
+.glv {
+  font-size: 0.82em; font-weight: 800; color: var(--gold);
+  letter-spacing: 0.01em;
+}
+/* On an equipped slot there is only room for the digits. */
+.gs-lv {
+  position: absolute; right: 3px; bottom: 3px;
+  font-size: 9.5px; font-weight: 800; line-height: 1;
+  padding: 1px 3px; border-radius: 4px;
+  background: rgba(6, 11, 22, 0.82); color: var(--gold);
+}

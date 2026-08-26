@@ -14,7 +14,7 @@ import { TEAM_SIZE, COMPANION_SLOTS, xpToReach, levelFromXp } from '../config.js
 // The key is deliberately NOT versioned: bumping it would orphan every save on
 // every device. SCHEMA_VERSION plus migrate() handle format changes in place.
 const STORAGE_KEY = 'dbz-rpg-prototype:v1';
-const SCHEMA_VERSION = 6;
+const SCHEMA_VERSION = 7;
 
 /** PLACEHOLDER: starting purse. */
 const STARTING_ZENI = 800;
@@ -104,7 +104,13 @@ function migrate(raw) {
   }
   merged.senzu = Number.isFinite(raw.senzu) ? raw.senzu : base.senzu;
   merged.shards = { ...raw.shards };
-  merged.gear = Array.isArray(raw.gear) ? raw.gear : [];
+  // v7 gives every gear instance a level. Anything from an older save was
+  // earned before levels existed, so it starts at 1 rather than being guessed
+  // at from where it might have dropped.
+  merged.gear = (Array.isArray(raw.gear) ? raw.gear : []).map((g) => ({
+    ...g,
+    level: Math.max(1, Math.round(g.level ?? 1)),
+  }));
   merged.campaign = { ...base.campaign, ...(raw.campaign || {}) };
   merged.campaign.cleared = { ...(raw.campaign?.cleared || {}) };
   // v6 adds dungeons. An older save simply has none cleared.
