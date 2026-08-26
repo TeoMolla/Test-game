@@ -833,19 +833,80 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   border: 1px solid var(--gr); color: var(--gr);
 }
 
-/* ---------------- gear slot upgrade ---------------- */
+/* ---------------- gear detail card ---------------- */
 
-.slot-upgrade {
-  background: rgba(255, 255, 255, 0.035);
+.sheet-backdrop.centred { align-items: center; justify-content: center; padding: 18px; }
+
+/* The card is the item, so it is tinted by the item's rarity throughout
+   rather than being a neutral panel with a coloured accent. */
+.sheet.gear-detail {
+  padding: 0; overflow: hidden;
+  width: auto; max-width: 340px;
+  border-radius: 18px;
   border: 1px solid var(--panel-line);
-  border-radius: 12px;
-  padding: 10px 11px;
-  margin-bottom: 10px;
+  box-shadow: 0 18px 50px -12px rgba(0, 0, 0, 0.8);
+  animation: cardIn 0.18s ease;
 }
-.su-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-.su-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.su-lv { font-family: var(--font-display); font-size: 20px; color: var(--gold); line-height: 1; }
-.su-boost { font-size: 11px; color: var(--muted); flex-basis: 100%; }
+@keyframes cardIn { from { transform: scale(0.94); opacity: 0; } }
+
+.gd-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 11px 14px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--gr) 42%, #0b1220),
+    color-mix(in srgb, var(--gr) 20%, #0b1220));
+  border-bottom: 1px solid color-mix(in srgb, var(--gr) 45%, transparent);
+}
+.gd-name { font-family: var(--font-display); font-size: 20px; letter-spacing: 0.01em; min-width: 0;
+           overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gd-plus { font-family: var(--font-display); font-size: 20px; color: var(--gold); flex: none; }
+
+.gd-band {
+  position: relative;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px 14px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--gr) 14%, #0b1220), #0b1220);
+}
+.gd-slot { font-size: 12px; color: var(--muted); }
+.gd-rarity { font-family: var(--font-display); font-size: 17px; color: var(--gr); margin-top: 1px; }
+.gd-worth { font-family: var(--font-display); font-size: 22px; color: var(--gold); margin-top: 3px; }
+.gd-art {
+  font-size: 46px; line-height: 1;
+  filter: drop-shadow(0 3px 10px color-mix(in srgb, var(--gr) 60%, transparent));
+}
+.gd-level {
+  position: absolute; right: 0; bottom: 0;
+  padding: 3px 14px 3px 12px;
+  border-top-left-radius: 999px;
+  background: rgba(0, 0, 0, 0.5);
+  font-size: 12px; color: var(--muted);
+}
+.gd-level b { color: var(--text); font-size: 14px; }
+
+.gd-stats { padding: 10px 12px 4px; }
+/* The item's own flat numbers are its headline, so those get the stronger
+   ground; everything else is a plain row. (An even/odd zebra was tried and
+   miscounts, because the section headings are siblings too.) */
+.gd-stat {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  font-size: 13.5px;
+}
+.gd-stat + .gd-stat { background: rgba(255, 255, 255, 0.03); }
+.gd-stat b { font-variant-numeric: tabular-nums; }
+.gd-stat.main { background: rgba(255, 255, 255, 0.09); font-weight: 600; }
+.gd-stat.main b { color: var(--gold); }
+.gd-sub {
+  font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin: 10px 0 4px 10px;
+}
+
+.gd-actions {
+  display: flex; gap: 8px; padding: 10px 12px 12px;
+}
+/* Two buttons on a 340px card: the labels must not wrap. */
+.gd-actions .btn { flex: 1; white-space: nowrap; font-size: 12.5px; padding: 9px 8px; }
 
 .gear-row .scrap { flex: none; font-variant-numeric: tabular-nums; }
 .gear-row .scrap.danger { border-color: var(--bad); color: var(--bad); }

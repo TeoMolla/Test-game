@@ -269,9 +269,18 @@ slot levels are a sink for surplus, not a substitute for finding better gear.
 The cost curve compounds at 3.5%, which is what lets the numbers climb into the
 hundreds over a long game the way the reference screens do.
 
-Two numbers therefore live on every slot and they mean different things: the
-item's own level (top-left, in its rarity colour) and the slot's bought level
-(bottom-right, as a `+N`).
+The hero screen shows exactly one number per slot — the slot's own level, as a
+`+N`. Everything about the item in it lives one tap away, in an item card:
+what it is, its rarity, its level, what it is actually worth in power, its
+stats already multiplied by the slot level, and the two things you can do about
+it (Replace, Enhance). Keeping the hero screen to one number per slot is what
+lets it stay a glanceable summary instead of four stat sheets crammed around a
+portrait.
+
+The card is centred rather than a bottom sheet, and the picker behind Replace
+is a bottom sheet — a single object you are inspecting and a list you scroll
+should not feel alike. The power figure on the card is exact: the hero's power
+now, minus his power with that slot emptied.
 
 ### Where the payouts split
 
