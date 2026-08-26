@@ -9,12 +9,25 @@
 import { h, fmt, onAction, starRow, toast } from '../dom.js';
 import { bustSVG } from '../avatar.js';
 import { bustHTML } from '../sprites.js';
-import { rosterEntries, allyEntries, unlockHero, PROTAGONIST_ID, statsFor, powerOf } from '../../hero/index.js';
+import { rosterEntries, allyEntries, unlockHero, PROTAGONIST_ID, statsFor, teamPower } from '../../hero/index.js';
+import { getState } from '../../save/index.js';
 import { navigate, refresh } from '../app.js';
 
 export function render(host) {
   const allies = allyEntries();
   const owned = allies.filter((e) => e.owned).length;
+
+  /* ---- team power leads the screen ----
+     Power is a team figure, not the hero's: it sums him and whichever allies
+     are in the team. Putting it on his card read as though it were his alone,
+     so it sits above everything instead. */
+  const fielded = getState().team.length;
+  host.appendChild(h('div', {
+    class: 'power-banner',
+    html: `<div class="pb-label">Team Power</div>
+           <div class="pb-value">⚡ ${fmt(teamPower())}</div>
+           <div class="pb-note">hero + ${fielded - 1} all${fielded - 1 === 1 ? 'y' : 'ies'}</div>`,
+  }));
 
   /* ---- the protagonist gets his own panel above the collection ---- */
   const hero = rosterEntries().find((e) => e.id === PROTAGONIST_ID);
@@ -30,14 +43,12 @@ export function render(host) {
         <span class="lead-name">${hero.def.name}</span>
         <span class="lead-sub">Lv.${hero.level} · ${starRow(hero.star)}</span>
         <span class="lead-stats">⚔️ ${fmt(hStats.atk)} · ❤️ ${fmt(hStats.hp)} · 🛡️ ${fmt(hStats.def)}</span>
-        <span class="lead-power">⚡ ${fmt(powerOf(hero.id))}</span>
       </span>`,
   }));
 
-  host.appendChild(h('div', {
-    class: 'power-banner',
-    html: `<div class="pb-label">Allies</div>
-           <div class="pb-value">${owned} / ${allies.length} recruited</div>`,
+  host.appendChild(h('h2', {
+    class: 'panel-title section-head',
+    text: `Allies — ${owned} / ${allies.length} recruited`,
   }));
 
   const grid = h('div', { class: 'hero-grid' });

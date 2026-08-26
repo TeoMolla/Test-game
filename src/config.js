@@ -131,12 +131,16 @@ export function levelUpCost(level) {
  * stats (gear included) plus star rank. Tune freely — nothing branches on it
  * except stage power gates.
  *
- * NOTE (pass 2): character level should contribute only a SMALL share of total
- * power. Power is meant to read as the sum of many things — gear, skill ranks,
- * stars, transformations — rather than a proxy for level. LEVEL_STAT_STEP is
- * currently 5.5% of base stats per level, which compounds to roughly 2.6x by
- * level 30 and makes level dominate everything else; it needs to come down
- * when levelling moves to XP, with the other tracks taking up the slack.
+ * NOTE (pass 2): levels should be MEANINGFUL AND HARD-EARNED, not weak. The
+ * problem to solve is not that a level gives too much — it is that level is
+ * currently the only axis that matters. LEVEL_STAT_STEP compounds to about
+ * 2.6x by level 30, so power today is essentially a readout of level.
+ *
+ * The fix is two-sided, and doing only half of it makes levelling feel hollow:
+ *   - slow levels down, so each one is earned rather than bought;
+ *   - raise what gear, skill ranks and stars contribute, so power reads as the
+ *     sum of several tracks and no single one dominates.
+ * A level should still land as a real step up when it arrives.
  */
 export function computePower(stats, star = 0) {
   return Math.round(
