@@ -4,6 +4,7 @@
 
 import { h, fmt, onAction } from '../dom.js';
 import { bustSVG } from '../avatar.js';
+import { bustHTML } from '../sprites.js';
 import { getHeroDef } from '../../hero/index.js';
 import { getStage, stageList } from '../../progression/index.js';
 import { rarityOf } from '../../config.js';
@@ -17,7 +18,7 @@ export function render(host, { stageId, won, survivors, seconds, rewards }) {
     if (rewards.zeni) rewardRows.push(`<div class="reward"><span class="ri">💰</span><span>${fmt(rewards.zeni)} Zeni</span></div>`);
     for (const s of rewards.shards) {
       const def = getHeroDef(s.heroId);
-      rewardRows.push(`<div class="reward"><span class="ri shard">${bustSVG(def.art)}</span><span>${def.name} Shard ×${s.amount}</span></div>`);
+      rewardRows.push(`<div class="reward"><span class="ri shard">${bustHTML(s.heroId, def.art, bustSVG)}</span><span>${def.name} Shard ×${s.amount}</span></div>`);
     }
     for (const g of rewards.gear) {
       const r = rarityOf(g.rarity);

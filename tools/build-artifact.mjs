@@ -45,6 +45,8 @@ const MODULES = [
   'src/battle/index.js',
   'src/ui/dom.js',
   'src/ui/avatar.js',
+  'src/ui/sprites.js',
+  'src/ui/spriteAnimator.js',
 ];
 
 const SCREENS = ['campaign', 'roster', 'bag', 'heroDetail', 'formation', 'battle', 'results'];
@@ -133,7 +135,20 @@ parts.push(`\n/* ===== src/ui/app.js ===== */\n${app}`);
 
 parts.push(`\n/* ===== src/main.js ===== */\n${strip(read('src/main.js'))}`);
 
-const js = jsAscii(parts.join('\n'));
+let js = parts.join('\n');
+
+// Sprite art has to travel inside the file too. Every asset is referenced as a
+// literal 'assets/...' string (see ui/sprites.js), so one pass catches them all.
+const MIME = { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp' };
+let inlined = 0;
+js = js.replace(/'(assets\/[^']+\.(png|jpg|webp))'/g, (_m, rel, ext) => {
+  const buf = readFileSync(resolve(root, rel));   // throws if the asset is missing
+  inlined += 1;
+  return `'data:${MIME[ext]};base64,${buf.toString('base64')}'`;
+});
+if (!inlined) throw new Error('no sprite assets were inlined — did the asset paths change?');
+console.log(`inlined ${inlined} sprite assets`);
+js = jsAscii(js);
 
 // Sanity: nothing ESM should survive into the flattened scope.
 for (const bad of [/^import\s/m, /^export\s/m]) {

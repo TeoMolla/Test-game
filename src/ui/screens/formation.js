@@ -8,6 +8,7 @@
 
 import { h, fmt, onAction, toast, starRow } from '../dom.js';
 import { bustSVG } from '../avatar.js';
+import { bustHTML } from '../sprites.js';
 import { getState, persist } from '../../save/index.js';
 import { getHeroDef, powerOf, teamPower, rosterEntries } from '../../hero/index.js';
 import { getStage, buildEnemyTeam } from '../../progression/index.js';
@@ -64,7 +65,7 @@ export function render(host, { stageId }) {
         class: 'form-unit',
         style: { '--rarity': r.color, '--glow': r.glow },
         html: `
-          <button class="fu-art" data-action="swap" data-hero="${slot.heroId}">${bustSVG(def.art)}</button>
+          <button class="fu-art" data-action="swap" data-hero="${slot.heroId}">${bustHTML(slot.heroId, def.art, bustSVG)}</button>
           <div class="fu-name">${def.name}</div>
           <div class="fu-sub">Lv.${hsv.level} ⚡${fmt(powerOf(slot.heroId))}</div>
           <div class="fu-stars">${starRow(hsv.star)}</div>
@@ -125,7 +126,7 @@ function openHeroPicker(replacingHeroId) {
                     style="--rarity:${e.rarity.color};--glow:${e.rarity.glow}"
                     data-action="pick" data-hero="${e.id}">
               <span class="rarity-tag">${e.rarity.short}</span>
-              <span class="card-art">${bustSVG(e.def.art)}</span>
+              <span class="card-art">${bustHTML(e.id, e.def.art, bustSVG)}</span>
               <span class="card-name">${e.def.name}</span>
               <span class="card-sub">⚡${fmt(e.power)}</span>
             </button>`).join('') || '<p class="note">No other heroes available.</p>'}

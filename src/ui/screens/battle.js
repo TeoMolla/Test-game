@@ -10,6 +10,8 @@
 
 import { h, fmt, clear } from '../dom.js';
 import { bodySVG, bustSVG } from '../avatar.js';
+import { spriteSet, bustHTML } from '../sprites.js';
+import { createAnimator } from '../spriteAnimator.js';
 import { startStageBattle } from '../../battle/index.js';
 import { getStage, completeStage, recordDefeat } from '../../progression/index.js';
 import { rarityOf, COMBAT, ULTIMATE_MODE } from '../../config.js';
@@ -23,6 +25,7 @@ let finished = false;
 
 export function dispose() {
   if (raf) cancelAnimationFrame(raf);
+  for (const n of nodes.values()) n.animator?.stop();
   raf = null;
   battle = null;
   nodes = new Map();
@@ -64,24 +67,40 @@ export function render(host, { stageId }) {
 
   for (const unit of battle.units) {
     const r = rarityOf(unit.rarity);
+    const set = spriteSet(unit.heroId);
+    const artInner = set
+      ? '<div class="u-sprite"><img class="u-frame" alt="" decoding="async"></div><div class="u-beam"></div>'
+      : bodySVG(unit.art, { facing: unit.side === 'player' ? 'right' : 'left' });
+
     const node = h('div', {
-      class: `unit ${unit.side} row-${unit.row}`,
+      class: `unit ${unit.side} row-${unit.row} ${set ? 'has-sprite' : ''}`,
       style: { '--rarity': r.color, '--aura': unit.art?.aura || r.color },
       html: `
         <div class="u-callout"></div>
         <div class="u-fx"></div>
-        <div class="u-art">${bodySVG(unit.art, { facing: unit.side === 'player' ? 'right' : 'left' })}</div>
+        <div class="u-art">${artInner}</div>
         <div class="u-bar"><span class="u-fill"></span></div>
         <div class="u-name">${unit.name}</div>`,
     });
     lanes[unit.side][unit.row].appendChild(node);
-    nodes.set(unit.uid, {
+
+    const entry = {
       root: node,
       fill: node.querySelector('.u-fill'),
       fx: node.querySelector('.u-fx'),
       callout: node.querySelector('.u-callout'),
       art: node.querySelector('.u-art'),
-    });
+      swings: 0,
+    };
+
+    if (set) {
+      const beam = node.querySelector('.u-beam');
+      entry.animator = createAnimator(set, node.querySelector('.u-frame'), {
+        speed: () => speed,
+        onBeam: (ms) => fireBeam(beam, node, unit, ms),
+      });
+    }
+    nodes.set(unit.uid, entry);
   }
 
   /* ---- bottom portrait row (per-hero cooldown timers) ---- */
@@ -94,7 +113,7 @@ export function render(host, { stageId }) {
       dataset: { uid: unit.uid },
       html: `
         <span class="dc-timer">—</span>
-        <span class="dc-art">${bustSVG(unit.art)}</span>
+        <span class="dc-art">${bustHTML(unit.heroId, unit.art, bustSVG)}</span>
         <span class="dc-ult"><span class="dc-ult-fill"></span></span>
         <span class="dc-name">${unit.name}</span>
         <span class="dc-hp"><span class="dc-hp-fill"></span></span>`,
@@ -149,16 +168,31 @@ function handleEvent(ev) {
     case 'damage': {
       if (!n) return;
       floater(n.fx, `-${fmt(ev.amount)}`, ev.crit ? 'crit' : (ev.self ? 'self' : 'dmg'));
+      const unit = battle.unitById(ev.uid);
       pulse(n.art, 'hit');
+      if (n.animator && !ev.self && unit?.alive) {
+        // PLACEHOLDER: what counts as a "heavy" hit worth the knockback clip.
+        const heavy = ev.crit || ev.amount / unit.maxHp > 0.12;
+        n.animator.play(heavy ? 'hit_heavy' : 'hit');
+      }
       const from = nodes.get(ev.from);
-      if (from && ev.from !== ev.uid) pulse(from.art, 'lunge');
+      if (from && ev.from !== ev.uid && !from.animator) pulse(from.art, 'lunge');
       break;
     }
     case 'heal':
       if (n) floater(n.fx, `+${fmt(ev.amount)}`, 'heal');
       break;
     case 'skill':
-      if (n && ev.slot !== 'attack') callout(n.callout, `${ev.icon || ''} ${ev.name}`, ev.slot);
+      if (!n) break;
+      if (ev.slot !== 'attack') callout(n.callout, `${ev.icon || ''} ${ev.name}`, ev.slot);
+      if (n.animator) {
+        if (ev.slot === 'attack') {
+          // Alternate punch and kick so repeated auto-attacks don't loop one pose.
+          n.animator.play(n.swings++ % 2 ? 'attack_alt' : 'attack');
+        } else if (ev.slot === 'technique' || ev.slot === 'ultimate') {
+          n.animator.play(ev.slot);
+        }
+      }
       break;
     case 'passive':
       if (n) callout(n.callout, `${ev.icon || ''} ${ev.name}`, 'passive');
@@ -170,11 +204,41 @@ function handleEvent(ev) {
       if (n) floater(n.fx, `${ev.stat.toUpperCase()} ▼`, 'debuff');
       break;
     case 'death':
-      if (n) n.root.classList.add('dead');
+      if (!n) break;
+      if (n.animator) {
+        // Let the fall play out, then clear the body off the field.
+        const ms = n.animator.play('defeat');
+        n.root.classList.add('dying');
+        clearTimeout(n.deathTimer);
+        n.deathTimer = setTimeout(() => n.root.classList.add('dead'), ms);
+      } else {
+        n.root.classList.add('dead');
+      }
       break;
     default:
       break;
   }
+}
+
+/**
+ * The release frame draws the hands thrust forward but no beam, so the beam is
+ * a DOM effect — which also lets it stretch to actually reach its target.
+ */
+function fireBeam(beam, casterNode, unit, ms) {
+  const foe = battle.units.find((u) => u.side !== unit.side && u.alive);
+  const foeNode = foe && nodes.get(foe.uid)?.root;
+  let len = 150;                                  // PLACEHOLDER fallback length
+  if (foeNode) {
+    const a = casterNode.getBoundingClientRect();
+    const b = foeNode.getBoundingClientRect();
+    len = Math.max(70, Math.abs((unit.side === 'player' ? b.left - a.right : a.left - b.right)) + 40);
+  }
+  beam.style.setProperty('--beam-len', `${Math.round(len)}px`);
+  beam.style.setProperty('--beam-ms', `${Math.round(ms)}ms`);
+  beam.classList.remove('fire');
+  void beam.offsetWidth;                          // restart the animation
+  beam.classList.add('fire');
+  setTimeout(() => beam.classList.remove('fire'), ms + 60);
 }
 
 function floater(host, text, kind) {
@@ -212,6 +276,9 @@ function paint(timerEl) {
     const pct = Math.max(0, unit.hp / unit.maxHp) * 100;
     n.fill.style.width = `${pct}%`;
     n.fill.classList.toggle('low', pct < 30);
+
+    // PLACEHOLDER threshold: below this the resting pose becomes the hurt one.
+    if (unit.alive) n.animator?.setIdleFrame(pct < 25 ? 'heavy_stun' : 'idle');
 
     if (!n.dock) continue;
     n.dockHp.style.width = `${pct}%`;

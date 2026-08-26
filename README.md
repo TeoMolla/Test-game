@@ -25,6 +25,10 @@ Progress saves to `localStorage`, so it survives closing the tab.
   recommended team power and its own enemy team.
 - **Formation** — pick up to 3 heroes and assign each to the front or back row
   before the fight.
+- **Sprites** — Goku is drawn art: 14 frames driving idle, punch/kick, the
+  Kamehameha charge-and-release, stagger/knockback, a hurt resting pose below
+  25% HP, and a three-frame defeat. Every other hero still uses the CSS
+  placeholder, and the two mix freely on the same screen.
 - **Battle** — real-time, side-view lanes. Every unit runs its own timers:
   auto-attack on its attack interval, auto-technique the moment it leaves
   cooldown, ultimate the instant its meter fills. Floating damage numbers, per-unit
@@ -52,11 +56,39 @@ systems talk through those interfaces only.
 | `src/progression/` | Stages, enemy units, stage gating and reward payout |
 | `src/inventory/` | Zeni, shards, gear ownership — the only place resources move |
 | `src/save/` | The player-state object and its localStorage persistence |
-| `src/ui/` | Screens and the placeholder avatar renderer |
+| `src/ui/` | Screens, the sprite layer, and the placeholder avatar renderer |
 
 `src/battle/engine.js` never touches the DOM and never imports the save layer —
 it emits events, and `src/ui/screens/battle.js` draws them. That's what lets the
 same simulation run headless in `tools/simulate.mjs`.
+
+### Sprites
+
+`src/ui/sprites.js` is the whole contract: a hero either has a sprite set there
+or it doesn't, and one without falls back to the CSS/SVG placeholder in
+`src/ui/avatar.js`. Nothing else in the game knows which is which, so characters
+can be drawn one at a time without a flag day.
+
+Frames come from a flat sheet of poses on white paper. `tools/slice-sprites.py`
+cuts it up — keying the paper, dropping the sheet's own captions and rule lines,
+putting every pose on one canvas height and one ground line, and recording each
+pose's torso centre (`cx`) so a wide pose like a high kick doesn't slide the
+character sideways. Adding a character is an entry in that script's `SHEETS`
+table plus the frame block it prints:
+
+```bash
+python3 tools/slice-sprites.py          # reads art/, writes assets/sprites/
+```
+
+Clip timings and the interruption rules live in `SPRITE_ANIMS`. Priority is the
+part worth understanding: a hit interrupts a basic swing, but *not* a technique
+or ultimate — a front-row hero takes chip damage almost continuously, and
+letting hits interrupt those cancels the release frame, which is the whole
+payoff of a Kamehameha.
+
+Source frames are 182px tall and render at ~104 CSS px, so on a 3x phone screen
+they are upscaled and read a little soft. Redrawing at ~320px tall would make
+them crisp; nothing in the code needs to change if the art gets bigger.
 
 ### Tuning
 

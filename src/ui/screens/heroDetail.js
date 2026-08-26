@@ -6,6 +6,7 @@
 
 import { h, fmt, onAction, starRow, toast, clear } from '../dom.js';
 import { bustSVG } from '../avatar.js';
+import { portraitHTML } from '../sprites.js';
 import {
   getHeroDef, heroSave, statsFor, powerOf, slotsFor,
   promoteInfo, promote, levelInfo, levelUp,
@@ -87,7 +88,7 @@ function renderStats(body, heroId) {
   body.appendChild(h('div', {
     class: 'portrait-stage',
     html: `
-      <div class="portrait-art">${bustSVG(def.art)}</div>
+      <div class="portrait-art">${portraitHTML(heroId, def.art, bustSVG)}</div>
       ${gearNodes}
       <div class="power-plate">⚡ ${fmt(powerOf(heroId))}</div>`,
   }));

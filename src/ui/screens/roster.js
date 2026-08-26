@@ -8,6 +8,7 @@
 
 import { h, fmt, onAction, starRow, toast } from '../dom.js';
 import { bustSVG } from '../avatar.js';
+import { bustHTML } from '../sprites.js';
 import { rosterEntries, unlockHero } from '../../hero/index.js';
 import { navigate, refresh } from '../app.js';
 
@@ -33,7 +34,7 @@ export function render(host) {
       dataset: { action: isOwned ? 'open' : 'unlock', hero: id },
       html: `
         <span class="rarity-tag">${rarity.short}</span>
-        <span class="card-art">${bustSVG(def.art)}</span>
+        <span class="card-art">${bustHTML(id, def.art, bustSVG)}</span>
         <span class="card-name">${def.name}</span>
         ${isOwned
           ? `<span class="card-sub">Lv.${level} · ⚡${fmt(entry.power)}</span>

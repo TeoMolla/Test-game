@@ -4,6 +4,7 @@
 
 import { h, fmt, onAction, toast } from '../dom.js';
 import { bustSVG } from '../avatar.js';
+import { bustHTML } from '../sprites.js';
 import { getState, resetSave } from '../../save/index.js';
 import { getHeroDef, HERO_IDS, isOwned, unlockInfo } from '../../hero/index.js';
 import { getGearDef, describeGear } from '../../gear/index.js';
@@ -28,7 +29,7 @@ export function render(host) {
       const owned = isOwned(id);
       const r = rarityOf(def.rarity);
       return `<div class="shard-row" style="--rc:${r.color}">
-          <span class="sr-art">${bustSVG(def.art)}</span>
+          <span class="sr-art">${bustHTML(id, def.art, bustSVG)}</span>
           <span class="sr-text"><b>${def.name}</b><small>${owned ? 'Unlocked · shards go to promotions' : (info.canUnlock ? 'Ready to summon' : `${info.have}/${info.need} to summon`)}</small></span>
           <span class="sr-count">🔷 ${inventory.shards(id)}</span>
         </div>`;
