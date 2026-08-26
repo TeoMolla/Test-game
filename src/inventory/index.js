@@ -8,7 +8,9 @@
 
 import { getState, persist } from '../save/index.js';
 import { isProtagonist } from '../hero/heroes.js';
-import { createGearInstance, getGearDef } from '../gear/index.js';
+import {
+  createGearInstance, getGearDef, dismantleYield, slotUpgradeCost,
+} from '../gear/index.js';
 import { GEAR_SLOTS } from '../gear/gear.js';
 
 /* ---------------- currency ---------------- */
@@ -45,6 +47,26 @@ export function spendSenzu(amount) {
   const s = getState();
   if (s.senzu < amount) return false;
   s.senzu -= amount;
+  persist();
+  return true;
+}
+
+/* ---------------- iron ---------------- */
+
+export function iron() {
+  return getState().iron || 0;
+}
+
+export function addIron(amount) {
+  const s = getState();
+  s.iron = (s.iron || 0) + amount;
+  persist();
+}
+
+export function spendIron(amount) {
+  const s = getState();
+  if ((s.iron || 0) < amount) return false;
+  s.iron -= amount;
   persist();
   return true;
 }
@@ -139,6 +161,46 @@ export function unequipGear(heroId, slot) {
   const inst = gearByUid(uid);
   if (inst) inst.equippedBy = null;
   hero.equipped[slot] = null;
+  persist();
+  return true;
+}
+
+/**
+ * Scrap a piece for iron. Equipped gear is refused rather than silently
+ * unequipped — dismantling is destructive and should never be something that
+ * happens to the item you are currently wearing by accident.
+ * Returns the iron gained, or 0 if nothing happened.
+ */
+export function dismantleGear(uid) {
+  const s = getState();
+  const idx = s.gear.findIndex((g) => g.uid === uid);
+  if (idx < 0) return 0;
+  const inst = s.gear[idx];
+  if (inst.equippedBy) return 0;
+  const def = getGearDef(inst.defId);
+  if (!def) return 0;
+
+  const gained = dismantleYield(def, inst.level);
+  s.gear.splice(idx, 1);
+  s.iron = (s.iron || 0) + gained;
+  persist();
+  return gained;
+}
+
+/** What one slot upgrade costs and whether it is affordable right now. */
+export function slotUpgradeInfo(slot) {
+  if (!GEAR_SLOTS.includes(slot)) return null;
+  const level = getState().gearSlotLevels?.[slot] ?? 0;
+  const cost = slotUpgradeCost(level);
+  return { slot, level, cost, haveIron: iron(), canUpgrade: iron() >= cost };
+}
+
+/** Spend iron to raise one gear slot a level. */
+export function upgradeGearSlot(slot) {
+  const info = slotUpgradeInfo(slot);
+  if (!info || !info.canUpgrade) return false;
+  if (!spendIron(info.cost)) return false;
+  getState().gearSlotLevels[slot] = info.level + 1;
   persist();
   return true;
 }

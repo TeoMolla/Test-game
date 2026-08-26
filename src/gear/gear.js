@@ -40,6 +40,43 @@ export function gearLevelMult(level = 1) {
   return 1 + (Math.max(1, level) - 1) * GEAR_LEVEL_STEP;
 }
 
+/**
+ * GEAR SLOT LEVEL — the slow grind that runs underneath the drops.
+ *
+ * Each of the four slots carries its own level, bought with iron from
+ * dismantling gear you do not want. It multiplies whatever is IN that slot, so
+ * an empty slot is worth nothing and a slot level is worth more once you have
+ * something good in it.
+ *
+ * The step is deliberately tiny: one slot level is 1/20th of one gear level.
+ * Slot levels are a sink for surplus, not a substitute for finding better
+ * gear, and the numbers are meant to climb into the hundreds over a long game
+ * the way the reference does.
+ *
+ * PLACEHOLDER: 0.004 and the cost curve are first-pass guesses.
+ */
+export const GEAR_SLOT_LEVEL_STEP = 0.004;
+
+export function gearSlotMult(slotLevel = 0) {
+  return 1 + Math.max(0, slotLevel) * GEAR_SLOT_LEVEL_STEP;
+}
+
+/** Iron to take a slot from `level` to `level + 1`. */
+export function slotUpgradeCost(level = 0) {
+  return Math.round(6 * Math.pow(1.035, Math.max(0, level)));
+}
+
+/**
+ * Iron from dismantling one piece. Scales with both of the item's axes so
+ * scrapping a deep drop is worth more than scrapping a starter piece — which
+ * keeps the surplus a late dungeon produces meaningful instead of dwarfed by
+ * the cost curve.
+ */
+export function dismantleYield(def, level = 1) {
+  const byRarity = { common: 3, uncommon: 7, rare: 16, epic: 34, ssr: 70 };
+  return Math.max(1, Math.round((byRarity[def?.rarity] ?? 3) * gearLevelMult(level)));
+}
+
 /** An item's actual bonuses at a given level. */
 export function statsAtLevel(def, level = 1) {
   const mult = gearLevelMult(level);

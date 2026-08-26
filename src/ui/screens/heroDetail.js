@@ -12,8 +12,11 @@ import {
   promoteInfo, promote, xpInfo, isProtagonist, bondOf, levelOf,
 } from '../../hero/index.js';
 import { rarityOf, MAX_STARS } from '../../config.js';
-import { GEAR_SLOTS, GEAR_SLOT_META, getGearDef, describeGear, sortGear } from '../../gear/index.js';
+import {
+  GEAR_SLOTS, GEAR_SLOT_META, getGearDef, describeGear, sortGear, GEAR_SLOT_LEVEL_STEP,
+} from '../../gear/index.js';
 import * as inventory from '../../inventory/index.js';
+import { getState } from '../../save/index.js';
 import { refresh } from '../app.js';
 
 let activeTab = 'stats';
@@ -77,16 +80,22 @@ function renderStats(body, heroId) {
   const bond = lead ? null : bondOf(heroId);
 
   // Gear is the protagonist's alone; allies have no equipment slots.
+  // Two numbers live on a slot and they mean different things: the item's own
+  // level sits with the item (top-left, in its rarity colour), the slot's
+  // bought level sits with the slot (bottom-right, as a +N).
+  const slotLevels = getState().gearSlotLevels || {};
   const gearNodes = !isProtagonist(heroId) ? '' : GEAR_SLOTS.map((slot) => {
     const uid = hs.equipped[slot];
     const inst = uid ? inventory.gearByUid(uid) : null;
     const gdef = inst ? getGearDef(inst.defId) : null;
+    const slotLv = slotLevels[slot] || 0;
     return `<button class="gear-slot slot-${slot} ${gdef ? 'filled' : ''}"
               data-action="gear" data-slot="${slot}"
               style="--gr:${gdef ? rarityOf(gdef.rarity).color : 'transparent'}"
               aria-label="${GEAR_SLOT_META[slot].name}">
               <span class="gi">${gdef ? gdef.icon : GEAR_SLOT_META[slot].icon}</span>
-              ${gdef ? `<span class="gs-lv">${inst.level}</span>` : ''}
+              ${gdef ? `<span class="gs-item">${inst.level}</span>` : ''}
+              ${slotLv ? `<span class="gs-lv">+${slotLv}</span>` : ''}
             </button>`;
   }).join('');
 
@@ -255,11 +264,28 @@ function openGearSheet(heroId, slot) {
       </button>`;
   }).join('');
 
+  // The slot's own level lives here rather than on a separate screen: this is
+  // the one place you are already thinking about this slot.
+  const upgradePanel = () => {
+    const up = inventory.slotUpgradeInfo(slot);
+    return `
+      <div class="su-head">
+        <span class="su-label">Slot level</span>
+        <span class="su-lv">+${up.level}</span>
+        <span class="su-boost">+${(up.level * GEAR_SLOT_LEVEL_STEP * 100).toFixed(1)}% to whatever is equipped here</span>
+      </div>
+      <button class="btn ${up.canUpgrade ? 'primary' : 'ghost'} small wide ${up.canUpgrade ? '' : 'disabled'}"
+              data-action="upgrade-slot">
+        🔩 ${fmt(up.cost)} iron${up.canUpgrade ? '' : ` · you have ${fmt(up.haveIron)}`}
+      </button>`;
+  };
+
   const sheet = h('div', {
     class: 'sheet-backdrop',
     html: `
       <div class="sheet">
         <div class="sheet-title">${GEAR_SLOT_META[slot].name}</div>
+        <div class="slot-upgrade">${upgradePanel()}</div>
         ${equippedUid ? '<button class="btn ghost wide" data-action="unequip">Unequip current</button>' : ''}
         <div class="gear-rows">${rows || '<p class="note">No spare gear for this slot. Dungeons are where gear comes from.</p>'}</div>
         <button class="btn ghost wide" data-action="close">Close</button>
@@ -277,6 +303,17 @@ function openGearSheet(heroId, slot) {
       inventory.unequipGear(heroId, slot);
       sheet.remove();
       refresh();
+    },
+    // Buying slot levels is a repeated action, so the sheet stays open and
+    // updates in place. The +N ticking up is the feedback; a toast per tap
+    // would just stack up over the screen.
+    'upgrade-slot': () => {
+      if (inventory.upgradeGearSlot(slot)) {
+        sheet.querySelector('.slot-upgrade').innerHTML = upgradePanel();
+        refresh();
+      } else {
+        toast('Not enough iron. Scrap spare gear in the Bag.', 'warn');
+      }
     },
     close: () => sheet.remove(),
   });

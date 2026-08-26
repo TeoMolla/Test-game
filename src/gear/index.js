@@ -9,12 +9,14 @@
 import {
   GEAR, GEAR_SLOTS, GEAR_SLOT_META, getGearDef, GEAR_IDS,
   GEAR_LEVEL_STEP, gearLevelMult, statsAtLevel,
+  GEAR_SLOT_LEVEL_STEP, gearSlotMult, slotUpgradeCost, dismantleYield,
 } from './gear.js';
 import { RARITY_ORDER, rarityOf } from '../config.js';
 
 export {
   GEAR, GEAR_SLOTS, GEAR_SLOT_META, getGearDef, GEAR_IDS,
   GEAR_LEVEL_STEP, gearLevelMult, statsAtLevel,
+  GEAR_SLOT_LEVEL_STEP, gearSlotMult, slotUpgradeCost, dismantleYield,
 };
 
 let uidCounter = 0;
@@ -31,7 +33,7 @@ export function createGearInstance(defId, level = 1, seedUid) {
  * { flat, pct } totals. Unknown / missing uids are ignored, so a save that
  * references deleted gear degrades gracefully.
  */
-export function bonusesFor(equipped, gearInstances) {
+export function bonusesFor(equipped, gearInstances, slotLevels = {}) {
   const flat = { atk: 0, hp: 0, def: 0, speed: 0 };
   const pct = { atk: 0, hp: 0, def: 0, speed: 0 };
   if (!equipped) return { flat, pct };
@@ -42,11 +44,14 @@ export function bonusesFor(equipped, gearInstances) {
     const inst = gearInstances.find((g) => g.uid === uid);
     const def = inst && getGearDef(inst.defId);
     if (!def) continue;
-    // The instance's level is what makes two copies of the same item differ.
+    // The instance's level is what makes two copies of the same item differ;
+    // the SLOT's level then multiplies whatever is sitting in it, which is why
+    // an empty slot's level is worth nothing.
     const at = statsAtLevel(def, inst.level);
+    const sm = gearSlotMult(slotLevels[slot]);
     for (const k of Object.keys(flat)) {
-      if (at.flat[k]) flat[k] += at.flat[k];
-      if (at.pct[k]) pct[k] += at.pct[k];
+      if (at.flat[k]) flat[k] += at.flat[k] * sm;
+      if (at.pct[k]) pct[k] += at.pct[k] * sm;
     }
   }
   return { flat, pct };

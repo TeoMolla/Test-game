@@ -169,7 +169,7 @@ export function statsFor(heroId, override = {}) {
   const equipped = override.equipped ?? hs.equipped;
 
   const base = baseStatsAt(def, star, level);
-  const { flat, pct } = bonusesFor(equipped, getState().gear);
+  const { flat, pct } = bonusesFor(equipped, getState().gear, getState().gearSlotLevels);
 
   // Bonds land on the protagonist only — he is the one the collection lends to.
   if (isProtagonist(heroId) && override.bonds !== false) {

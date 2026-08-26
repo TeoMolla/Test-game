@@ -14,7 +14,7 @@ import { TEAM_SIZE, COMPANION_SLOTS, xpToReach, levelFromXp } from '../config.js
 // The key is deliberately NOT versioned: bumping it would orphan every save on
 // every device. SCHEMA_VERSION plus migrate() handle format changes in place.
 const STORAGE_KEY = 'dbz-rpg-prototype:v1';
-const SCHEMA_VERSION = 7;
+const SCHEMA_VERSION = 8;
 
 /** PLACEHOLDER: starting purse. */
 const STARTING_ZENI = 800;
@@ -57,9 +57,13 @@ export function defaultState() {
     version: SCHEMA_VERSION,
     zeni: STARTING_ZENI,
     senzu: STARTING_SENZU,
+    iron: 0,
     heroes,
     shards: { ...STARTING_SHARDS },
     gear: [],
+    // One level per gear slot, bought with iron. Independent of each other and
+    // of whatever item is in the slot.
+    gearSlotLevels: Object.fromEntries(GEAR_SLOTS.map((s) => [s, 0])),
     campaign: { cleared: {}, highestCleared: 0 },
     // Dungeon clears, keyed `${dungeonId}:${tier}` — see progression/dungeons.js.
     dungeons: { cleared: {} },
@@ -103,6 +107,11 @@ function migrate(raw) {
     delete hero.level;
   }
   merged.senzu = Number.isFinite(raw.senzu) ? raw.senzu : base.senzu;
+  // v8 adds iron and per-slot levels. An older save simply has neither.
+  merged.iron = Number.isFinite(raw.iron) ? raw.iron : 0;
+  merged.gearSlotLevels = Object.fromEntries(
+    GEAR_SLOTS.map((s) => [s, Math.max(0, Math.round(raw.gearSlotLevels?.[s] ?? 0))])
+  );
   merged.shards = { ...raw.shards };
   // v7 gives every gear instance a level. Anything from an older save was
   // earned before levels existed, so it starts at 1 rather than being guessed

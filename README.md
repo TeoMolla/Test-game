@@ -81,6 +81,9 @@ Progress saves to `localStorage`, so it survives closing the tab.
   **level** beside its rarity and keeps it forever; there is no upgrading. A
   level is worth +8% of the item's own base stats, so a Lv.40 piece is 4.1x its
   Lv.1 self — which makes level, not rarity, the thing you farm.
+- **Slot levels** — each of the four slots carries its own bought level, shown
+  as a `+N` on the slot. Scrap gear you will not use for **iron** in the Bag,
+  spend iron raising a slot, and the slot multiplies whatever is in it.
 - **Bag** — zeni, shards, gear, record, reset.
 
 ## Module map
@@ -195,7 +198,7 @@ simulation and what is on screen never disagree.
 
 ### The economy
 
-Four resources, four jobs. The first three all come from story stages:
+Five resources, five jobs. The first three all come from story stages:
 
 | | earned from | spent on | role |
 | --- | --- | --- | --- |
@@ -203,6 +206,7 @@ Four resources, four jobs. The first three all come from story stages:
 | **Zeni** | every stage | companion slot levels | plentiful — the volume knob |
 | **Senzu** | stage 2 onward, more the deeper you go | companion slot levels | the real throttle |
 | **Shards** | per-hero, from stages | recruiting and star-ups | the collection loop, and bonds |
+| **Iron** | scrapping surplus gear | gear slot levels | the sink that makes duplicates worth having |
 
 Senzu is what ties the two tracks together. Stage 6 pays four beans a run
 against stage 2's one, so how fast your companions grow is set by how deep *you*
@@ -247,6 +251,27 @@ making level the main axis.
 Adding a saga raises the ceiling with no code change — a new tier just declares
 a higher band. `GEAR_LEVEL_STEP` in `src/gear/gear.js` is the knob if late-game
 gear ever starts dwarfing the other power tracks.
+
+### Iron and slot levels
+
+Fixed-level drops mean the bag fills with near-identical pieces, so surplus
+gear needs somewhere to go. Scrapping a piece yields **iron**, scaled by both
+its rarity and its level, so the surplus a late dungeon produces is worth more
+than the surplus an early one does. Equipped gear is never offered for
+scrapping — the safest way to stop someone destroying what they are wearing is
+not to show the button.
+
+Iron buys slot levels. Each of the four slots has its own, and a slot level
+multiplies whatever item is sitting in it: an empty slot's level is worth
+nothing, and a slot level is worth more once you have something good there. The
+step is deliberately tiny — **one slot level is 1/20th of one gear level** — so
+slot levels are a sink for surplus, not a substitute for finding better gear.
+The cost curve compounds at 3.5%, which is what lets the numbers climb into the
+hundreds over a long game the way the reference screens do.
+
+Two numbers therefore live on every slot and they mean different things: the
+item's own level (top-left, in its rarity colour) and the slot's bought level
+(bottom-right, as a `+N`).
 
 ### Where the payouts split
 

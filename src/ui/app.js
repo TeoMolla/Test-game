@@ -116,6 +116,8 @@ function refreshWallet() {
   if (zeni) zeni.textContent = fmt(getState().zeni);
   const senzu = $('#wallet-senzu .val');
   if (senzu) senzu.textContent = fmt(getState().senzu);
+  const iron = $('#wallet-iron .val');
+  if (iron) iron.textContent = fmt(getState().iron || 0);
 }
 
 export function initShell() {

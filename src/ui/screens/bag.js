@@ -7,7 +7,7 @@ import { bustSVG } from '../avatar.js';
 import { bustHTML } from '../sprites.js';
 import { getState, resetSave } from '../../save/index.js';
 import { getHeroDef, HERO_IDS, isOwned, unlockInfo } from '../../hero/index.js';
-import { getGearDef, describeGear, sortGear } from '../../gear/index.js';
+import { getGearDef, describeGear, sortGear, dismantleYield } from '../../gear/index.js';
 import { rarityOf } from '../../config.js';
 import * as inventory from '../../inventory/index.js';
 import { navigate, refresh } from '../app.js';
@@ -18,7 +18,7 @@ export function render(host) {
   host.appendChild(h('div', {
     class: 'power-banner',
     html: `<div class="pb-label">Zeni</div><div class="pb-value">💰 ${fmt(state.zeni)}</div>
-           <div class="pb-note">🫘 ${fmt(state.senzu)} senzu</div>`,
+           <div class="pb-note">🫘 ${fmt(state.senzu)} · 🔩 ${fmt(state.iron || 0)}</div>`,
   }));
 
   host.appendChild(h('section', {
@@ -61,19 +61,27 @@ export function render(host) {
     if (!def) return '';
     const r = rarityOf(def.rarity);
     const holder = inst.equippedBy ? getHeroDef(inst.equippedBy) : null;
+    // Equipped gear gets no scrap button at all — the safest way to stop
+    // someone dismantling what they are wearing is to never offer it.
     return `<div class="gear-row static" style="--gr:${r.color}">
         <span class="gi">${def.icon}</span>
         <span class="gt">
           <b>${def.name} <span class="glv">Lv.${inst.level}</span></b>
           <small>${describeGear(def, inst.level)}</small>
         </span>
-        <span class="gr-tag">${holder ? holder.name : r.short}</span>
+        ${holder
+          ? `<span class="gr-tag">${holder.name}</span>`
+          : `<button class="btn ghost tiny scrap" data-action="scrap" data-uid="${inst.uid}">
+               🔩 ${dismantleYield(def, inst.level)}
+             </button>`}
       </div>`;
   }).join('');
 
   host.appendChild(h('section', {
     class: 'panel',
-    html: `<h2 class="panel-title">Gear (${state.gear.length})</h2>${gearRows || '<p class="note">No gear yet — story stages drop a little, dungeons drop the rest.</p>'}`,
+    html: `<h2 class="panel-title">Gear (${state.gear.length})</h2>${gearRows
+      || '<p class="note">No gear yet — story stages drop a little, dungeons drop the rest.</p>'}
+      ${state.gear.length ? '<p class="note">Scrap what you will not use for iron, then spend it raising a gear slot on your hero.</p>' : ''}`,
   }));
 
   host.appendChild(h('section', {
@@ -86,7 +94,28 @@ export function render(host) {
   // Two-tap confirmation rather than confirm(): a sandboxed embed (and some
   // in-app browsers) will not show a native modal at all.
   let resetArmed = false;
+  let armedScrap = null;
   onAction(host, {
+    // Two taps to scrap: destructive, irreversible, and sitting in a long list
+    // where a mis-tap is easy.
+    scrap: (el) => {
+      const uid = el.dataset.uid;
+      if (armedScrap !== uid) {
+        armedScrap = uid;
+        el.classList.add('danger');
+        el.textContent = 'Scrap?';
+        setTimeout(() => {
+          if (armedScrap !== uid) return;
+          armedScrap = null;
+          refresh();
+        }, 3000);
+        return;
+      }
+      armedScrap = null;
+      const gained = inventory.dismantleGear(uid);
+      if (gained) toast(`Scrapped for ${gained} iron.`, 'good');
+      refresh();
+    },
     reset: (el) => {
       if (!resetArmed) {
         resetArmed = true;
