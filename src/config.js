@@ -119,12 +119,51 @@ export const RESERVED_SLOTS = ['transform'];
 export const HP_SCALE = 2.0;
 
 export const MAX_LEVEL = 60;             // PLACEHOLDER
-export const LEVEL_STAT_STEP = 0.055;    // PLACEHOLDER: +5.5% of base per level
 
-/** PLACEHOLDER: zeni cost to go from `level` to `level + 1`. */
-export function levelUpCost(level) {
-  return Math.round(60 * Math.pow(1.16, level - 1));
+/**
+ * PLACEHOLDER: +3.5% of base stats per level, so level 30 is about 2.0x rather
+ * than the 2.6x it used to be. Still a real step every time one lands — the
+ * point of the reduction is that gear and stars get to matter too, not that
+ * levelling should feel thin.
+ */
+export const LEVEL_STAT_STEP = 0.035;
+
+/**
+ * PLACEHOLDER: XP needed to go from `level` to `level + 1`. The exponent is
+ * what makes levels earned rather than bought — each one costs meaningfully
+ * more than the last, so a level late in the game is a genuine milestone.
+ */
+export function xpForLevel(level) {
+  return Math.round(80 * Math.pow(level, 1.55));
 }
+
+/** Cumulative XP to reach each level. Index i holds the total for level i + 1. */
+const XP_TABLE = (() => {
+  const table = [0];
+  for (let level = 1; level < MAX_LEVEL; level++) {
+    table.push(table[level - 1] + xpForLevel(level));
+  }
+  return table;
+})();
+
+/** Total XP required to stand at `level`. */
+export function xpToReach(level) {
+  return XP_TABLE[Math.max(0, Math.min(MAX_LEVEL, level) - 1)];
+}
+
+/** The level a given lifetime XP total buys. */
+export function levelFromXp(xp) {
+  let level = 1;
+  while (level < MAX_LEVEL && xp >= XP_TABLE[level]) level++;
+  return level;
+}
+
+/**
+ * PLACEHOLDER: allies who sat the fight out still learn something. Without
+ * this, an ally you did not field falls permanently behind and swapping the
+ * line-up becomes a punishment rather than a choice.
+ */
+export const BENCH_XP_SHARE = 0.4;
 
 /**
  * PLACEHOLDER: Power Level is a single headline number derived from final

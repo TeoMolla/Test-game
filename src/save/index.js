@@ -9,12 +9,12 @@
 
 import { HEROES, PROTAGONIST_ID, isProtagonist } from '../hero/heroes.js';
 import { GEAR_SLOTS } from '../gear/gear.js';
-import { TEAM_SIZE } from '../config.js';
+import { TEAM_SIZE, xpToReach } from '../config.js';
 
 // The key is deliberately NOT versioned: bumping it would orphan every save on
 // every device. SCHEMA_VERSION plus migrate() handle format changes in place.
 const STORAGE_KEY = 'dbz-rpg-prototype:v1';
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 /** PLACEHOLDER: starting purse. */
 const STARTING_ZENI = 800;
@@ -36,7 +36,9 @@ export function defaultState() {
     heroes[def.id] = {
       owned: !!def.startsOwned,
       star: def.startsOwned ? (def.startStar ?? 1) : 0,
-      level: 1,
+      // Lifetime XP is stored; level is derived from it, never saved, so the
+      // two can never drift apart.
+      xp: 0,
       equipped: emptyEquipped(),
     };
   }
@@ -76,6 +78,12 @@ function migrate(raw) {
       ...saved,
       equipped: { ...emptyEquipped(), ...(saved.equipped || {}) },
     };
+    // v2 -> v3: levels were bought outright and stored. Convert a stored level
+    // into the XP that now stands behind it, so nobody loses progress.
+    if (merged.heroes[id].xp === undefined || saved.level !== undefined) {
+      merged.heroes[id].xp = Math.max(saved.xp ?? 0, xpToReach(saved.level ?? 1));
+    }
+    delete merged.heroes[id].level;
   }
   merged.shards = { ...raw.shards };
   merged.gear = Array.isArray(raw.gear) ? raw.gear : [];

@@ -48,8 +48,13 @@ Progress saves to `localStorage`, so it survives closing the tab.
   stars, brought two at a time — but no gear and no deep progression, so the
   attention stays on your hero. Unowned allies are greyed out with a shard
   fraction toward recruiting them.
-- **Hero detail** — Stats (level, ATK/HP/DEF/SPD, power, 4 gear slots), Stars
-  (0–5★ promotion with a stat preview and skill-slot unlocks), Skills.
+- **Hero detail** — Stats (level and XP bar, ATK/HP/DEF/SPD, power, 4 gear
+  slots), Stars (0–5★ promotion with a stat preview and skill-slot unlocks),
+  Skills.
+- **Levelling** — levels are earned, not bought. Clearing a stage grants XP to
+  everyone who fought, and a reduced share to owned allies who sat it out so
+  rotating the line-up is a choice rather than a punishment. Level is derived
+  from lifetime XP and never stored, so the two cannot drift.
 - **Gear** — weapon/chest/gloves/boots, dropped from stages, equip/unequip.
 - **Bag** — zeni, shards, gear, record, reset.
 
@@ -155,6 +160,16 @@ and reading as both at once.
 `COMBAT.approachSeconds` sets how long closing takes. The engine gates every
 unit's first action on the same value the run-in animates over, so the
 simulation and what is on screen never disagree.
+
+### Where power comes from
+
+Power is meant to read as a sum of several tracks rather than a proxy for any
+one of them. `tools/simulate.mjs` prints the split for each profile — currently
+about **31-42% level, 44-58% stars, 18-25% gear**. If one track ever starts to
+dominate that line, the curve needs rebalancing, not the gates.
+
+Zeni currently has no sink: it used to buy levels, and gear upgrading (which
+will spend it) is not built yet. Expect it to pile up until then.
 
 ### Balance harness
 

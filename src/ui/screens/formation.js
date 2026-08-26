@@ -10,7 +10,7 @@ import { h, fmt, onAction, toast, starRow } from '../dom.js';
 import { bustSVG } from '../avatar.js';
 import { bustHTML } from '../sprites.js';
 import { getState, persist, enforceProtagonist } from '../../save/index.js';
-import { getHeroDef, powerOf, teamPower, allyEntries, isProtagonist } from '../../hero/index.js';
+import { getHeroDef, powerOf, teamPower, allyEntries, isProtagonist, levelOf } from '../../hero/index.js';
 import { getStage, buildEnemyTeam } from '../../progression/index.js';
 import { rarityOf, TEAM_SIZE } from '../../config.js';
 import { navigate, refresh } from '../app.js';
@@ -71,7 +71,7 @@ export function render(host, { stageId }) {
             ? `<div class="fu-art">${bustHTML(slot.heroId, def.art, bustSVG)}</div>`
             : `<button class="fu-art" data-action="swap" data-hero="${slot.heroId}">${bustHTML(slot.heroId, def.art, bustSVG)}</button>`}
           <div class="fu-name">${def.name}</div>
-          <div class="fu-sub">Lv.${hsv.level} ⚡${fmt(powerOf(slot.heroId))}</div>
+          <div class="fu-sub">Lv.${levelOf(slot.heroId)} ⚡${fmt(powerOf(slot.heroId))}</div>
           <div class="fu-stars">${starRow(hsv.star)}</div>
           <button class="btn ghost tiny" data-action="toggle-row" data-hero="${slot.heroId}">
             Move to ${rowName === 'front' ? 'back' : 'front'}

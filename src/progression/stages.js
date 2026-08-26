@@ -11,7 +11,7 @@
  *   requiredPower   team power gate (the only gate in this pass — no
  *                   resource-gated obstacles yet)
  *   enemies         [{ defId, row, scale }] — `scale` multiplies final stats
- *   rewards         granted on every clear
+ *   rewards         granted on every clear, XP included
  *   firstClear      one-time bonus on the first clear
  *
  * PLACEHOLDER: power gates, reward amounts and drop chances are all untuned.
@@ -29,6 +29,7 @@ export const STAGES = [
     ],
     rewards: {
       zeni: 120,
+      xp: 70,
       shards: { tien: 2 },
       gearTable: [{ defId: 'training_weights', chance: 0.5 }],
     },
@@ -46,6 +47,7 @@ export const STAGES = [
     ],
     rewards: {
       zeni: 165,
+      xp: 130,
       shards: { tien: 2 },
       gearTable: [
         { defId: 'turtle_gi', chance: 0.45 },
@@ -65,6 +67,7 @@ export const STAGES = [
     ],
     rewards: {
       zeni: 230,
+      xp: 240,
       shards: { piccolo: 3 },
       gearTable: [
         { defId: 'power_pole', chance: 0.4 },
@@ -86,6 +89,7 @@ export const STAGES = [
     ],
     rewards: {
       zeni: 280,
+      xp: 380,
       shards: { gohan: 3 },
       gearTable: [
         { defId: 'kame_belt', chance: 0.4 },
@@ -106,6 +110,7 @@ export const STAGES = [
     ],
     rewards: {
       zeni: 360,
+      xp: 620,
       shards: { piccolo: 4 },
       gearTable: [
         { defId: 'saiyan_boots', chance: 0.3 },
@@ -124,6 +129,7 @@ export const STAGES = [
     ],
     rewards: {
       zeni: 520,
+      xp: 950,
       shards: { gohan: 5 },
       gearTable: [
         { defId: 'saiyan_armor', chance: 0.3 },

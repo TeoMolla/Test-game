@@ -9,7 +9,7 @@ import { bustSVG } from '../avatar.js';
 import { portraitHTML } from '../sprites.js';
 import {
   getHeroDef, heroSave, statsFor, powerOf, slotsFor,
-  promoteInfo, promote, levelInfo, levelUp, isProtagonist,
+  promoteInfo, promote, xpInfo, isProtagonist,
 } from '../../hero/index.js';
 import { rarityOf, MAX_STARS } from '../../config.js';
 import { GEAR_SLOTS, GEAR_SLOT_META, getGearDef, describeGear } from '../../gear/index.js';
@@ -72,7 +72,7 @@ function renderStats(body, heroId) {
   const def = getHeroDef(heroId);
   const hs = heroSave(heroId);
   const stats = statsFor(heroId);
-  const lvl = levelInfo(heroId);
+  const lvl = xpInfo(heroId);
 
   // Gear is the protagonist's alone; allies have no equipment slots.
   const gearNodes = !isProtagonist(heroId) ? '' : GEAR_SLOTS.map((slot) => {
@@ -98,25 +98,26 @@ function renderStats(body, heroId) {
   body.appendChild(h('div', {
     class: 'stat-panel',
     html: `
-      <div class="level-line">Lv.${hs.level}</div>
+      <div class="level-line">Lv.${lvl.level}</div>
+      <div class="xp-track" role="img" aria-label="${lvl.atMax ? 'Max level' : `${fmt(lvl.into)} of ${fmt(lvl.needed)} XP`}">
+        <span class="xp-fill" style="width:${lvl.pct}%"></span>
+      </div>
+      <div class="xp-line">${lvl.atMax ? 'Max level' : `${fmt(lvl.into)} / ${fmt(lvl.needed)} XP to Lv.${lvl.level + 1}`}</div>
       <div class="stat-grid">
         <div class="stat"><span class="sn">⚔️ ATK</span><span class="sv">${fmt(stats.atk)}</span></div>
         <div class="stat"><span class="sn">❤️ HP</span><span class="sv">${fmt(stats.hp)}</span></div>
         <div class="stat"><span class="sn">🛡️ DEF</span><span class="sv">${fmt(stats.def)}</span></div>
         <div class="stat"><span class="sn">💨 SPD</span><span class="sv">${stats.speed.toFixed(2)}</span></div>
       </div>
-      <button class="btn primary wide ${lvl.canLevel ? '' : 'disabled'}" data-action="levelup">
-        ${lvl.atMax ? 'Max Level' : `Upgrade <span class="cost">💰 ${fmt(lvl.cost)} / ${fmt(lvl.have)}</span>`}
-      </button>`,
+      `,
   }));
 
-  body.appendChild(h('p', { class: 'note', text: def.lore }));
+  body.appendChild(h('p', {
+    class: 'note',
+    text: `${def.lore} Levels come from fighting — clear stages to earn XP.`,
+  }));
 
   onAction(body, {
-    levelup: () => {
-      if (levelUp(heroId)) { toast('Level up!', 'good'); refresh(); }
-      else toast('Not enough zeni.', 'warn');
-    },
     gear: (el) => openGearSheet(heroId, el.dataset.slot),
   });
 }

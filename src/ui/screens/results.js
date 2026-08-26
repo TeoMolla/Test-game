@@ -5,7 +5,7 @@
 import { h, fmt, onAction } from '../dom.js';
 import { bustSVG } from '../avatar.js';
 import { bustHTML } from '../sprites.js';
-import { getHeroDef } from '../../hero/index.js';
+import { getHeroDef, levelOf } from '../../hero/index.js';
 import { getStage, stageList } from '../../progression/index.js';
 import { rarityOf } from '../../config.js';
 import { navigate } from '../app.js';
@@ -15,6 +15,16 @@ export function render(host, { stageId, won, survivors, seconds, rewards }) {
 
   const rewardRows = [];
   if (rewards) {
+    if (rewards.xp) {
+      rewardRows.push(`<div class="reward"><span class="ri">✨</span><span>${fmt(rewards.xp)} XP</span></div>`);
+    }
+    for (const up of rewards.levels || []) {
+      const def = getHeroDef(up.heroId);
+      rewardRows.push(`<div class="reward level-up">
+          <span class="ri">⬆️</span>
+          <span>${def.name} reached <b>Lv.${up.to}</b></span>
+        </div>`);
+    }
     if (rewards.zeni) rewardRows.push(`<div class="reward"><span class="ri">💰</span><span>${fmt(rewards.zeni)} Zeni</span></div>`);
     for (const s of rewards.shards) {
       const def = getHeroDef(s.heroId);

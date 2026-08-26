@@ -7,7 +7,7 @@
 
 import { createBattle, effectiveStat } from './engine.js';
 import { getState } from '../save/index.js';
-import { getHeroDef, statsFor, skillsFor } from '../hero/index.js';
+import { getHeroDef, statsFor, skillsFor, levelOf } from '../hero/index.js';
 import { buildEnemyTeam } from '../progression/index.js';
 import { TEAM_SIZE } from '../config.js';
 
@@ -30,7 +30,7 @@ export function buildPlayerUnits(team = getState().team) {
         rarity: def.rarity,
         row: slot.row || def.preferredRow,
         art: def.art,
-        level: hs.level,
+        level: levelOf(slot.heroId),
         star: hs.star,
         stats: statsFor(slot.heroId),
         // Only unlocked slots make it into combat — a 0★ hero really does

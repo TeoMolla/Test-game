@@ -6,7 +6,7 @@
 import { STAGES, getStage } from './stages.js';
 import { ENEMIES, getEnemyDef } from './enemies.js';
 import { getState, persist } from '../save/index.js';
-import { teamPower } from '../hero/index.js';
+import { teamPower, awardBattleXp } from '../hero/index.js';
 import { HP_SCALE } from '../config.js';
 import { rollGearDrops } from '../gear/index.js';
 import * as inventory from '../inventory/index.js';
@@ -96,6 +96,12 @@ export function completeStage(stageId) {
 
   const gear = rollGearDrops(stage.rewards.gearTable);
   const summary = inventory.grantRewards({ zeni, shards, gear });
+
+  // XP is not an inventory item — it goes straight to the roster. First clears
+  // pay double, which is what makes pushing forward better than farming.
+  const xp = (stage.rewards.xp || 0) * (first ? 2 : 1);
+  summary.xp = xp;
+  summary.levels = awardBattleXp(xp).filter((r) => r.to > r.from);
 
   const st = getState();
   st.campaign.cleared[stageId] = true;

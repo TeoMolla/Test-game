@@ -11,7 +11,8 @@
 import { HEROES, HERO_IDS, ALLY_IDS, PROTAGONIST_ID, getHeroDef, isProtagonist } from './heroes.js';
 import {
   rarityOf, STAR_STAT_MULT, STAR_PROMOTE_SHARDS, MAX_STARS,
-  MAX_LEVEL, LEVEL_STAT_STEP, levelUpCost, computePower, HP_SCALE,
+  MAX_LEVEL, LEVEL_STAT_STEP, computePower, HP_SCALE,
+  xpForLevel, xpToReach, levelFromXp, BENCH_XP_SHARE,
 } from '../config.js';
 import { bonusesFor } from '../gear/index.js';
 import { activeSkills, loadoutSlots } from '../skills/index.js';
@@ -22,6 +23,12 @@ export { HEROES, HERO_IDS, ALLY_IDS, PROTAGONIST_ID, getHeroDef, isProtagonist }
 
 export function heroSave(heroId) {
   return getState().heroes[heroId] || null;
+}
+
+/** Level is derived from lifetime XP; it is never stored. */
+export function levelOf(heroId) {
+  const hs = heroSave(heroId);
+  return hs ? levelFromXp(hs.xp || 0) : 1;
 }
 
 export function isOwned(heroId) {
@@ -54,7 +61,7 @@ export function statsFor(heroId, override = {}) {
   if (!def) return { atk: 0, hp: 0, def: 0, speed: 1 };
   const hs = heroSave(heroId) || { star: 0, level: 1, equipped: {} };
   const star = override.star ?? hs.star;
-  const level = override.level ?? hs.level;
+  const level = override.level ?? levelOf(heroId);
   const equipped = override.equipped ?? hs.equipped;
 
   const base = baseStatsAt(def, star, level);
@@ -123,8 +130,9 @@ export function promoteInfo(heroId) {
   const atMax = hs.star >= MAX_STARS;
   const cost = atMax ? 0 : STAR_PROMOTE_SHARDS[hs.star];
   const have = inventory.shards(heroId);
-  const current = baseStatsAt(def, hs.star, hs.level);
-  const next = atMax ? current : baseStatsAt(def, hs.star + 1, hs.level);
+  const level = levelOf(heroId);
+  const current = baseStatsAt(def, hs.star, level);
+  const next = atMax ? current : baseStatsAt(def, hs.star + 1, level);
   return { star: hs.star, atMax, cost, have, canPromote: !atMax && have >= cost, current, next };
 }
 
@@ -139,21 +147,48 @@ export function promote(heroId) {
 
 /* ---------------- levelling ---------------- */
 
-export function levelInfo(heroId) {
+/** Everything the UI needs to draw an XP bar. */
+export function xpInfo(heroId) {
   const hs = heroSave(heroId);
   if (!hs) return null;
-  const atMax = hs.level >= MAX_LEVEL;
-  const cost = atMax ? 0 : levelUpCost(hs.level);
-  return { level: hs.level, atMax, cost, have: inventory.zeni(), canLevel: !atMax && inventory.zeni() >= cost };
+  const level = levelOf(heroId);
+  const atMax = level >= MAX_LEVEL;
+  const xp = hs.xp || 0;
+  const base = xpToReach(level);
+  const needed = atMax ? 0 : xpForLevel(level);
+  const into = atMax ? 0 : xp - base;
+  return { level, atMax, xp, into, needed, pct: atMax ? 100 : Math.min(100, (into / needed) * 100) };
 }
 
-export function levelUp(heroId) {
-  const info = levelInfo(heroId);
-  if (!info || !info.canLevel) return false;
-  if (!inventory.spendZeni(info.cost)) return false;
-  heroSave(heroId).level += 1;
+/**
+ * Award XP and report what it bought. Levels fall out of the total, so this
+ * cannot desynchronise from the stored value.
+ */
+export function grantXp(heroId, amount) {
+  const hs = heroSave(heroId);
+  if (!hs || !hs.owned || amount <= 0) return { gained: 0, from: 1, to: 1 };
+  const from = levelOf(heroId);
+  hs.xp = (hs.xp || 0) + Math.round(amount);
+  const to = levelOf(heroId);
   persist();
-  return true;
+  return { gained: Math.round(amount), from, to };
+}
+
+/**
+ * Split a stage's XP across the roster: everyone who fought gets the full
+ * amount, everyone owned but benched gets a share. Returns per-hero results so
+ * the results screen can call out who levelled.
+ */
+export function awardBattleXp(amount, team = getState().team) {
+  const fielded = new Set(team.filter((s) => s?.heroId).map((s) => s.heroId));
+  const out = [];
+  for (const id of HERO_IDS) {
+    if (!isOwned(id)) continue;
+    const share = fielded.has(id) ? amount : amount * BENCH_XP_SHARE;
+    const res = grantXp(id, share);
+    if (res.gained) out.push({ heroId: id, ...res, fielded: fielded.has(id) });
+  }
+  return out;
 }
 
 /* ---------------- roster view model ---------------- */
@@ -172,7 +207,7 @@ export function rosterEntries() {
       id, def, rarity: rarityOf(def.rarity), owned,
       protagonist: isProtagonist(id),
       star: hs?.star ?? 0,
-      level: hs?.level ?? 1,
+      level: levelOf(id),
       power: owned ? powerOf(id) : 0,
       unlock: unlockInfo(id),
     };
