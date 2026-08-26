@@ -23,14 +23,18 @@
 /** w/h/cx come from the slicing step; see assets/sprites/goku/frames.json. */
 const GOKU_FRAMES = {
   idle:          { src: 'assets/sprites/goku/idle.png',          w: 111, h: 182, cx: 0.5 },
-  windup:        { src: 'assets/sprites/goku/windup.png',        w: 129, h: 182, cx: 0.5116 },
-  punch:         { src: 'assets/sprites/goku/punch.png',         w: 139, h: 182, cx: 0.4424 },
+  guard:         { src: 'assets/sprites/goku/guard.png',         w: 129, h: 182, cx: 0.5116 },
   kick:          { src: 'assets/sprites/goku/kick.png',          w: 156, h: 182, cx: 0.4936 },
-  // Redrawn from a separate, larger source and stored at 2x. Frames may differ
+
+  // Redrawn from separate, larger sources and stored at 2x. Frames may differ
   // in pixel size: they are sized on screen by CSS height and anchored by cx,
   // so only the character's share of the canvas has to match.
-  charge:        { src: 'assets/sprites/goku/charge.png',        w: 254, h: 364, cx: 0.5268 },
-  release:       { src: 'assets/sprites/goku/release.png',       w: 232, h: 364, cx: 0.5268 },
+  windup:        { src: 'assets/sprites/goku/windup.png',        w: 238, h: 364, cx: 0.4125 },
+  punch:         { src: 'assets/sprites/goku/punch.png',         w: 284, h: 364, cx: 0.461 },
+  recoil:        { src: 'assets/sprites/goku/recoil.png',        w: 217, h: 364, cx: 0.4478 },
+  charge_start:  { src: 'assets/sprites/goku/charge_start.png',  w: 274, h: 364, cx: 0.4647 },
+  charge_build:  { src: 'assets/sprites/goku/charge_build.png',  w: 251, h: 364, cx: 0.4682 },
+  release:       { src: 'assets/sprites/goku/release.png',       w: 261, h: 364, cx: 0.4943 },
   stagger:       { src: 'assets/sprites/goku/stagger.png',       w: 100, h: 182, cx: 0.47 },
   knockback:     { src: 'assets/sprites/goku/knockback.png',     w: 168, h: 182, cx: 0.4524 },
   ground_impact: { src: 'assets/sprites/goku/ground_impact.png', w: 110, h: 182, cx: 0.4091 },
@@ -56,12 +60,15 @@ const GOKU_FRAMES = {
  */
 const SPRITE_ANIMS = {
   idle:      { priority: 0, loop: true,  clip: [['idle', 1000]] },
-  attack:    { priority: 1, clip: [['windup', 110], ['punch', 170]] },
-  attack_alt:{ priority: 1, clip: [['windup', 110], ['kick', 190]] },
+  // The punch runs wind-up -> contact -> recoil; the kick leads on the sheet's
+  // neutral guard instead, because the punch wind-up telegraphs a right cross
+  // and reads wrong in front of a high kick. Both settle on the same recoil.
+  attack:    { priority: 1, clip: [['windup', 110], ['punch', 160], ['recoil', 150]] },
+  attack_alt:{ priority: 1, clip: [['guard', 100], ['kick', 180], ['recoil', 140]] },
   hit:       { priority: 2, clip: [['stagger', 260]] },
   hit_heavy: { priority: 2, clip: [['knockback', 230], ['ground_impact', 260]] },
-  technique: { priority: 3, clip: [['charge', 300], ['release', 440]] },
-  ultimate:  { priority: 4, clip: [['charge', 380], ['release', 540]] },
+  technique: { priority: 3, clip: [['charge_start', 200], ['charge_build', 250], ['release', 430]] },
+  ultimate:  { priority: 4, clip: [['charge_start', 250], ['charge_build', 310], ['release', 520]] },
   defeat:    { priority: 9, hold: true, clip: [['falling', 210], ['crumpled', 260], ['ko', 380]] },
 };
 
@@ -70,7 +77,7 @@ const SPRITE_ANIMS = {
  * frame. It draws Goku's hands thrust forward but no beam; the beam is a DOM
  * effect so it can stretch to reach whatever it is aimed at.
  */
-const BEAM_ON_FRAME = { technique: 1, ultimate: 1 };
+const BEAM_ON_FRAME = { technique: 2, ultimate: 2 };
 
 const SETS = {
   goku: {

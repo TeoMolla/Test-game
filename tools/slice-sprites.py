@@ -46,7 +46,7 @@ SHEETS = {
         'clamp': {(90, 279): (30, 254), (379, 492): (330, 500), (617, 724): (565, 732)},
         # name -> (seed x range, band y range)
         'frames': [
-            ('windup',        (326, 420),  (90, 279)),
+            ('guard',         (326, 420),  (90, 279)),
             ('punch',         (480, 573),  (90, 279)),
             ('kick',          (665, 763),  (90, 279)),
             ('charge_a',      (822, 923),  (90, 279)),
@@ -64,24 +64,42 @@ SHEETS = {
         'bust_to': 395,     # crop the portrait to this row for the bust (neck is ~300)
 
         # Redraws that supersede poses from the main sheet. A separate image
-        # can be drawn at any size: `match_h` is the character height the pose
-        # had on the main sheet, so the redraw lands at the same scale, and
-        # `density` stores it at that many times the pixel size. Density is
+        # can be drawn at any size: `match_frame` names the pose in it that
+        # matches a main-sheet frame, `match_h` is that frame's character height
+        # on the sheet, and one scale derived from the pair is applied to every
+        # frame in the image. `density` stores them at that many times the pixel
+        # size. Density is
         # free to vary per frame — the renderer sizes frames by CSS height and
         # anchors them by the `cx` fraction, so only the character's share of
         # the canvas has to be consistent, not the pixel count. Storing a
         # bigger redraw at 2x keeps its detail instead of throwing it away.
-        'overrides': [{
-            'image': 'art/goku-kamehameha.jpg',
-            'clamp': (130, 640),
-            'match_h': 168,
-            'density': 2,
-            'replaces': ['charge_a', 'charge_b', 'release'],
-            'frames': [
-                ('charge',  (301, 589),  (256, 579)),
-                ('release', (756, 1016), (256, 579)),
-            ],
-        }],
+        'overrides': [
+            {
+                'image': 'art/goku-kamehameha.jpg',
+                'clamp': (55, 604),
+                'match_frame': 'release', 'match_h': 168,
+                'density': 2,
+                'replaces': ['charge', 'charge_a', 'charge_b'],
+                'frames': [
+                    ('charge_start', (57, 394),   (188, 587)),
+                    ('charge_build', (521, 829),  (188, 587)),
+                    ('release',      (964, 1302), (188, 587)),
+                ],
+            },
+            {
+                'image': 'art/goku-punch.jpg',
+                'clamp': (55, 604),
+                # Recoil is the upright guard stance, so it is the pose that
+                # lines up with the sheet's own standing frame.
+                'match_frame': 'recoil', 'match_h': 165,
+                'density': 2,
+                'frames': [
+                    ('windup', (91, 347),   (188, 584)),
+                    ('punch',  (511, 865),  (188, 584)),
+                    ('recoil', (1026, 1279),(188, 584)),
+                ],
+            },
+        ],
     },
 }
 
@@ -187,16 +205,25 @@ def slice_overrides(cfg, out_dir, canvas_h, meta):
         out_h = canvas_h * density
         pad = PAD * density
 
+        cut = {}
         for name, sx, by in ov['frames']:
             m = flood(ink, sx, by, ov['clamp'], H, W)
             ys, xs = np.where(m)
-            x0, y0, x1, y1 = xs.min(), ys.min(), xs.max()+1, ys.max()+1
+            cut[name] = (m, xs.min(), ys.min(), xs.max()+1, ys.max()+1, sx)
+
+        # ONE scale for the whole image, taken from the frame whose pose matches
+        # a known frame on the main sheet. Scaling each frame to a fixed height
+        # independently would only be right if every pose were the same height —
+        # in a sequence like wind-up / mid-punch / recoil they are not, and doing
+        # so silently resizes the character between frames.
+        ref = ov['match_frame']
+        _, _, ry0, _, ry1, _ = cut[ref]
+        scale = (ov['match_h'] * density) / (ry1 - ry0)
+
+        for name, (m, x0, y0, x1, y1, sx) in cut.items():
             rgb = a[y0:y1, x0:x1].astype(np.uint8)
             alpha = np.where(m[y0:y1, x0:x1], key_paper(rgb), 0).astype(np.uint8)
             src = Image.fromarray(np.dstack([rgb, alpha]), 'RGBA')
-
-            # Scale so the character matches the main sheet's scale, times density.
-            scale = (ov['match_h'] * density) / (y1 - y0)
             nw, nh = max(1, round((x1-x0)*scale)), max(1, round((y1-y0)*scale))
             src = src.resize((nw, nh), Image.LANCZOS)
 
