@@ -87,10 +87,21 @@ export const SKILL_SLOT_UNLOCK = {
 export const SKILL_SLOTS = ['attack', 'technique', 'ultimate', 'passive', 'transform'];
 
 /**
- * NOTE (future): 'transform' is intentionally reserved as an always-locked
- * fifth slot. The transformation / power-up form system is out of scope for
- * this pass — this reserves its place in the data model and UI so adding it
- * later does not require reshaping hero data.
+ * NOTE (future): 'transform' is the transformation slot, still locked. It
+ * belongs to the protagonist alone. The agreed design, for when it is built:
+ *
+ *   - MANUAL activation, not automatic. The player taps to transform.
+ *   - No countdown is shown. When a transformation is available the character
+ *     card glows; that glow is the whole affordance.
+ *   - Forms give a MODEST stat boost, not their nominal multiplier. Kaio-ken
+ *     x3 is stronger than plain Kaio-ken but nowhere near three times as
+ *     strong — think a step up, not a different league.
+ *   - Campaign difficulty gets retuned around the forms once they exist, so
+ *     they are part of the expected power curve rather than a free win.
+ *
+ * The Saiyan Saga ladder is Kaio-ken then Kaio-ken x3; Super Saiyan belongs to
+ * the next arc and is the first form that needs new art (gold hair). Kaio-ken
+ * is a red aura, which is a tint over the existing sprites.
  */
 export const RESERVED_SLOTS = ['transform'];
 
@@ -119,6 +130,13 @@ export function levelUpCost(level) {
  * PLACEHOLDER: Power Level is a single headline number derived from final
  * stats (gear included) plus star rank. Tune freely — nothing branches on it
  * except stage power gates.
+ *
+ * NOTE (pass 2): character level should contribute only a SMALL share of total
+ * power. Power is meant to read as the sum of many things — gear, skill ranks,
+ * stars, transformations — rather than a proxy for level. LEVEL_STAT_STEP is
+ * currently 5.5% of base stats per level, which compounds to roughly 2.6x by
+ * level 30 and makes level dominate everything else; it needs to come down
+ * when levelling moves to XP, with the other tracks taking up the slack.
  */
 export function computePower(stats, star = 0) {
   return Math.round(

@@ -8,7 +8,7 @@
  * Nothing outside this module should multiply base stats by anything.
  */
 
-import { HEROES, HERO_IDS, getHeroDef } from './heroes.js';
+import { HEROES, HERO_IDS, ALLY_IDS, PROTAGONIST_ID, getHeroDef, isProtagonist } from './heroes.js';
 import {
   rarityOf, STAR_STAT_MULT, STAR_PROMOTE_SHARDS, MAX_STARS,
   MAX_LEVEL, LEVEL_STAT_STEP, levelUpCost, computePower, HP_SCALE,
@@ -18,7 +18,7 @@ import { activeSkills, loadoutSlots } from '../skills/index.js';
 import { getState, persist } from '../save/index.js';
 import * as inventory from '../inventory/index.js';
 
-export { HEROES, HERO_IDS, getHeroDef };
+export { HEROES, HERO_IDS, ALLY_IDS, PROTAGONIST_ID, getHeroDef, isProtagonist };
 
 export function heroSave(heroId) {
   return getState().heroes[heroId] || null;
@@ -158,6 +158,11 @@ export function levelUp(heroId) {
 
 /* ---------------- roster view model ---------------- */
 
+/** Allies only, for the collection grid — the protagonist gets his own panel. */
+export function allyEntries() {
+  return rosterEntries().filter((e) => !isProtagonist(e.id));
+}
+
 export function rosterEntries() {
   return HERO_IDS.map((id) => {
     const def = getHeroDef(id);
@@ -165,6 +170,7 @@ export function rosterEntries() {
     const owned = !!hs?.owned;
     return {
       id, def, rarity: rarityOf(def.rarity), owned,
+      protagonist: isProtagonist(id),
       star: hs?.star ?? 0,
       level: hs?.level ?? 1,
       power: owned ? powerOf(id) : 0,

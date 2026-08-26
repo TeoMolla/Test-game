@@ -7,11 +7,14 @@
  * `load()` / `persist()` — the state shape is the contract.
  */
 
-import { HEROES } from '../hero/heroes.js';
+import { HEROES, PROTAGONIST_ID, isProtagonist } from '../hero/heroes.js';
 import { GEAR_SLOTS } from '../gear/gear.js';
+import { TEAM_SIZE } from '../config.js';
 
+// The key is deliberately NOT versioned: bumping it would orphan every save on
+// every device. SCHEMA_VERSION plus migrate() handle format changes in place.
 const STORAGE_KEY = 'dbz-rpg-prototype:v1';
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 /** PLACEHOLDER: starting purse. */
 const STARTING_ZENI = 800;
@@ -38,9 +41,10 @@ export function defaultState() {
     };
   }
 
-  const startingTeam = Object.values(HEROES)
-    .filter((h) => h.startsOwned)
-    .slice(0, 3)
+  // The protagonist always leads; allies fill the remaining slots.
+  const startingTeam = [HEROES[PROTAGONIST_ID], ...Object.values(HEROES)
+    .filter((h) => h.startsOwned && !isProtagonist(h.id))]
+    .slice(0, TEAM_SIZE)
     .map((h) => ({ heroId: h.id, row: h.preferredRow }));
 
   return {
@@ -79,7 +83,33 @@ function migrate(raw) {
   merged.campaign.cleared = { ...(raw.campaign?.cleared || {}) };
   merged.team = Array.isArray(raw.team) ? raw.team.filter((s) => s && merged.heroes[s.heroId]) : base.team;
   merged.stats = { ...base.stats, ...(raw.stats || {}) };
+
+  // v1 -> v2: gear used to belong to every hero. Anything an ally was wearing
+  // goes back in the bag rather than quietly disappearing, and the protagonist
+  // is put back at the head of the team if an old save had him benched.
+  for (const [id, hero] of Object.entries(merged.heroes)) {
+    if (isProtagonist(id)) continue;
+    for (const slot of GEAR_SLOTS) {
+      const uid = hero.equipped[slot];
+      if (!uid) continue;
+      const inst = merged.gear.find((g) => g.uid === uid);
+      if (inst) inst.equippedBy = null;
+      hero.equipped[slot] = null;
+    }
+  }
+  merged.team = enforceProtagonist(merged.team, merged.heroes);
   return merged;
+}
+
+/**
+ * The protagonist is never absent and never anywhere but the first slot. Called
+ * on load and after any team edit, so no path can produce a team without him.
+ */
+export function enforceProtagonist(team, heroes = getState().heroes) {
+  const rest = (team || []).filter((s) => s && s.heroId !== PROTAGONIST_ID && heroes[s.heroId]);
+  const lead = (team || []).find((s) => s && s.heroId === PROTAGONIST_ID)
+    || { heroId: PROTAGONIST_ID, row: HEROES[PROTAGONIST_ID].preferredRow };
+  return [lead, ...rest].slice(0, TEAM_SIZE);
 }
 
 let state = defaultState();

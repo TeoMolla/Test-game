@@ -9,8 +9,8 @@
 import { h, fmt, onAction, toast, starRow } from '../dom.js';
 import { bustSVG } from '../avatar.js';
 import { bustHTML } from '../sprites.js';
-import { getState, persist } from '../../save/index.js';
-import { getHeroDef, powerOf, teamPower, rosterEntries } from '../../hero/index.js';
+import { getState, persist, enforceProtagonist } from '../../save/index.js';
+import { getHeroDef, powerOf, teamPower, allyEntries, isProtagonist } from '../../hero/index.js';
 import { getStage, buildEnemyTeam } from '../../progression/index.js';
 import { rarityOf, TEAM_SIZE } from '../../config.js';
 import { navigate, refresh } from '../app.js';
@@ -61,11 +61,15 @@ export function render(host, { stageId }) {
       const def = getHeroDef(slot.heroId);
       const hsv = state.heroes[slot.heroId];
       const r = rarityOf(def.rarity);
+      const lead = isProtagonist(slot.heroId);
       slots.appendChild(h('div', {
-        class: 'form-unit',
+        class: `form-unit ${lead ? 'lead' : ''}`,
         style: { '--rarity': r.color, '--glow': r.glow },
         html: `
-          <button class="fu-art" data-action="swap" data-hero="${slot.heroId}">${bustHTML(slot.heroId, def.art, bustSVG)}</button>
+          ${lead ? '<div class="lead-tag">HERO</div>' : ''}
+          ${lead
+            ? `<div class="fu-art">${bustHTML(slot.heroId, def.art, bustSVG)}</div>`
+            : `<button class="fu-art" data-action="swap" data-hero="${slot.heroId}">${bustHTML(slot.heroId, def.art, bustSVG)}</button>`}
           <div class="fu-name">${def.name}</div>
           <div class="fu-sub">Lv.${hsv.level} ⚡${fmt(powerOf(slot.heroId))}</div>
           <div class="fu-stars">${starRow(hsv.star)}</div>
@@ -76,7 +80,7 @@ export function render(host, { stageId }) {
     }
 
     if (rowName === 'front' && state.team.length < TEAM_SIZE) {
-      slots.appendChild(h('button', { class: 'form-unit empty', dataset: { action: 'add' }, html: '<span class="plus">＋</span><span>Add hero</span>' }));
+      slots.appendChild(h('button', { class: 'form-unit empty', dataset: { action: 'add' }, html: '<span class="plus">＋</span><span>Add ally</span>' }));
     }
 
     rowEl.appendChild(slots);
@@ -113,13 +117,14 @@ export function render(host, { stageId }) {
 function openHeroPicker(replacingHeroId) {
   const state = getState();
   const inTeam = new Set(state.team.map((s) => s.heroId));
-  const candidates = rosterEntries().filter((e) => e.owned && (!inTeam.has(e.id) || e.id === replacingHeroId));
+  // Allies only — the protagonist holds his slot and is not offered here.
+  const candidates = allyEntries().filter((e) => e.owned && (!inTeam.has(e.id) || e.id === replacingHeroId));
 
   const sheet = h('div', {
     class: 'sheet-backdrop',
     html: `
       <div class="sheet">
-        <div class="sheet-title">${replacingHeroId ? 'Swap hero' : 'Add hero'}</div>
+        <div class="sheet-title">${replacingHeroId ? 'Swap ally' : 'Add ally'}</div>
         <div class="pick-grid">
           ${candidates.map((e) => `
             <button class="hero-card small ${e.id === replacingHeroId ? 'current' : ''}"
@@ -129,7 +134,7 @@ function openHeroPicker(replacingHeroId) {
               <span class="card-art">${bustHTML(e.id, e.def.art, bustSVG)}</span>
               <span class="card-name">${e.def.name}</span>
               <span class="card-sub">⚡${fmt(e.power)}</span>
-            </button>`).join('') || '<p class="note">No other heroes available.</p>'}
+            </button>`).join('') || '<p class="note">No other allies available.</p>'}
         </div>
         ${replacingHeroId ? '<button class="btn ghost wide" data-action="remove">Remove from team</button>' : ''}
         <button class="btn ghost wide" data-action="close">Close</button>
@@ -146,12 +151,13 @@ function openHeroPicker(replacingHeroId) {
       } else if (state.team.length < TEAM_SIZE) {
         state.team.push({ heroId, row: def.preferredRow });
       }
+      state.team = enforceProtagonist(state.team);
       persist();
       sheet.remove();
       refresh();
     },
     remove: () => {
-      state.team = state.team.filter((s) => s.heroId !== replacingHeroId);
+      state.team = enforceProtagonist(state.team.filter((s) => s.heroId !== replacingHeroId));
       persist();
       sheet.remove();
       refresh();

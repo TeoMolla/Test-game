@@ -7,6 +7,7 @@
  */
 
 import { getState, persist } from '../save/index.js';
+import { isProtagonist } from '../hero/heroes.js';
 import { createGearInstance, getGearDef } from '../gear/index.js';
 import { GEAR_SLOTS } from '../gear/gear.js';
 
@@ -79,8 +80,14 @@ export function availableGearForSlot(slot) {
  * Equip an item onto a hero. Handles swapping out whatever occupied the slot
  * and stealing the item off another hero if it was equipped elsewhere.
  */
+/**
+ * Gear belongs to the protagonist alone. Allies have no equipment slots, which
+ * keeps the hierarchy clear and keeps the bag from becoming six parallel
+ * inventories to manage on a phone screen.
+ */
 export function equipGear(heroId, uid) {
   const s = getState();
+  if (!isProtagonist(heroId)) return false;
   const inst = gearByUid(uid);
   const hero = s.heroes[heroId];
   if (!inst || !hero) return false;

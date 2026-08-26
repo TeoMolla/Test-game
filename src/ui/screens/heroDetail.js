@@ -9,7 +9,7 @@ import { bustSVG } from '../avatar.js';
 import { portraitHTML } from '../sprites.js';
 import {
   getHeroDef, heroSave, statsFor, powerOf, slotsFor,
-  promoteInfo, promote, levelInfo, levelUp,
+  promoteInfo, promote, levelInfo, levelUp, isProtagonist,
 } from '../../hero/index.js';
 import { rarityOf, MAX_STARS } from '../../config.js';
 import { GEAR_SLOTS, GEAR_SLOT_META, getGearDef, describeGear } from '../../gear/index.js';
@@ -33,6 +33,7 @@ export function render(host, { heroId }) {
     class: 'hero-hero',
     html: `
       <span class="rarity-badge">${rarity.name}</span>
+      ${isProtagonist(heroId) ? '<span class="lead-badge">Hero</span>' : ''}
       <div class="hero-name">${def.name}</div>
       <div class="hero-title">${def.title}</div>`,
   }));
@@ -73,7 +74,8 @@ function renderStats(body, heroId) {
   const stats = statsFor(heroId);
   const lvl = levelInfo(heroId);
 
-  const gearNodes = GEAR_SLOTS.map((slot) => {
+  // Gear is the protagonist's alone; allies have no equipment slots.
+  const gearNodes = !isProtagonist(heroId) ? '' : GEAR_SLOTS.map((slot) => {
     const uid = hs.equipped[slot];
     const inst = uid ? inventory.gearByUid(uid) : null;
     const gdef = inst ? getGearDef(inst.defId) : null;
@@ -86,7 +88,7 @@ function renderStats(body, heroId) {
   }).join('');
 
   body.appendChild(h('div', {
-    class: 'portrait-stage',
+    class: `portrait-stage ${isProtagonist(heroId) ? '' : 'no-gear'}`,
     html: `
       <div class="portrait-art">${portraitHTML(heroId, def.art, bustSVG)}</div>
       ${gearNodes}

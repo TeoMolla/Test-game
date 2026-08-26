@@ -41,8 +41,13 @@ Progress saves to `localStorage`, so it survives closing the tab.
   cooldown, ultimate the instant its meter fills. Floating damage numbers, per-unit
   HP bars, and a bottom portrait row showing each hero's technique countdown and
   ultimate-ready state.
-- **Roster** — 6 heroes (3 Rare, 3 Uncommon). Unowned heroes are greyed out with a
-  shard-collection fraction toward unlocking them.
+- **Your hero** — Goku is the protagonist: he leads every team, cannot be
+  benched, and is the only character who wears gear. He sits in his own panel
+  above the collection rather than as one card among six.
+- **Allies** — the other 5 are support. Recruited with shards, promoted with
+  stars, brought two at a time — but no gear and no deep progression, so the
+  attention stays on your hero. Unowned allies are greyed out with a shard
+  fraction toward recruiting them.
 - **Hero detail** — Stats (level, ATK/HP/DEF/SPD, power, 4 gear slots), Stars
   (0–5★ promotion with a stat preview and skill-slot unlocks), Skills.
 - **Gear** — weapon/chest/gloves/boots, dropped from stages, equip/unequip.

@@ -9,22 +9,40 @@
 import { h, fmt, onAction, starRow, toast } from '../dom.js';
 import { bustSVG } from '../avatar.js';
 import { bustHTML } from '../sprites.js';
-import { rosterEntries, unlockHero } from '../../hero/index.js';
+import { rosterEntries, allyEntries, unlockHero, PROTAGONIST_ID, statsFor, powerOf } from '../../hero/index.js';
 import { navigate, refresh } from '../app.js';
 
 export function render(host) {
-  const entries = rosterEntries();
-  const owned = entries.filter((e) => e.owned).length;
+  const allies = allyEntries();
+  const owned = allies.filter((e) => e.owned).length;
+
+  /* ---- the protagonist gets his own panel above the collection ---- */
+  const hero = rosterEntries().find((e) => e.id === PROTAGONIST_ID);
+  const hStats = statsFor(hero.id);
+  host.appendChild(h('button', {
+    class: 'lead-card',
+    style: { '--rarity': hero.rarity.color, '--glow': hero.rarity.glow },
+    dataset: { action: 'open', hero: hero.id },
+    html: `
+      <span class="lead-eyebrow">Your hero</span>
+      <span class="lead-art">${bustHTML(hero.id, hero.def.art, bustSVG)}</span>
+      <span class="lead-body">
+        <span class="lead-name">${hero.def.name}</span>
+        <span class="lead-sub">Lv.${hero.level} · ${starRow(hero.star)}</span>
+        <span class="lead-stats">⚔️ ${fmt(hStats.atk)} · ❤️ ${fmt(hStats.hp)} · 🛡️ ${fmt(hStats.def)}</span>
+        <span class="lead-power">⚡ ${fmt(powerOf(hero.id))}</span>
+      </span>`,
+  }));
 
   host.appendChild(h('div', {
     class: 'power-banner',
-    html: `<div class="pb-label">Collection</div>
-           <div class="pb-value">${owned} / ${entries.length} heroes</div>`,
+    html: `<div class="pb-label">Allies</div>
+           <div class="pb-value">${owned} / ${allies.length} recruited</div>`,
   }));
 
   const grid = h('div', { class: 'hero-grid' });
 
-  for (const entry of entries) {
+  for (const entry of allies) {
     const { id, def, rarity, owned: isOwned, star, level, unlock } = entry;
     const canUnlock = unlock.canUnlock;
 
@@ -45,7 +63,10 @@ export function render(host) {
   }
 
   host.appendChild(grid);
-  host.appendChild(h('p', { class: 'note', text: 'Shards drop from campaign stages. Collect enough and a hero joins the team.' }));
+  host.appendChild(h('p', {
+    class: 'note',
+    text: 'Allies fight alongside your hero. Shards drop from campaign stages — collect enough and they join you.',
+  }));
 
   onAction(host, {
     open: (el) => navigate('heroDetail', { heroId: el.dataset.hero }),

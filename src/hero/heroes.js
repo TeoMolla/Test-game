@@ -20,6 +20,11 @@ export const HEROES = {
     id: 'goku',
     name: 'Goku',
     title: 'Raised on Earth',
+    // The protagonist. This one flag is what separates him from the allies:
+    // he is never benched, gear is his alone, and the deep progression tracks
+    // (skill ranks, transformations) hang off him. Exactly one hero may carry
+    // it — see PROTAGONIST_ID below.
+    protagonist: true,
     rarity: 'rare',
     role: 'Bruiser',
     preferredRow: 'front',
@@ -127,6 +132,22 @@ export const HEROES = {
 };
 
 export const HERO_IDS = Object.keys(HEROES);
+
+/** Derived rather than hard-coded, so the flag above is the single source. */
+export const PROTAGONIST_ID = (() => {
+  const found = Object.values(HEROES).filter((h) => h.protagonist);
+  if (found.length !== 1) {
+    throw new Error(`expected exactly one protagonist, found ${found.length}`);
+  }
+  return found[0].id;
+})();
+
+export function isProtagonist(heroId) {
+  return heroId === PROTAGONIST_ID;
+}
+
+/** Everyone who is not the protagonist: the allies you bring along.  */
+export const ALLY_IDS = HERO_IDS.filter((id) => id !== PROTAGONIST_ID);
 
 export function getHeroDef(id) {
   return HEROES[id] || null;
