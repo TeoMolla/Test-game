@@ -26,9 +26,11 @@ const GOKU_FRAMES = {
   windup:        { src: 'assets/sprites/goku/windup.png',        w: 129, h: 182, cx: 0.5116 },
   punch:         { src: 'assets/sprites/goku/punch.png',         w: 139, h: 182, cx: 0.4424 },
   kick:          { src: 'assets/sprites/goku/kick.png',          w: 156, h: 182, cx: 0.4936 },
-  charge_a:      { src: 'assets/sprites/goku/charge_a.png',      w: 126, h: 182, cx: 0.5119 },
-  charge_b:      { src: 'assets/sprites/goku/charge_b.png',      w: 127, h: 182, cx: 0.5236 },
-  release:       { src: 'assets/sprites/goku/release.png',       w: 121, h: 182, cx: 0.5537 },
+  // Redrawn from a separate, larger source and stored at 2x. Frames may differ
+  // in pixel size: they are sized on screen by CSS height and anchored by cx,
+  // so only the character's share of the canvas has to match.
+  charge:        { src: 'assets/sprites/goku/charge.png',        w: 254, h: 364, cx: 0.5268 },
+  release:       { src: 'assets/sprites/goku/release.png',       w: 232, h: 364, cx: 0.5268 },
   stagger:       { src: 'assets/sprites/goku/stagger.png',       w: 100, h: 182, cx: 0.47 },
   knockback:     { src: 'assets/sprites/goku/knockback.png',     w: 168, h: 182, cx: 0.4524 },
   ground_impact: { src: 'assets/sprites/goku/ground_impact.png', w: 110, h: 182, cx: 0.4091 },
@@ -58,17 +60,17 @@ const SPRITE_ANIMS = {
   attack_alt:{ priority: 1, clip: [['windup', 110], ['kick', 190]] },
   hit:       { priority: 2, clip: [['stagger', 260]] },
   hit_heavy: { priority: 2, clip: [['knockback', 230], ['ground_impact', 260]] },
-  technique: { priority: 3, clip: [['charge_a', 170], ['charge_b', 190], ['release', 430]] },
-  ultimate:  { priority: 4, clip: [['charge_a', 200], ['charge_b', 240], ['release', 520]] },
+  technique: { priority: 3, clip: [['charge', 300], ['release', 440]] },
+  ultimate:  { priority: 4, clip: [['charge', 380], ['release', 540]] },
   defeat:    { priority: 9, hold: true, clip: [['falling', 210], ['crumpled', 260], ['ko', 380]] },
 };
 
 /**
- * Frame index at which a beam effect should fire, per animation. The release
- * frame draws Goku's hands thrust forward but no beam — the beam is a DOM
+ * Frame index at which a beam effect should fire, per animation — the release
+ * frame. It draws Goku's hands thrust forward but no beam; the beam is a DOM
  * effect so it can stretch to reach whatever it is aimed at.
  */
-const BEAM_ON_FRAME = { technique: 2, ultimate: 2 };
+const BEAM_ON_FRAME = { technique: 1, ultimate: 1 };
 
 const SETS = {
   goku: {

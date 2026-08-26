@@ -62,6 +62,26 @@ SHEETS = {
         ],
         'stand_h': 165,     # a standing pose's height, used to scale the main pose to match
         'bust_to': 395,     # crop the portrait to this row for the bust (neck is ~300)
+
+        # Redraws that supersede poses from the main sheet. A separate image
+        # can be drawn at any size: `match_h` is the character height the pose
+        # had on the main sheet, so the redraw lands at the same scale, and
+        # `density` stores it at that many times the pixel size. Density is
+        # free to vary per frame — the renderer sizes frames by CSS height and
+        # anchors them by the `cx` fraction, so only the character's share of
+        # the canvas has to be consistent, not the pixel count. Storing a
+        # bigger redraw at 2x keeps its detail instead of throwing it away.
+        'overrides': [{
+            'image': 'art/goku-kamehameha.jpg',
+            'clamp': (130, 640),
+            'match_h': 168,
+            'density': 2,
+            'replaces': ['charge_a', 'charge_b', 'release'],
+            'frames': [
+                ('charge',  (301, 589),  (256, 579)),
+                ('release', (756, 1016), (256, 579)),
+            ],
+        }],
     },
 }
 
@@ -150,6 +170,56 @@ def slice_sheet(cfg, out_dir):
     return meta, canvas_h
 
 
+def slice_overrides(cfg, out_dir, canvas_h, meta):
+    """Apply redraws from separate images, at their own resolution."""
+    for ov in cfg.get('overrides', []):
+        path = os.path.join(ROOT, ov['image'])
+        if not os.path.exists(path):
+            print(f'  override skipped, missing {ov["image"]}')
+            continue
+        a = np.asarray(Image.open(path).convert('RGB')).astype(int)
+        H, W = a.shape[:2]
+        mn, mx = a.min(2), a.max(2)
+        colored = ((mx - mn) > 45) & (mx > 60)
+        ink = (mn < 130) | colored
+
+        density = ov.get('density', 1)
+        out_h = canvas_h * density
+        pad = PAD * density
+
+        for name, sx, by in ov['frames']:
+            m = flood(ink, sx, by, ov['clamp'], H, W)
+            ys, xs = np.where(m)
+            x0, y0, x1, y1 = xs.min(), ys.min(), xs.max()+1, ys.max()+1
+            rgb = a[y0:y1, x0:x1].astype(np.uint8)
+            alpha = np.where(m[y0:y1, x0:x1], key_paper(rgb), 0).astype(np.uint8)
+            src = Image.fromarray(np.dstack([rgb, alpha]), 'RGBA')
+
+            # Scale so the character matches the main sheet's scale, times density.
+            scale = (ov['match_h'] * density) / (y1 - y0)
+            nw, nh = max(1, round((x1-x0)*scale)), max(1, round((y1-y0)*scale))
+            src = src.resize((nw, nh), Image.LANCZOS)
+
+            canvas = Image.new('RGBA', (nw + pad*2, out_h), (0,0,0,0))
+            canvas.paste(src, (pad, out_h - pad - nh), src)
+            canvas.quantize(colors=COLORS, method=Image.FASTOCTREE).save(
+                os.path.join(out_dir, f'{name}.png'), optimize=True)
+
+            cx = (((sx[0]+sx[1])/2 - x0) * scale + pad) / (nw + pad*2)
+            meta[name] = {'w': int(nw + pad*2), 'h': int(out_h), 'cx': round(float(cx), 4)}
+
+        # A replaced name may also be a new name (a redraw of the same pose),
+        # so never drop something this override just wrote.
+        written = {f[0] for f in ov['frames']}
+        for gone in ov.get('replaces', []):
+            if gone in written:
+                continue
+            meta.pop(gone, None)
+            stale = os.path.join(out_dir, f'{gone}.png')
+            if os.path.exists(stale):
+                os.remove(stale)
+
+
 def slice_pose(cfg, out_dir, canvas_h, meta):
     a = np.asarray(Image.open(os.path.join(ROOT, cfg['pose'])).convert('RGB')).astype(int)
     alpha = key_paper(a.astype(np.uint8))
@@ -192,6 +262,7 @@ def main():
         out_dir = os.path.join(ROOT, cfg['out'])
         os.makedirs(out_dir, exist_ok=True)
         meta, canvas_h = slice_sheet(cfg, out_dir)
+        slice_overrides(cfg, out_dir, canvas_h, meta)
         slice_pose(cfg, out_dir, canvas_h, meta)
         json.dump(meta, open(os.path.join(out_dir, 'frames.json'), 'w'), indent=2)
         total = sum(os.path.getsize(os.path.join(out_dir, f))

@@ -25,7 +25,7 @@ Progress saves to `localStorage`, so it survives closing the tab.
   recommended team power and its own enemy team.
 - **Formation** — pick up to 3 heroes and assign each to the front or back row
   before the fight.
-- **Sprites** — Goku is drawn art: 14 frames driving idle, punch/kick, the
+- **Sprites** — Goku is drawn art: 13 frames driving idle, punch/kick, the
   Kamehameha charge-and-release, stagger/knockback, a hurt resting pose below
   25% HP, and a three-frame defeat. Every other hero still uses the CSS
   placeholder, and the two mix freely on the same screen.
@@ -86,9 +86,17 @@ or ultimate — a front-row hero takes chip damage almost continuously, and
 letting hits interrupt those cancels the release frame, which is the whole
 payoff of a Kamehameha.
 
-Source frames are 182px tall and render at ~104 CSS px, so on a 3x phone screen
-they are upscaled and read a little soft. Redrawing at ~320px tall would make
-them crisp; nothing in the code needs to change if the art gets bigger.
+Frames do not all have to be the same pixel size. The renderer sizes them by CSS
+height and anchors them by `cx`, so only the character's share of the canvas has
+to match — which means a redraw can be stored at higher density than the frames
+around it. The Kamehameha pair came from a larger second drawing and is kept at
+2x for that reason; the rest are 182px tall and render at ~104 CSS px, so on a 3x
+phone screen they are upscaled and read a little soft. Redrawing any of them
+bigger needs no code change, just a higher `density` in the override.
+
+Redraws are handled by the `overrides` block in `tools/slice-sprites.py`: point
+it at another image, say which poses it supersedes, and it rescales them to the
+main sheet's scale so they drop straight in.
 
 ### Tuning
 
