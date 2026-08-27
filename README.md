@@ -57,6 +57,14 @@ Progress saves to `localStorage`, so it survives closing the tab.
 - **Auto-battle** — on by default for anything already cleared, off for a fight
   you have never won. The AI takes your turns; you can flip it either way
   mid-fight and take over.
+- **Impact** — attackers cross the gap and come back, contact blows the body
+  white and throws an expanding ring, the world hit-stops for a few frames, and
+  the screen shakes by how much health the hit took. Damage numbers punch in
+  and crits are half again as big.
+- **Cut-ins** — an ultimate or a boss phase gets the screen to itself: the
+  field darkens and desaturates except the caster, speed lines rake a skewed
+  band across it, and the portrait slides in with the move named in display
+  type. Only then does the damage land.
 - **Hero** — Goku is the protagonist: he leads every team, cannot be benched,
   and is the only character who wears gear. His tab is deliberately quiet: team
   power, his own card, and the two companions currently fighting beside him.
@@ -203,6 +211,28 @@ Several rules are written as switches rather than hard-coded:
   decides whether answering a charged attack is worth a turn.
 - `COMBAT.maxTurns` — the stalemate cap. A fight that reaches it is a loss; the
   harness reports how many runs hit it, and that number should stay at zero.
+
+### Making a hit land
+
+Three things do most of the work, and they are all cheap:
+
+**Hit stop.** On contact everything holds for 60-150ms, scaled to the fraction
+of health the hit took. This is the single highest-value trick in game feel —
+it is what separates a hit that lands from a number that appears.
+
+**Anticipation and follow-through.** The attacker winds back, crosses the gap,
+connects, and returns. Ranged units plant and lean instead. Standing still and
+emitting a number is what made every attack in the real-time build read the
+same weight regardless of what it was.
+
+**Scaled shake.** Small, medium and large, chosen by the same fraction that
+sets the hit stop, so the screen tells you how big that was before you read the
+number.
+
+The cut-in is sequenced rather than layered: `playEvents()` splits a turn at
+the ultimate or phase event, plays the announce alone, and only renders the
+damage once the cut-in clears. Rendering them together is what made a finisher
+read as one more number.
 
 ### How a turn works
 

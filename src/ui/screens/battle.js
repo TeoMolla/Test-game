@@ -35,7 +35,18 @@ let selectedTarget = null;
 let els = {};
 
 /** Base beats, in ms at x1. Everything else is derived from these. */
-const PACE = { open: 140, act: 620, big: 900, death: 480 };
+const PACE = { open: 140, act: 620, big: 900, death: 480, cutIn: 1150 };
+
+/**
+ * HIT STOP — the single cheapest trick in game feel. On contact the whole
+ * world holds for a few frames before the damage number flies, which is what
+ * makes a hit land rather than merely happen. Scaled by how big the hit was.
+ */
+function hitStopMs(fraction) {
+  if (fraction >= 0.18) return 150;
+  if (fraction >= 0.08) return 100;
+  return 60;
+}
 
 function wait(ms, fn) {
   const id = setTimeout(fn, Math.max(16, ms / speed));
@@ -242,16 +253,56 @@ function step(ref) {
 
 /**
  * Draw a turn's events, then continue. Everything lands at once in the
- * simulation; the delay here is purely so a person can read it.
+ * simulation; the pacing here is purely so a person can read it.
+ *
+ * An ultimate or a boss phase is split into two beats: the announce plays
+ * alone with the screen to itself, and only when the cut-in clears does the
+ * damage land. Rendering them together is what made a finisher read as one
+ * more number a moment ago.
  */
 function playEvents(events, done, lead = 0) {
+  const cut = events.findIndex((e) => e.t === 'phase'
+    || (e.t === 'skill' && e.slot === 'ultimate')
+    || (e.t === 'release' && e.slot === 'ultimate'));
+
+  if (cut >= 0 && !lead) {
+    for (const ev of events.slice(0, cut + 1)) handleEvent(ev);
+    paintAll();
+    const ms = playCutIn(events[cut]);
+    wait(ms, () => {
+      for (const ev of events.slice(cut + 1)) handleEvent(ev);
+      paintAll();
+      settle(events, done);
+    });
+    return;
+  }
+
   for (const ev of events) handleEvent(ev);
   paintAll();
-  const heavy = events.some((e) => e.t === 'phase' || e.t === 'release'
-    || (e.t === 'skill' && e.slot === 'ultimate'));
+  if (lead) { wait(lead, done); return; }
+  settle(events, done);
+}
+
+/** Hold on the impact, then carry on. */
+function settle(events, done) {
+  const hit = events.filter((e) => e.t === 'damage' && !e.self);
   const died = events.some((e) => e.t === 'death');
   const ended = events.some((e) => e.t === 'end');
-  const beat = lead || (heavy ? PACE.big : PACE.act) + (died ? PACE.death : 0);
+
+  let stop = 0;
+  if (hit.length) {
+    const worst = Math.max(...hit.map((e) => {
+      const u = battle.unitById(e.uid);
+      return u ? e.amount / u.maxHp : 0;
+    }));
+    stop = hitStopMs(worst);
+    shake(worst);
+    const screen = document.querySelector('.battle-screen');
+    screen?.classList.add('hitstop');
+    wait(stop, () => screen?.classList.remove('hitstop'));
+  }
+
+  const beat = stop + PACE.act + (died ? PACE.death : 0);
   wait(ended ? PACE.big : beat, done);
 }
 
@@ -320,16 +371,16 @@ function handleEvent(ev) {
 
     case 'damage': {
       if (!n) return;
-      floater(n.fx, `-${fmt(ev.amount)}`, ev.crit ? 'crit' : (ev.self ? 'self' : 'dmg'));
-      if (ev.guarded) floater(n.fx, 'GUARD', 'guard');
       const unit = battle.unitById(ev.uid);
+      const frac = unit ? ev.amount / unit.maxHp : 0;
+      const heavy = ev.crit || frac > 0.12;
+      floater(n.fx, `-${fmt(ev.amount)}`, ev.crit ? 'crit' : (ev.self ? 'self' : 'dmg'), heavy);
+      if (ev.guarded) floater(n.fx, 'GUARD', 'guard');
+      if (!ev.self) impact(n, heavy);
       pulse(n.art, 'hit');
       if (n.animator && !ev.self && unit?.alive) {
-        const heavy = ev.crit || ev.amount / unit.maxHp > 0.12;
         n.animator.play(heavy ? 'hit_heavy' : 'hit');
       }
-      const from = nodes.get(ev.from);
-      if (from && ev.from !== ev.uid && !from.animator) pulse(from.art, 'lunge');
       break;
     }
 
@@ -341,15 +392,20 @@ function handleEvent(ev) {
       if (n) { callout(n.callout, `${ev.icon} ${ev.name}`, 'guard'); n.root.classList.add('guarding'); }
       break;
 
-    case 'skill':
+    case 'skill': {
       if (!n) break;
-      callout(n.callout, `${ev.icon || ''} ${ev.name}`, ev.slot);
+      if (ev.slot !== 'ultimate') callout(n.callout, `${ev.icon || ''} ${ev.name}`, ev.slot);
       n.root.classList.remove('guarding');
       if (n.animator) {
         if (ev.slot === 'attack') n.animator.play(n.swings++ % 2 ? 'attack_alt' : 'attack');
         else if (ev.slot === 'technique' || ev.slot === 'ultimate') n.animator.play(ev.slot);
       }
+      // Melee crosses the gap; anything with reach plants and fires.
+      const melee = ev.slot === 'attack' && n.unit.engages;
+      const first = (ev.targets || [])[0];
+      if (first) lunge(ev.uid, first, melee ? 'attack' : 'cast');
       break;
+    }
 
     // Announced now, lands at the start of this unit's next turn. Both the
     // caster and everyone in the blast are marked until it goes off.
@@ -363,14 +419,18 @@ function handleEvent(ev) {
     }
 
     case 'release': {
-      if (n) { n.root.classList.remove('charging'); callout(n.callout, `${ev.icon || ''} ${ev.name}`, 'ultimate'); }
+      if (n) {
+        n.root.classList.remove('charging');
+        n.animator?.play('ultimate');
+      }
       for (const other of nodes.values()) other.root.classList.remove('threatened');
       break;
     }
 
+    // The cut-in names the move in 30px display type, so the callout pill and
+    // the old centre banner would be the same words three times over.
     case 'phase':
-      if (n) { n.root.classList.add('phased'); callout(n.callout, `${ev.icon || ''} ${ev.name}`, 'phase'); }
-      banner(`${ev.icon || ''} ${ev.name}`);
+      if (n) n.root.classList.add('phased');
       break;
 
     case 'passive':
@@ -456,6 +516,94 @@ function paintTargets() {
   }
 }
 
+/* ---------------- impact ---------------- */
+
+/**
+ * The attacker crosses the gap and comes back. Anticipation, contact,
+ * follow-through — standing still and emitting a number is what made every
+ * hit read the same weight regardless of what it was.
+ */
+function lunge(attacker, targetUid, kind = 'attack') {
+  const a = nodes.get(attacker);
+  const t = nodes.get(targetUid);
+  if (!a || !t) return;
+  const ab = a.root.getBoundingClientRect();
+  const tb = t.root.getBoundingClientRect();
+  // Stop short of the target rather than standing inside it.
+  const gap = a.unit.side === 'player' ? -58 : 58;
+  const dx = Math.round((tb.left + tb.width / 2) - (ab.left + ab.width / 2) + gap);
+  const dy = Math.round((tb.top + tb.height / 2) - (ab.top + ab.height / 2));
+  a.root.style.setProperty('--lunge-x', `${dx}px`);
+  a.root.style.setProperty('--lunge-y', `${dy}px`);
+  a.root.style.setProperty('--lunge-ms', `${Math.round(520 / speed)}ms`);
+  a.root.classList.remove('lunging', 'stepping');
+  void a.root.offsetWidth;
+  a.root.classList.add(kind === 'attack' ? 'lunging' : 'stepping');
+  wait(560, () => a.root.classList.remove('lunging', 'stepping'));
+}
+
+/** Screen shake, scaled by how much of the target's health went. */
+function shake(fraction) {
+  const screen = document.querySelector('.battle-screen');
+  if (!screen) return;
+  const cls = fraction >= 0.18 ? 'shake-lg' : fraction >= 0.07 ? 'shake-md' : 'shake-sm';
+  screen.classList.remove('shake-sm', 'shake-md', 'shake-lg');
+  void screen.offsetWidth;
+  screen.classList.add(cls);
+  wait(420, () => screen.classList.remove(cls));
+}
+
+/** White flash and an expanding ring at the point of contact. */
+function impact(node, big) {
+  const fx = h('span', { class: `impact ${big ? 'big' : ''}` });
+  node.fx.appendChild(fx);
+  setTimeout(() => fx.remove(), 500);
+  node.art.classList.remove('flashed');
+  void node.art.offsetWidth;
+  node.art.classList.add('flashed');
+}
+
+/**
+ * The cut-in: the screen darkens, speed lines rake across it, the caster's
+ * portrait slides in and the move is named. This is the whole reason an
+ * ultimate is worth saving a turn for, and a boss turning gets the same
+ * treatment because it is the same kind of moment.
+ * Returns how long to hold before the damage lands.
+ */
+function playCutIn(ev) {
+  const screen = document.querySelector('.battle-screen');
+  const unit = battle.unitById(ev.uid);
+  if (!screen || !unit) return PACE.big;
+
+  const r = rarityOf(unit.rarity);
+  const phase = ev.t === 'phase';
+  const node = h('div', {
+    class: `cut-in ${unit.side} ${phase ? 'phase' : ''}`,
+    style: { '--rarity': r.color, '--aura': unit.art?.aura || r.color },
+    html: `
+      <div class="ci-lines"></div>
+      <div class="ci-body">
+        <div class="ci-portrait">${bustHTML(unit.heroId, unit.art, bustSVG)}</div>
+        <div class="ci-text">
+          <div class="ci-who">${unit.name}</div>
+          <div class="ci-move">${ev.name}</div>
+        </div>
+      </div>`,
+  });
+  node.style.setProperty('--cut-ms', `${Math.round(PACE.cutIn / speed)}ms`);
+  screen.appendChild(node);
+  const ms = PACE.cutIn / speed;
+  setTimeout(() => node.remove(), ms + 120);
+
+  // The caster keeps the light while everything else is held down.
+  screen.classList.add('cinematic');
+  wait(PACE.cutIn, () => screen.classList.remove('cinematic'));
+  for (const n of nodes.values()) n.root.classList.toggle('spotlit', n.unit.uid === ev.uid);
+  wait(PACE.cutIn, () => { for (const n of nodes.values()) n.root.classList.remove('spotlit'); });
+
+  return PACE.cutIn;
+}
+
 /* ---------------- fx helpers ---------------- */
 
 function fireBeam(beam, node, unit, ms) {
@@ -474,12 +622,18 @@ function fireBeam(beam, node, unit, ms) {
   beam.classList.add('fire');
 }
 
-function floater(host, text, kind) {
-  const node = h('span', { class: `float ${kind}`, text });
-  node.style.setProperty('--dx', `${(Math.random() * 46 - 23).toFixed(0)}px`);
+/**
+ * Numbers scatter so simultaneous hits stay readable, but they scatter INWARD:
+ * a big crit on the rightmost enemy used to run off the side of the phone.
+ */
+function floater(host, text, kind, heavy = false) {
+  const node = h('span', { class: `float ${kind} ${heavy ? 'heavy' : ''}`, text });
+  const unit = host.closest('.unit');
+  const bias = unit?.classList.contains('enemy') ? -30 : 24;
+  node.style.setProperty('--dx', `${(bias + Math.random() * 30 - 15).toFixed(0)}px`);
   node.style.setProperty('--dy', `${(Math.random() * 26 - 8).toFixed(0)}px`);
   host.appendChild(node);
-  setTimeout(() => node.remove(), 950);
+  setTimeout(() => node.remove(), 1100);
 }
 
 function callout(host, text, kind) {
@@ -487,14 +641,6 @@ function callout(host, text, kind) {
   host.className = `u-callout show ${kind}`;
   clearTimeout(host._t);
   host._t = setTimeout(() => { host.className = 'u-callout'; }, 1100);
-}
-
-function banner(text) {
-  const arena = document.querySelector('.arena');
-  if (!arena) return;
-  const node = h('div', { class: 'phase-banner', text });
-  arena.appendChild(node);
-  setTimeout(() => node.remove(), 1600);
 }
 
 function pulse(node, cls) {
