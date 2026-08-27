@@ -110,13 +110,16 @@ export const RESERVED_SLOTS = ['transform'];
  * field, heroes and enemies alike, so raising it stretches every fight without
  * touching who beats whom: both sides gain the same survivability.
  *
- * It is not perfectly neutral, and the direction is worth knowing. Auto-attacks
- * scale with the clock, but techniques run on fixed cooldowns and ultimates on
- * a charge meter — so a longer fight means more casts, and it quietly favours
- * whoever has the better kit. That is usually the boss. Re-run
- * tools/simulate.mjs after changing this.
+ * It is not perfectly neutral, and the direction is worth knowing. A longer
+ * fight means more turns, and more turns means more techniques and ultimates —
+ * so it quietly favours whoever has the better kit. That is usually the boss.
+ * Re-run tools/simulate.mjs after changing this.
+ *
+ * Dropped from 2.0 when combat went turn-based: a unit that used to swing
+ * thirty-odd times in a fight now takes six or eight turns, so the same HP
+ * pool turned every boss into a stalemate against the turn cap.
  */
-export const HP_SCALE = 2.0;
+export const HP_SCALE = 0.8;
 
 export const MAX_LEVEL = 60;             // PLACEHOLDER
 
@@ -240,46 +243,32 @@ export function computePower(stats, star = 0) {
 
 /** Combat tuning. PLACEHOLDER across the board. */
 export const COMBAT = {
-  tickMs: 50,                  // fixed simulation step
-  baseAttackInterval: 1.7,     // seconds between auto-attacks at speed 1.0
-  maxBattleSeconds: 90,        // draw -> defeat if nobody wipes
+  maxTurns: 80,               // stalemate -> defeat if nobody wipes
   defenseConstant: 240,        // dmg * K / (K + def)
   damageVariance: 0.12,        // +/- 12% roll
   critChance: 0.1,
   critMult: 1.6,
-  ultimateChargePerSecond: 5.6,   // passive charge
+
+  /** Guarding halves the hit and is the answer to a charging attack. */
+  guardDamageMult: 0.5,
+
+  /** Turns a technique sits on cooldown when its skill does not say. */
+  defaultTechniqueCooldown: 3,
+
+  /* Ultimate charge, now per TURN rather than per second. A unit reaches a
+     full meter in roughly five of its own turns if it does nothing but swing,
+     sooner if it is being hit or guarding. */
+  ultimateChargePerTurn: 12,
   ultimateChargeOnHitDealt: 4,
   ultimateChargeOnHitTaken: 3,
+  ultimateChargeOnGuard: 10,
   ultimateChargeMax: 100,
+
+  /** Auto-battle guards a charging hit only below this much health — guarding
+   *  at full health throws the turn away. */
+  aiGuardHpThreshold: 0.62,
+
   backRowDamageTakenMult: 1.0, // if back row ever becomes targetable early
-
-  /**
-   * Front-line units close the distance before they can swing. Nobody on
-   * either side acts until they have arrived, so the simulation and the
-   * on-screen run stay in step.
-   * PLACEHOLDER: pure feel — longer reads as a heavier charge, shorter as a
-   * scrappier brawl.
-   */
-  approachSeconds: 0.55,
-
-  /**
-   * Everything stops when an ultimate goes off — timers, cooldowns, the battle
-   * clock, every other unit. The cast's own animation keeps playing, because
-   * that runs on the wall clock rather than the simulation, so the moment is
-   * held for the ultimate alone.
-   * This is where the cut-in, flash and camera work will hang once they exist.
-   * PLACEHOLDER: long enough to land, short enough not to stall the fight.
-   */
-  ultimateFreezeSeconds: 0.7,
-
-  /**
-   * After any technique or ultimate, that unit does nothing at all for this
-   * long — no second skill, no auto-attack. Without it a hero whose ultimate
-   * comes up on one tick can fire its technique on the very next one, 50ms
-   * later, which reads on screen as both firing at once.
-   * PLACEHOLDER: about a third of an attack interval.
-   */
-  castRecoverySeconds: 0.5,
 };
 
 /**
@@ -310,11 +299,10 @@ export function engagesInMelee(row, attackSkill) {
 export const TARGETING_MODE = 'strict';
 
 /**
- * ULTIMATE ACTIVATION (adjustable): 'auto' fires the ultimate the instant the
- * meter fills — the simpler prototype behaviour requested. Switching this to
- * 'tap' is the hook for making ultimates player-activated later; the battle
- * portraits already render a distinct ready state and accept taps.
+ * Auto-battle. On, the AI takes the player's turns too; the player can switch
+ * it off mid-fight and take over. Stages already cleared start on it, so a
+ * farming run stays hands-free and a new boss gets your attention.
  */
-export const ULTIMATE_MODE = 'auto';
+export const AUTO_BATTLE_ON_CLEARED = true;
 
 export const TEAM_SIZE = 3;

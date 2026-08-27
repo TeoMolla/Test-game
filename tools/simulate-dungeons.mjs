@@ -45,27 +45,27 @@ function playerUnits(team) {
 function run(label, team) {
   const power = team.reduce((s, t) => s + powerOf(t.heroId), 0);
   console.log(`\n=== ${label} — team power ${power} ===`);
-  console.log('tier      gate   wins   sim s  real s  avg survivors');
+  console.log('tier      gate   wins   turns  stalls  avg survivors');
   for (const dungeon of DUNGEONS.filter((d) => d.available)) {
     for (const tier of DUNGEON_TIERS) {
       const def = dungeon.tiers[tier];
       if (!def) continue;
-      let wins = 0, seconds = 0, survivors = 0, wall = 0;
+      let wins = 0, turns = 0, survivors = 0, timeouts = 0;
       for (let i = 0; i < RUNS; i++) {
         const battle = createBattle({
           playerUnits: playerUnits(team),
           enemyUnits: buildDungeonEnemies(dungeon.id, tier),
         });
-        const res = simulate(battle, { maxSeconds: 180 });
+        const res = simulate(battle);
         if (res.result === 'victory') { wins++; survivors += res.survivors; }
-        seconds += res.seconds;
-        wall += res.wall;
+        turns += res.turns;
+        if (res.turns >= 80) timeouts++;
       }
       console.log(
         `${TIER_META[tier].name.padEnd(9)} ${String(def.requiredPower).padStart(5)}  ` +
         `${String(Math.round((wins / RUNS) * 100) + '%').padStart(4)}  ` +
-        `${(seconds / RUNS).toFixed(1).padStart(6)}  ` +
-        `${(wall / RUNS).toFixed(1).padStart(6)}  ` +
+        `${(turns / RUNS).toFixed(0).padStart(6)}  ` +
+        `${String(timeouts).padStart(6)}  ` +
         `${wins ? (survivors / wins).toFixed(2) : '—'}`
       );
     }

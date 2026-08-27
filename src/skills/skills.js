@@ -11,8 +11,12 @@
  *   slot      'attack' | 'technique' | 'ultimate' | 'passive'
  *   icon      short glyph used by the placeholder art layer
  *   desc      tooltip text
- *   cooldown  seconds (technique only; attacks use the unit's attack interval,
- *             ultimates use the charge meter)
+ *   cooldownTurns  turns before a technique can be used again (technique only;
+ *             attacks are always available, ultimates use the charge meter)
+ *   charge    true means the skill is ANNOUNCED on the turn it is used and
+ *             lands at the start of the caster's next turn. The whole point of
+ *             a heavy hit: the other side gets a real turn to guard, heal or
+ *             kill the caster before it goes off.
  *   targeting see battle/targeting.js for the supported modes
  *   effects   array of effect descriptors applied in order
  *   trigger   passives only: 'battleStart' | 'onHitDealt' | 'onHitTaken' | 'lowHp'
@@ -24,7 +28,7 @@
  *   { kind:'damage',    mult, hits?, defIgnore? }
  *   { kind:'heal',      mult }                        // of caster ATK
  *   { kind:'selfDamage', pctMaxHp }
- *   { kind:'buff',      stat:'atk'|'def'|'speed', pct, seconds, target:'self'|'allies' }
+ *   { kind:'buff',      stat:'atk'|'def'|'speed', pct, turns, target:'self'|'allies' }
  *   { kind:'debuff',    stat:'atk'|'def'|'speed', pct, seconds }
  *   { kind:'charge',    amount }                      // ultimate meter
  *
@@ -43,7 +47,7 @@ export const SKILLS = {
   goku_technique: {
     id: 'goku_technique', name: 'Kamehameha', slot: 'technique', icon: '🌊', range: 'ranged',
     desc: 'Fires a concentrated ki wave at the strongest foe.',
-    cooldown: 8,
+    cooldownTurns: 3,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.3 }],
   },
@@ -67,7 +71,7 @@ export const SKILLS = {
   piccolo_technique: {
     id: 'piccolo_technique', name: 'Special Beam Cannon', slot: 'technique', icon: '🌀', range: 'ranged',
     desc: 'A drilling beam that pierces much of the target’s defence.',
-    cooldown: 10,
+    cooldownTurns: 3,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.6, defIgnore: 0.5 }],
   },
@@ -91,7 +95,7 @@ export const SKILLS = {
   gohan_technique: {
     id: 'gohan_technique', name: 'Masenko', slot: 'technique', icon: '⚡', range: 'ranged',
     desc: 'A two-handed burst of ki aimed at the weakest foe.',
-    cooldown: 9,
+    cooldownTurns: 3,
     targeting: 'lowestHp',
     effects: [{ kind: 'damage', mult: 2.4 }],
   },
@@ -115,7 +119,7 @@ export const SKILLS = {
   krillin_technique: {
     id: 'krillin_technique', name: 'Destructo Disc', slot: 'technique', icon: '💿', range: 'ranged',
     desc: 'A razor of ki that cuts straight through defences.',
-    cooldown: 9,
+    cooldownTurns: 3,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.1, defIgnore: 0.7 }],
   },
@@ -139,7 +143,7 @@ export const SKILLS = {
   yamcha_technique: {
     id: 'yamcha_technique', name: 'Wolf Fang Fist', slot: 'technique', icon: '🐺',
     desc: 'Four savage clawing blows in sequence.',
-    cooldown: 7,
+    cooldownTurns: 2,
     targeting: 'frontFirst',
     effects: [{ kind: 'damage', mult: 0.62, hits: 4 }],
   },
@@ -160,7 +164,7 @@ export const SKILLS = {
   tien_technique: {
     id: 'tien_technique', name: 'Dodon Ray', slot: 'technique', icon: '☄️', range: 'ranged',
     desc: 'A piercing beam fired from a single fingertip.',
-    cooldown: 8,
+    cooldownTurns: 3,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.35 }],
   },
@@ -184,7 +188,7 @@ export const SKILLS = {
   saibaman_technique: {
     id: 'saibaman_technique', name: 'Acid Spit', slot: 'technique', icon: '🧪', range: 'ranged',
     desc: 'Corrosive spray that softens armour.',
-    cooldown: 9,
+    cooldownTurns: 3,
     targeting: 'frontFirst',
     effects: [
       { kind: 'damage', mult: 1.4 },
@@ -200,14 +204,14 @@ export const SKILLS = {
   raditz_technique: {
     id: 'raditz_technique', name: 'Double Sunday', slot: 'technique', icon: '☄️', range: 'ranged',
     desc: 'Twin ki beams fired at once.',
-    cooldown: 8,
+    cooldownTurns: 3,
     targeting: 'frontFirst',
     effects: [{ kind: 'damage', mult: 1.3, hits: 2 }],
   },
   raditz_ultimate: {
     id: 'raditz_ultimate', name: 'Shooting Star Attack', slot: 'ultimate', icon: '💫', range: 'ranged',
     desc: 'A brutal charging tackle through the whole team.',
-    targeting: 'allEnemies',
+    targeting: 'allEnemies', charge: true,
     effects: [{ kind: 'damage', mult: 1.5 }],
   },
   nappa_attack: {
@@ -219,14 +223,14 @@ export const SKILLS = {
   nappa_technique: {
     id: 'nappa_technique', name: 'Bomber DX', slot: 'technique', icon: '💣', range: 'ranged',
     desc: 'A shockwave that rips through the battlefield.',
-    cooldown: 9,
+    cooldownTurns: 3,
     targeting: 'allEnemies',
     effects: [{ kind: 'damage', mult: 1.15 }],
   },
   nappa_ultimate: {
     id: 'nappa_ultimate', name: 'Break Cannon', slot: 'ultimate', icon: '🌋', range: 'ranged',
     desc: 'A point-blank detonation aimed at the weakest defender.',
-    targeting: 'lowestHp',
+    targeting: 'lowestHp', charge: true,
     effects: [{ kind: 'damage', mult: 3.2 }],
   },
   nappa_passive: {
@@ -245,14 +249,14 @@ export const SKILLS = {
   vegeta_technique: {
     id: 'vegeta_technique', name: 'Galick Gun', slot: 'technique', icon: '🟣', range: 'ranged',
     desc: 'A violet torrent of ki.',
-    cooldown: 8,
+    cooldownTurns: 3,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.5, defIgnore: 0.3 }],
   },
   vegeta_ultimate: {
     id: 'vegeta_ultimate', name: 'Galaxy Breaker', slot: 'ultimate', icon: '🌌', range: 'ranged',
     desc: 'A world-ending sphere hurled at the entire team.',
-    targeting: 'allEnemies',
+    targeting: 'allEnemies', charge: true,
     effects: [{ kind: 'damage', mult: 2.2 }],
   },
   vegeta_passive: {
@@ -261,6 +265,31 @@ export const SKILLS = {
     trigger: 'lowHp',
     hpThreshold: 0.5,                               // PLACEHOLDER
     effects: [{ kind: 'buff', stat: 'atk', pct: 0.45, seconds: 999, target: 'self' }],
+  },
+
+  /* ---------------- phase skills ----------------
+     What a boss swaps to once it turns. Each is a harder version of the skill
+     it replaces, so a phase change reads as the same fighter escalating rather
+     than a different one arriving. */
+  raditz_attack_rage: {
+    id: 'raditz_attack_rage', name: 'Savage Rush', slot: 'attack', icon: '💢',
+    desc: 'No technique left in it — only speed and spite.',
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 1.35 }],
+  },
+  nappa_technique_rage: {
+    id: 'nappa_technique_rage', name: 'Bomber Barrage', slot: 'technique', icon: '💥', range: 'ranged',
+    desc: 'Shockwave after shockwave, with no pause between them.',
+    cooldownTurns: 2,
+    targeting: 'allEnemies',
+    effects: [{ kind: 'damage', mult: 1.35 }],
+  },
+  vegeta_technique_rage: {
+    id: 'vegeta_technique_rage', name: 'Galick Barrage', slot: 'technique', icon: '🟪', range: 'ranged',
+    desc: 'The torrent stops being aimed and simply keeps coming.',
+    cooldownTurns: 2,
+    targeting: 'allEnemies',
+    effects: [{ kind: 'damage', mult: 1.6, defIgnore: 0.3 }],
   },
 };
 

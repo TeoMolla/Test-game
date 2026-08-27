@@ -9,6 +9,17 @@
  * Nappa and Vegeta are Epic/SSR, which is what puts the passive-skill rule
  * (passives at Epic and above) on screen in this pass.
  *
+ * PHASES (bosses only) give a long fight a shape. Crossing an HP threshold
+ * transforms the unit once — it takes the phase's effects, optionally swaps a
+ * skill, and the world holds for a beat. Without them a boss at 5% health
+ * fights exactly as it did at full, and a fifty-second battle is one
+ * eight-second loop played six times.
+ *
+ *   phases: [{ atPct, name, icon?, skills?: { slot: skillId }, effects: [] }]
+ *
+ * Thresholds are checked in order and each fires once, so a burst that skips
+ * past two thresholds triggers both.
+ *
  * PLACEHOLDER: every number here is untuned.
  */
 
@@ -29,6 +40,13 @@ export const ENEMIES = {
     id: 'raditz', name: 'Raditz', rarity: 'rare',
     stats: { atk: 94, hp: 2150, def: 44, speed: 1.05 },
     skills: { attack: 'raditz_attack', technique: 'raditz_technique', ultimate: 'raditz_ultimate' },
+    phases: [
+      {
+        atPct: 0.5, name: 'Full Power', icon: '💢',
+        skills: { attack: 'raditz_attack_rage' },
+        effects: [{ kind: 'buff', stat: 'speed', pct: 0.25, seconds: 999, target: 'self' }],
+      },
+    ],
     art: { skin: '#e8b48b', hair: '#171717', hairStyle: 'mane', gi: '#1e293b', trim: '#f5f5f4', aura: '#a855f7' },
   },
   nappa: {
@@ -38,6 +56,16 @@ export const ENEMIES = {
       attack: 'nappa_attack', technique: 'nappa_technique',
       ultimate: 'nappa_ultimate', passive: 'nappa_passive',
     },
+    phases: [
+      {
+        atPct: 0.45, name: 'Enraged', icon: '💥',
+        skills: { technique: 'nappa_technique_rage' },
+        effects: [
+          { kind: 'buff', stat: 'atk', pct: 0.25, seconds: 999, target: 'self' },
+          { kind: 'buff', stat: 'speed', pct: 0.2, seconds: 999, target: 'self' },
+        ],
+      },
+    ],
     art: { skin: '#e8b48b', hair: 'none', hairStyle: 'bald', gi: '#1e293b', trim: '#f59e0b', aura: '#c084fc' },
   },
   vegeta: {
@@ -47,6 +75,21 @@ export const ENEMIES = {
       attack: 'vegeta_attack', technique: 'vegeta_technique',
       ultimate: 'vegeta_ultimate', passive: 'vegeta_passive',
     },
+    phases: [
+      {
+        atPct: 0.6, name: 'No More Games', icon: '🟣',
+        skills: { technique: 'vegeta_technique_rage' },
+        effects: [{ kind: 'buff', stat: 'speed', pct: 0.2, seconds: 999, target: 'self' }],
+      },
+      {
+        atPct: 0.2, name: 'Saiyan Rage', icon: '🔥',
+        effects: [
+          { kind: 'buff', stat: 'atk', pct: 0.4, seconds: 999, target: 'self' },
+          { kind: 'buff', stat: 'speed', pct: 0.25, seconds: 999, target: 'self' },
+        ],
+        freezeSeconds: 1.0,
+      },
+    ],
     art: { skin: '#e8b48b', hair: '#171717', hairStyle: 'widowsPeak', gi: '#1e293b', trim: '#fbbf24', aura: '#fbbf24' },
   },
 };

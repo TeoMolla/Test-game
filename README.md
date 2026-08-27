@@ -1,6 +1,6 @@
-# Z-Fighters — Dragon Ball Auto-Battle RPG Prototype
+# Z-Fighters — Dragon Ball Turn-Based RPG Prototype
 
-A mobile-first, browser-based **real-time auto-battle RPG** set in the Saiyan Saga.
+A mobile-first, browser-based **turn-based RPG** set in the Saiyan Saga.
 Plain HTML/CSS/JavaScript — no framework, no build step, no dependencies.
 
 Personal, non-commercial fan prototype. All character art is a clearly-labelled
@@ -36,17 +36,27 @@ Progress saves to `localStorage`, so it survives closing the tab.
   knockback, a hurt resting pose below 25% HP, and a three-frame defeat. Every
   other hero still uses the CSS placeholder, and the two mix freely on the
   same screen.
-- **Engagement** — melee front-liners run in and square up on the enemy they
-  are actually fighting; ranged and back-row units hold and support. Attackers
-  sharing a target fan out around it, so a group visibly closes in on one
-  defender. Nobody acts until they have arrived.
-- **Ultimates** — firing one stops time: everything else holds while the cast
-  plays out alone. A unit never fires a technique and an ultimate together.
-- **Battle** — real-time, side-view lanes. Every unit runs its own timers:
-  auto-attack on its attack interval, auto-technique the moment it leaves
-  cooldown, ultimate the instant its meter fills. Floating damage numbers, per-unit
-  HP bars, and a bottom portrait row showing each hero's technique countdown and
-  ultimate-ready state.
+- **Battle** — turn-based, side-view lanes. You choose the action for each of
+  your three heroes when their turn comes: Attack, Technique, Ultimate or
+  Guard. Tap an enemy first to override who it hits.
+- **Turn order** — an action-value queue, shown as a strip along the top. Every
+  unit carries a distance to its next turn and acting resets it to
+  `1000 / speed`, so a faster unit simply comes round again sooner. SPEED buys
+  turns, and the order is knowable ahead of time — which is what lets a
+  charging attack say which turn it lands on.
+- **Charged attacks** — a boss announces its heavy hit on one turn and lands it
+  at the start of its next. Both the caster and everyone in the blast are
+  marked, and you get real turns to answer: guard, heal, or kill the caster and
+  cancel it outright.
+- **Guard** — every unit always has it. Halves incoming damage until that
+  unit's next turn and builds ki. It is the answer to a telegraph, and the
+  reason a charged attack is a decision rather than an announcement.
+- **Boss phases** — crossing an HP threshold transforms a boss once: it takes a
+  buff, may swap a skill for a harder one, and the fight visibly escalates.
+  Vegeta turns twice.
+- **Auto-battle** — on by default for anything already cleared, off for a fight
+  you have never won. The AI takes your turns; you can flip it either way
+  mid-fight and take over.
 - **Hero** — Goku is the protagonist: he leads every team, cannot be benched,
   and is the only character who wears gear. His tab is deliberately quiet: team
   power, his own card, and the two companions currently fighting beside him.
@@ -100,7 +110,7 @@ systems talk through those interfaces only.
 | `src/config.js` | All balance knobs and the rarity/star/skill-slot rules |
 | `src/hero/` | Hero definitions; stat/power derivation, promotion, levelling |
 | `src/skills/` | Skill definitions; which slots a hero has unlocked |
-| `src/battle/` | Headless real-time combat loop, targeting, damage |
+| `src/battle/` | Headless turn-based combat, turn order, targeting, damage |
 | `src/gear/` | Equipment definitions, bonus totals, drop rolls |
 | `src/progression/` | Stages, dungeons, enemy units, gating and reward payout |
 | `src/inventory/` | Zeni, shards, gear ownership — the only place resources move |
@@ -167,11 +177,14 @@ would quietly resize the character between frames of one animation.
 **Fight length is one knob**: `HP_SCALE` in `src/config.js` multiplies the HP of
 everyone on the field. Raise it for longer fights, lower it for shorter. It is
 close to neutral on who wins — both sides gain the same survivability — but not
-exactly: auto-attacks scale with the clock while techniques run on fixed
-cooldowns and ultimates on a charge meter, so a longer fight means more casts
-and quietly favours whoever has the deeper kit. That is usually the player's
-three full loadouts, not a mob with two skills, so raising it softens the
-difficulty walls. Re-run the harness after changing it.
+exactly: a longer fight means more turns, and more turns means more techniques
+and ultimates, which quietly favours whoever has the deeper kit. That is usually
+the player's three full loadouts, not a mob with two skills, so raising it
+softens the difficulty walls. Re-run the harness after changing it.
+
+It dropped from 2.0 to 0.8 when combat went turn-based. A unit that used to
+swing thirty-odd times across a fight now takes six or eight turns, so the old
+pools turned every boss into a stalemate against the turn cap.
 
 Balance values are deliberately unbalanced first-pass numbers and are marked
 `PLACEHOLDER` in comments. The main dials live in `src/config.js`
@@ -179,160 +192,38 @@ Balance values are deliberately unbalanced first-pass numbers and are marked
 charge rate), with per-hero, per-skill, per-enemy and per-stage numbers in their
 own data files.
 
-Four rules are written as switches rather than hard-coded:
+Several rules are written as switches rather than hard-coded:
 
 - `TARGETING_MODE` — how strictly the back row is protected.
-- `ULTIMATE_MODE` — `'auto'` fires ultimates the moment they charge (current
-  behaviour); `'tap'` makes the battle-dock portraits the activation control.
+- `AUTO_BATTLE_ON_CLEARED` — whether a fight you have already won starts on
+  auto-battle.
 - `FOCUS_FIRE` — whether a unit picking a new target prefers the one its allies
-  are already on. This is what makes a group gang up rather than spread damage,
-  and it is a real difficulty lever in both directions: concentrated damage
-  removes attackers sooner, so fights resolve faster than with damage spread.
-- `engagesInMelee(row, attackSkill)` — who runs in. Front row with a
-  non-`ranged` auto-attack, currently; it is what gives the formation choice
-  its teeth, since the back row trades safety for holding position.
+  are already on.
+- `COMBAT.guardDamageMult` — what guarding is worth. This is the dial that
+  decides whether answering a charged attack is worth a turn.
+- `COMBAT.maxTurns` — the stalemate cap. A fight that reaches it is a loss; the
+  harness reports how many runs hit it, and that number should stay at zero.
 
-`COMBAT.ultimateFreezeSeconds` holds the whole world when an ultimate fires —
-timers, cooldowns, the battle clock, every other unit. The cast's own animation
-runs off the wall clock, so it plays straight through the hold and has the
-screen to itself. The dim-and-desaturate staging in `battle.css` is a
-placeholder for the real cut-in. `COMBAT.castRecoverySeconds` is the companion
-rule: after any technique or ultimate that unit does nothing at all for a beat,
-which is what stops a hero firing its technique on the tick after its ultimate
-and reading as both at once.
+### How a turn works
 
-`COMBAT.approachSeconds` sets how long closing takes. The engine gates every
-unit's first action on the same value the run-in animates over, so the
-simulation and what is on screen never disagree.
+The engine hands the UI one turn at a time. `battle.advance()` opens the next
+turn — rolling the action-value queue forward, ticking that unit's cooldowns
+and buffs, and resolving anything it was charging. Then either the player
+chooses (`battle.actions()` lists exactly what is legal, `battle.act()` takes
+it) or the AI does (`battle.takeAiTurn()`). Nothing runs on a frame loop, so
+the presentation cannot drift out of step with the simulation, and the same
+code runs a thousand fights in the harness.
 
-### The economy
+`battle.preview(n)` returns the next n units to act. It clones the queue and
+rolls it forward rather than mutating anything, so the turn-order strip and the
+"lands on his next turn" reading of a charged attack come from the same source
+of truth as the fight itself.
 
-Five resources, five jobs. The first three all come from story stages:
-
-| | earned from | spent on | role |
-| --- | --- | --- | --- |
-| **XP** | every stage clear, hero only | your hero's levels | the campaign's own reward |
-| **Zeni** | every stage | companion slot levels | plentiful — the volume knob |
-| **Senzu** | stage 2 onward, more the deeper you go | companion slot levels | the real throttle |
-| **Shards** | per-hero, from stages | recruiting and star-ups | the collection loop, and bonds |
-| **Iron** | scrapping surplus gear | gear slot levels | the sink that makes duplicates worth having |
-
-Senzu is what ties the two tracks together. Stage 6 pays four beans a run
-against stage 2's one, so how fast your companions grow is set by how deep *you*
-can farm — which means pushing your hero forward is always the way to raise the
-team. Two slots means paying the bean cost twice per effective companion level.
-Zeni is deliberately easy: it is rarely the thing stopping you, it just has to
-be spent.
-
-Shards do double duty now. They recruit a companion, and every star after that
-raises what its bond lends your hero — so shards for a companion you will never
-field are still worth collecting.
-
-### Gear levels
-
-Gear has two axes and they move at deliberately different speeds.
-
-**Rarity** climbs slowly and chunkily. The entire Saiyan Saga runs common,
-common, uncommon, uncommon, with rare appearing only as a 12% bonus on Extreme.
-Rare becoming routine is Namek's job.
-
-**Level** climbs every tier, and is what you are actually farming. It is set at
-drop time and never changes — no upgrading, no re-rolling. There is no level
-cap and no tie to the hero's level; the only limit is content, because every
-drop source declares the band it rolls in:
-
-| source | rarity | level |
-| --- | --- | --- |
-| Story stages 1–6 | common only | 1–6, rising with the arc |
-| Boss stages (3, 5, 6) | common, **guaranteed** | 5 / 8 / 12 |
-| Easy dungeon — Raditz | common | 5–10 |
-| Normal dungeon — Nappa | common | 10–18 |
-| Hard dungeon — Vegeta | uncommon | 18–28 |
-| Extreme — all three | uncommon, 12% rare | 28–40 |
-
-Two consequences worth stating. The story is a poor gear source on purpose —
-its job is XP, beans and shards — but each boss hands over one guaranteed piece
-above anything that stage rolls, so clearing a boss is never a dry run and
-always moves your gear floor up. And Easy and Normal drop the *same rarity*:
-the only reason to run the harder one is level, which is exactly the point of
-making level the main axis.
-
-Adding a saga raises the ceiling with no code change — a new tier just declares
-a higher band. `GEAR_LEVEL_STEP` in `src/gear/gear.js` is the knob if late-game
-gear ever starts dwarfing the other power tracks.
-
-### Iron and slot levels
-
-Fixed-level drops mean the bag fills with near-identical pieces, so surplus
-gear needs somewhere to go. Scrapping a piece yields **iron**, scaled by both
-its rarity and its level, so the surplus a late dungeon produces is worth more
-than the surplus an early one does. Equipped gear is never offered for
-scrapping — the safest way to stop someone destroying what they are wearing is
-not to show the button.
-
-Scrapping happens in the Bag's Dismantle tab: a grid of everything spare, one
-tap per tile to select, or one tap on a rarity to take every piece of it at
-once. Two guards sit in front of it. **Locked** pieces (🔒, set from the item
-card) are never offered. And **Keep best per slot** (▲, on by default) holds
-back the single strongest piece you own for each slot, counting what is
-equipped.
-
-That last rule started out as "anything that beats what you are wearing", which
-looked right until a slot was empty — then every piece for it beat nothing and
-the whole slot became unscrappable. Best-per-slot says the same thing where it
-matters and stays true when the slot is bare.
-
-Iron buys slot levels. Each of the four slots has its own, and a slot level
-multiplies whatever item is sitting in it: an empty slot's level is worth
-nothing, and a slot level is worth more once you have something good there. The
-step is deliberately tiny — **one slot level is 1/20th of one gear level** — so
-slot levels are a sink for surplus, not a substitute for finding better gear.
-The cost curve compounds at 3.5%, which is what lets the numbers climb into the
-hundreds over a long game the way the reference screens do.
-
-The hero screen shows exactly one number per slot — the slot's own level, as a
-`+N`. Everything about the item in it lives one tap away, in an item card:
-what it is, its rarity, its level, what it is actually worth in power, its
-stats already multiplied by the slot level, and the two things you can do about
-it (Replace, Enhance). Keeping the hero screen to one number per slot is what
-lets it stay a glanceable summary instead of four stat sheets crammed around a
-portrait.
-
-The card is centred rather than a bottom sheet, and the picker behind Replace
-is a bottom sheet — a single object you are inspecting and a list you scroll
-should not feel alike. The power figure on the card is exact: the hero's power
-now, minus his power with that slot emptied.
-
-The same card opens from a Bag gear row, in an item mode: stats are the piece's
-own rather than multiplied by a slot it is not in, the slot's level is shown as
-what it *would* add, and the actions become Equip and Scrap. Both modes carry
-the lock toggle, which is why Bag rows open it at all — before that, unequipped
-gear could not be inspected, so there was nowhere to lock it.
-
-### Where the payouts split
-
-Gear is the exception, and that is the point of dungeons. A dungeon pays gear
-and zeni and **nothing else** — no XP, no beans, no shards. Keeping the payout
-tables disjoint is what lets a dungeon be farmed freely without inflating the
-companion economy above, and it gives the gear track a source the player
-controls rather than arriving as a side effect of pushing the story. There are
-no run limits yet; keys or daily attempts are the obvious next layer.
-
-`tools/economy.mjs` prints both curves side by side and, most usefully, which
-resource is actually binding as the hero climbs. Beans should be the constraint
-across the range the campaign covers; if the ally cap starts binding instead,
-beans have gone too cheap and the resource has stopped meaning anything.
-
-```bash
-node tools/economy.mjs
-```
-
-### Where power comes from
-
-Power is meant to read as a sum of several tracks rather than a proxy for any
-one of them. `tools/simulate.mjs` prints the split for each profile — currently
-about **28-38% level, 38-51% stars, 15-27% gear, 5-11% bonds**. If one track ever starts to
-dominate that line, the curve needs rebalancing, not the gates.
+The AI drives the enemy team *and* the player's under auto-battle, so it has to
+be good enough that farming on auto is not worse than playing. It is a priority
+list rather than a score: ultimate if charged, guard if a charged hit is aimed
+here and health is low enough to care, technique if off cooldown, otherwise
+attack — finishing anything already in range of dying.
 
 ### Balance harness
 
@@ -341,16 +232,21 @@ node tools/simulate.mjs 40            # 40 runs per campaign stage
 node tools/simulate-dungeons.mjs 40   # same, per dungeon difficulty
 ```
 
-Runs every fight headless against a starting, early-mid, mid and late-game team
-and prints win rate, average duration and average survivors. The
-`requiredPower` gates are derived from its output rather than guessed, so that
-"you are underpowered" honestly predicts a loss.
+Runs every fight headless with the AI on both sides — which is exactly what
+auto-battle does, so these numbers describe a real farming run rather than a
+model of one — against a starting, early-mid, mid and late-game team. It prints
+win rate, average turns, how many runs hit the stalemate cap, and average
+survivors. The `requiredPower` gates are derived from its output rather than
+guessed, so that "you are underpowered" honestly predicts a loss.
 
-The dungeon harness answers one narrow question: does the difficulty ladder
-behave like a ladder? It currently reads Easy 100% / Normal 0% at early-mid,
-Hard 40% at mid, Extreme 63% at late-mid and 100% at late — so each tier is
-clearable by a team one step stronger than the one below, and Extreme stays a
-wall until well after the story is finished.
+**Stalls should stay at zero.** A run that reaches `COMBAT.maxTurns` is a fight
+neither side could finish, which means HP and damage have drifted apart.
+
+Current shape: the starting team walls at stage 4, mid walls at stage 6,
+late-mid clears the campaign. Boss fights run 24-43 turns, early stages 3-9.
+The dungeon ladder reads Easy 100% / Normal 0% at early-mid, Hard 0% at mid,
+Hard 100% and Extreme 60% at late-mid, and everything at late — so each tier
+wants a team one step stronger than the last.
 
 ## Reference material
 

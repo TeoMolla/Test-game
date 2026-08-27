@@ -12,7 +12,7 @@ import {
 import { rarityOf } from '../../config.js';
 import { navigate } from '../app.js';
 
-export function render(host, { ref, won, survivors, seconds, rewards }) {
+export function render(host, { ref, won, survivors, turns, rewards }) {
   const info = encounterInfo(ref);
 
   const rewardRows = [];
@@ -56,7 +56,7 @@ export function render(host, { ref, won, survivors, seconds, rewards }) {
     html: `
       <div class="res-banner">${won ? 'VICTORY' : 'DEFEAT'}</div>
       <div class="res-stage">${info ? info.title : ''}</div>
-      <div class="res-line">${seconds.toFixed(1)}s · ${survivors} hero${survivors === 1 ? '' : 'es'} standing</div>
+      <div class="res-line">${turns} turn${turns === 1 ? '' : 's'} · ${survivors} hero${survivors === 1 ? '' : 'es'} standing</div>
       ${rewards?.firstClear ? '<div class="first-clear">First Clear Bonus!</div>' : ''}
       ${rewards?.unlocked ? `<div class="first-clear unlock">${rewards.unlocked} Unlocked!</div>` : ''}
       <div class="reward-list">

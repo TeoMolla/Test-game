@@ -1,11 +1,20 @@
 /**
- * ui/screens/battle.js — Real-time auto-battle presentation.
+ * ui/screens/battle.js — Turn-based battle presentation.
  *
- * Side-view lanes: player team on the left, enemies on the right, back row set
- * behind and above the front row. The engine (battle/engine.js) owns the
- * simulation; this file only draws what it emits — HP bars, floating damage
- * numbers, skill call-outs, and the bottom portrait row with each hero's own
- * technique countdown and ultimate-ready indicator.
+ * The engine (battle/engine.js) owns the fight and knows nothing about the
+ * DOM; this file drives it one turn at a time and draws what it emits.
+ *
+ * The loop is deliberately not a frame loop. It asks the engine to open a
+ * turn, plays that turn's events with enough delay to read them, and then
+ * either waits for the player to choose (their hero's turn, auto off) or lets
+ * the AI choose and carries on. Nothing here runs on requestAnimationFrame,
+ * so a fight cannot drift out of step with the simulation.
+ *
+ * Three things carry the readability:
+ *   - the TURN ORDER strip, so "who acts next" is never a guess
+ *   - a CHARGING marker on the caster and everyone it is aimed at, so a heavy
+ *     hit is a problem you have a turn to answer
+ *   - the ACTION BAR, which only ever shows what the engine says is legal
  */
 
 import { h, fmt, clear } from '../dom.js';
@@ -14,21 +23,34 @@ import { spriteSet, bustHTML } from '../sprites.js';
 import { createAnimator } from '../spriteAnimator.js';
 import { startEncounterBattle } from '../../battle/index.js';
 import { encounterInfo, completeEncounter, recordDefeat } from '../../progression/index.js';
-import { rarityOf, COMBAT, ULTIMATE_MODE } from '../../config.js';
+import { rarityOf } from '../../config.js';
 import { navigate } from '../app.js';
 
-let raf = null;
 let battle = null;
 let nodes = new Map();
 let speed = 1;
 let finished = false;
+let timers = [];
+let selectedTarget = null;
+let els = {};
+
+/** Base beats, in ms at x1. Everything else is derived from these. */
+const PACE = { open: 140, act: 620, big: 900, death: 480 };
+
+function wait(ms, fn) {
+  const id = setTimeout(fn, Math.max(16, ms / speed));
+  timers.push(id);
+  return id;
+}
 
 export function dispose() {
-  if (raf) cancelAnimationFrame(raf);
+  for (const id of timers) clearTimeout(id);
+  timers = [];
   for (const n of nodes.values()) n.animator?.stop();
-  raf = null;
   battle = null;
   nodes = new Map();
+  els = {};
+  selectedTarget = null;
   finished = false;
 }
 
@@ -45,10 +67,16 @@ export function render(host, { ref }) {
     class: 'bt-top',
     html: `
       <span class="bt-stage">${info ? info.title : 'Battle'}</span>
-      <span class="bt-timer" id="bt-timer">0.0s</span>
-      <button class="btn ghost tiny" id="bt-speed">x1</button>`,
+      <span class="bt-timer" id="bt-turn">T1</span>
+      <button class="btn ghost tiny" id="bt-auto">AUTO</button>
+      <button class="btn ghost tiny" id="bt-speed">x1</button>
+      <button class="btn ghost tiny" id="bt-retreat">Retreat</button>`,
   });
   screen.appendChild(top);
+
+  /* ---- turn order ---- */
+  const order = h('div', { class: 'turn-order', id: 'turn-order' });
+  screen.appendChild(order);
 
   /* ---- arena ---- */
   const arena = h('div', { class: 'arena' });
@@ -75,6 +103,7 @@ export function render(host, { ref }) {
     const node = h('div', {
       class: `unit ${unit.side} row-${unit.row} ${set ? 'has-sprite' : ''}`,
       style: { '--rarity': r.color, '--aura': unit.art?.aura || r.color },
+      dataset: { uid: unit.uid },
       html: `
         <div class="u-callout"></div>
         <div class="u-fx"></div>
@@ -91,8 +120,8 @@ export function render(host, { ref }) {
       callout: node.querySelector('.u-callout'),
       art: node.querySelector('.u-art'),
       swings: 0,
+      unit,
     };
-
     if (set) {
       const beam = node.querySelector('.u-beam');
       entry.animator = createAnimator(set, node.querySelector('.u-frame'), {
@@ -100,89 +129,202 @@ export function render(host, { ref }) {
         onBeam: (ms) => fireBeam(beam, node, unit, ms),
       });
     }
-    entry.unit = unit;
     nodes.set(unit.uid, entry);
+
+    // Tapping an enemy picks it as the target for your next action.
+    if (unit.side === 'enemy') {
+      node.addEventListener('click', () => {
+        if (!unit.alive || !battle.awaitingInput()) return;
+        selectedTarget = selectedTarget === unit.uid ? null : unit.uid;
+        paintTargets();
+      });
+    }
   }
 
-  /* ---- bottom portrait row (per-hero cooldown timers) ---- */
+  /* ---- team status ---- */
   const dock = h('div', { class: 'bt-dock' });
   for (const unit of battle.units.filter((u) => u.side === 'player')) {
     const r = rarityOf(unit.rarity);
-    const card = h('button', {
+    const card = h('div', {
       class: 'dock-card',
       style: { '--rarity': r.color, '--glow': r.glow },
       dataset: { uid: unit.uid },
       html: `
-        <span class="dc-timer">—</span>
         <span class="dc-art">${bustHTML(unit.heroId, unit.art, bustSVG)}</span>
         <span class="dc-ult"><span class="dc-ult-fill"></span></span>
         <span class="dc-name">${unit.name}</span>
         <span class="dc-hp"><span class="dc-hp-fill"></span></span>`,
     });
-    // ULTIMATE_MODE === 'tap' would make this the activation control; in 'auto'
-    // the tap is a no-op and the ready state is purely informational.
-    card.addEventListener('click', () => {
-      if (ULTIMATE_MODE === 'tap') battle.requestUltimate(unit.uid);
-    });
     dock.appendChild(card);
     const n = nodes.get(unit.uid);
     n.dock = card;
-    n.dockTimer = card.querySelector('.dc-timer');
     n.dockUlt = card.querySelector('.dc-ult-fill');
     n.dockHp = card.querySelector('.dc-hp-fill');
   }
   screen.appendChild(dock);
 
+  /* ---- action bar ---- */
+  const actions = h('div', { class: 'action-bar-battle', id: 'action-bar' });
+  screen.appendChild(actions);
+
   host.appendChild(screen);
 
-  // Base positions are read once, before anything is translated, so the
-  // advance can be recomputed later without measuring its own effect.
-  const arenaBox = arena.getBoundingClientRect();
-  for (const n of nodes.values()) {
-    const r = n.root.getBoundingClientRect();
-    n.baseCX = r.left + r.width / 2 - arenaBox.left;
-    n.baseCY = r.top + r.height / 2 - arenaBox.top;
-  }
-  updateAdvance(true);
+  els = {
+    turn: top.querySelector('#bt-turn'),
+    order,
+    actions,
+    auto: top.querySelector('#bt-auto'),
+  };
 
   top.querySelector('#bt-speed').addEventListener('click', (ev) => {
     speed = speed === 1 ? 2 : speed === 2 ? 3 : 1;
     ev.currentTarget.textContent = `x${speed}`;
   });
 
-  const timerEl = top.querySelector('#bt-timer');
-  let last = performance.now();
+  els.auto.classList.toggle('on', battle.auto);
+  els.auto.addEventListener('click', () => {
+    battle.setAuto(!battle.auto);
+    els.auto.classList.toggle('on', battle.auto);
+    // Turning auto on mid-fight should take the turn it is already waiting on.
+    // `ref` has to travel with it — the loop carries the encounter all the way
+    // to the results screen, and dropping it here lands a dungeon win on the
+    // campaign's results.
+    if (battle.auto && battle.pending) { clearActions(); step(ref); }
+    else if (!battle.auto && battle.pending?.isPlayer) showActions(ref);
+  });
 
-  const frame = (now) => {
-    const dt = Math.min((now - last) / 1000, 0.25);
-    last = now;
-
-    const events = battle.update(dt * speed);
-    for (const ev of events) handleEvent(ev);
-    paint(timerEl);
-
-    if (battle.state === 'running') {
-      raf = requestAnimationFrame(frame);
-    } else if (!finished) {
-      finished = true;
-      endBattle(ref);
+  const retreatBtn = top.querySelector('#bt-retreat');
+  let retreatArmed = false;
+  retreatBtn.addEventListener('click', () => {
+    if (!retreatArmed) {
+      retreatArmed = true;
+      retreatBtn.textContent = 'Give up?';
+      retreatBtn.classList.add('danger');
+      wait(3000 * speed, () => {
+        if (!retreatArmed) return;
+        retreatArmed = false;
+        retreatBtn.textContent = 'Retreat';
+        retreatBtn.classList.remove('danger');
+      });
+      return;
     }
-  };
-  raf = requestAnimationFrame(frame);
+    battle.retreat();
+    paintAll();
+    endBattle(ref);
+  });
+
+  paintAll();
+  step(ref);
 }
 
-/* ---------------- event -> DOM ---------------- */
+/* ---------------- the turn loop ---------------- */
+
+function step(ref) {
+  if (!battle) return;
+  if (battle.state !== 'running') return endBattle(ref);
+
+  if (battle.pending) {
+    if (battle.awaitingInput()) { showActions(ref); return; }
+    // AI turn (an enemy, or one of yours under auto-battle). The bar says who
+    // is acting rather than going blank — the space is reserved either way.
+    showActing(battle.unitById(battle.pending.uid));
+    wait(PACE.open, () => {
+      if (!battle || battle.state !== 'running') return endBattle(ref);
+      battle.takeAiTurn();
+      playEvents(battle.events, () => step(ref));
+    });
+    return;
+  }
+
+  const events = battle.advance();
+  playEvents(events, () => step(ref), PACE.open);
+}
+
+/**
+ * Draw a turn's events, then continue. Everything lands at once in the
+ * simulation; the delay here is purely so a person can read it.
+ */
+function playEvents(events, done, lead = 0) {
+  for (const ev of events) handleEvent(ev);
+  paintAll();
+  const heavy = events.some((e) => e.t === 'phase' || e.t === 'release'
+    || (e.t === 'skill' && e.slot === 'ultimate'));
+  const died = events.some((e) => e.t === 'death');
+  const ended = events.some((e) => e.t === 'end');
+  const beat = lead || (heavy ? PACE.big : PACE.act) + (died ? PACE.death : 0);
+  wait(ended ? PACE.big : beat, done);
+}
+
+/* ---------------- player input ---------------- */
+
+function clearActions() {
+  if (els.actions) clear(els.actions);
+  for (const n of nodes.values()) n.root.classList.remove('acting');
+  selectedTarget = null;
+  paintTargets();
+}
+
+function showActing(unit) {
+  if (!els.actions || !unit) return;
+  clear(els.actions);
+  for (const n of nodes.values()) n.root.classList.toggle('acting', n.unit.uid === unit.uid);
+  els.actions.appendChild(h('div', {
+    class: 'ab-who waiting',
+    text: unit.side === 'player' ? `${unit.name} — auto` : `${unit.name} acts`,
+  }));
+}
+
+function showActions(ref) {
+  const uid = battle.pending?.uid;
+  const unit = battle.unitById(uid);
+  if (!unit) return;
+
+  for (const n of nodes.values()) n.root.classList.toggle('acting', n.unit.uid === uid);
+  clear(els.actions);
+
+  const label = h('div', { class: 'ab-who', text: `${unit.name}'s turn` });
+  els.actions.appendChild(label);
+
+  const row = h('div', { class: 'ab-row' });
+  for (const action of battle.actions(uid)) {
+    const sub = action.id === 'technique' && !action.ready ? `${action.cooldown} turn${action.cooldown === 1 ? '' : 's'}`
+      : action.id === 'ultimate' && !action.ready ? `${Math.floor((action.charge / action.chargeMax) * 100)}%`
+      : '';
+    const btn = h('button', {
+      class: `ab-btn ${action.id} ${action.ready ? '' : 'disabled'}`,
+      html: `<span class="ab-ico">${action.skill.icon || '•'}</span>
+             <span class="ab-name">${action.skill.name}</span>
+             ${sub ? `<span class="ab-sub">${sub}</span>` : ''}`,
+    });
+    if (action.ready) {
+      btn.addEventListener('click', () => {
+        if (!battle.awaitingInput()) return;
+        clearActions();
+        battle.act(action.id, selectedTarget);
+        playEvents(battle.events, () => step(ref));
+      });
+    }
+    row.appendChild(btn);
+  }
+  els.actions.appendChild(row);
+  paintTargets();
+}
+
+/* ---------------- events -> DOM ---------------- */
 
 function handleEvent(ev) {
   const n = nodes.get(ev.uid);
   switch (ev.t) {
+    case 'turnStart':
+      break;
+
     case 'damage': {
       if (!n) return;
       floater(n.fx, `-${fmt(ev.amount)}`, ev.crit ? 'crit' : (ev.self ? 'self' : 'dmg'));
+      if (ev.guarded) floater(n.fx, 'GUARD', 'guard');
       const unit = battle.unitById(ev.uid);
       pulse(n.art, 'hit');
       if (n.animator && !ev.self && unit?.alive) {
-        // PLACEHOLDER: what counts as a "heavy" hit worth the knockback clip.
         const heavy = ev.crit || ev.amount / unit.maxHp > 0.12;
         n.animator.play(heavy ? 'hit_heavy' : 'hit');
       }
@@ -190,158 +332,150 @@ function handleEvent(ev) {
       if (from && ev.from !== ev.uid && !from.animator) pulse(from.art, 'lunge');
       break;
     }
+
     case 'heal':
       if (n) floater(n.fx, `+${fmt(ev.amount)}`, 'heal');
       break;
+
+    case 'guard':
+      if (n) { callout(n.callout, `${ev.icon} ${ev.name}`, 'guard'); n.root.classList.add('guarding'); }
+      break;
+
     case 'skill':
       if (!n) break;
-      if (ev.slot !== 'attack') callout(n.callout, `${ev.icon || ''} ${ev.name}`, ev.slot);
+      callout(n.callout, `${ev.icon || ''} ${ev.name}`, ev.slot);
+      n.root.classList.remove('guarding');
       if (n.animator) {
-        if (ev.slot === 'attack') {
-          // Alternate punch and kick so repeated auto-attacks don't loop one pose.
-          n.animator.play(n.swings++ % 2 ? 'attack_alt' : 'attack');
-        } else if (ev.slot === 'technique' || ev.slot === 'ultimate') {
-          n.animator.play(ev.slot);
-        }
+        if (ev.slot === 'attack') n.animator.play(n.swings++ % 2 ? 'attack_alt' : 'attack');
+        else if (ev.slot === 'technique' || ev.slot === 'ultimate') n.animator.play(ev.slot);
       }
       break;
+
+    // Announced now, lands at the start of this unit's next turn. Both the
+    // caster and everyone in the blast are marked until it goes off.
+    case 'charge': {
+      if (n) {
+        n.root.classList.add('charging');
+        callout(n.callout, `${ev.icon || ''} ${ev.name}`, 'charge');
+      }
+      for (const uid of ev.targets || []) nodes.get(uid)?.root.classList.add('threatened');
+      break;
+    }
+
+    case 'release': {
+      if (n) { n.root.classList.remove('charging'); callout(n.callout, `${ev.icon || ''} ${ev.name}`, 'ultimate'); }
+      for (const other of nodes.values()) other.root.classList.remove('threatened');
+      break;
+    }
+
+    case 'phase':
+      if (n) { n.root.classList.add('phased'); callout(n.callout, `${ev.icon || ''} ${ev.name}`, 'phase'); }
+      banner(`${ev.icon || ''} ${ev.name}`);
+      break;
+
     case 'passive':
       if (n) callout(n.callout, `${ev.icon || ''} ${ev.name}`, 'passive');
       break;
+
     case 'buff':
       if (n) floater(n.fx, `${ev.stat.toUpperCase()} ▲`, 'buff');
       break;
+
     case 'debuff':
       if (n) floater(n.fx, `${ev.stat.toUpperCase()} ▼`, 'debuff');
       break;
-    case 'freeze': {
-      // PLACEHOLDER staging for the real cut-in: hold everything but the
-      // caster, so the ultimate has the screen to itself.
-      const screen = document.querySelector('.battle-screen');
-      if (screen) {
-        screen.style.setProperty('--freeze-ms', `${Math.round((ev.seconds * 1000) / Math.max(0.25, speed))}ms`);
-        screen.classList.add('time-stop');
-      }
-      for (const other of nodes.values()) other.root.classList.remove('caster');
-      if (n) n.root.classList.add('caster');
-      break;
-    }
-
-    case 'unfreeze': {
-      document.querySelector('.battle-screen')?.classList.remove('time-stop');
-      for (const other of nodes.values()) other.root.classList.remove('caster');
-      break;
-    }
 
     case 'death':
       if (!n) break;
+      n.root.classList.remove('charging', 'threatened', 'guarding');
       if (n.animator) {
-        // Let the fall play out, then clear the body off the field.
         const ms = n.animator.play('defeat');
         n.root.classList.add('dying');
-        clearTimeout(n.deathTimer);
-        n.deathTimer = setTimeout(() => n.root.classList.add('dead'), ms);
+        wait(ms * speed, () => n.root.classList.add('dead'));
       } else {
         n.root.classList.add('dead');
       }
       break;
+
     default:
       break;
   }
 }
 
-/**
- * Put every melee unit next to the enemy it is actually fighting.
- *
- * Each attacker runs to the midpoint between itself and its target and squares
- * up there. Attackers sharing a target fan out — the first goes toe to toe, and
- * each one after that stands a step further back and off to one side — which is
- * what makes a group visibly close in on one defender rather than stacking on
- * the same spot. Ranged and back-row units never move.
- *
- * Distances come from the positions captured before anything was translated, so
- * this is safe to re-run whenever targets change or a unit falls.
- * PLACEHOLDER: the spacing constants are feel, not measurement.
- */
-const STANDOFF = 56;   // centre-to-centre distance when standing toe to toe
-const FAN = 34;        // each extra attacker on the same target stands back this much
-const FAN_Y = 18;      // ...and off to one side by this much
-const MAX_Y = 26;      // never slide this far vertically; the lanes still read
+/* ---------------- painting ---------------- */
 
-let advanceSig = '';
+function paintAll() {
+  if (!battle) return;
+  if (els.turn) els.turn.textContent = `T${battle.turn}`;
 
-function updateAdvance(force = false) {
-  const all = [...nodes.values()];
-  const sig = all.map((n) => `${n.unit.uid}:${n.unit.targetUid}:${n.unit.alive ? 1 : 0}`).join('|');
-  if (!force && sig === advanceSig) return;
-  advanceSig = sig;
+  for (const unit of battle.units) {
+    const n = nodes.get(unit.uid);
+    if (!n) continue;
+    const pct = Math.max(0, unit.hp / unit.maxHp) * 100;
+    n.fill.style.width = `${pct}%`;
+    n.fill.classList.toggle('low', pct < 30);
+    n.root.classList.toggle('guarding', !!unit.guarding && unit.alive);
+    if (unit.alive) n.animator?.setIdleFrame(pct < 25 ? 'heavy_stun' : 'idle');
 
-  const groups = new Map();
-  for (const n of all) {
-    if (!n.unit.alive || !n.unit.engages) continue;
-    const tid = n.unit.targetUid;
-    if (!tid) continue;
-    if (!groups.has(tid)) groups.set(tid, []);
-    groups.get(tid).push(n);
+    if (!n.dock) continue;
+    n.dockHp.style.width = `${pct}%`;
+    n.dock.classList.toggle('down', !unit.alive);
+    const chargePct = unit.skills.ultimate ? unit.ultimateCharge : 0;
+    n.dockUlt.style.width = `${Math.min(100, chargePct)}%`;
+    n.dock.classList.toggle('ult-ready', !!unit.ultimateReady && unit.alive);
   }
+  paintOrder();
+  paintTargets();
+}
 
-  const ms = Math.round((COMBAT.approachSeconds * 1000) / Math.max(0.25, speed));
-  for (const n of all) {
-    n.root.style.setProperty('--approach-ms', `${ms}ms`);
-  }
+/** The next several turns, soonest first. */
+function paintOrder() {
+  if (!els.order) return;
+  clear(els.order);
+  const upcoming = battle.preview(7);
+  upcoming.forEach((uid, i) => {
+    const unit = battle.unitById(uid);
+    if (!unit) return;
+    const r = rarityOf(unit.rarity);
+    els.order.appendChild(h('div', {
+      class: `to-pip ${unit.side} ${i === 0 ? 'now' : ''}`,
+      style: { '--rarity': r.color },
+      html: `<span class="to-art">${bustHTML(unit.heroId, unit.art, bustSVG)}</span>
+             ${unit.charging ? '<span class="to-flag">⚠</span>' : ''}`,
+    }));
+  });
+}
 
-  for (const [tid, members] of groups) {
-    const target = nodes.get(tid);
-    if (!target || !target.unit.alive) continue;
-    members.forEach((n, i) => {
-      const dir = n.unit.side === 'player' ? 1 : -1;
-      // Meet in the middle of the pair rather than running to where the target
-      // is standing now — the target is usually charging too, and aiming at its
-      // starting spot makes the two of them run straight past each other.
-      const meetX = (n.baseCX + target.baseCX) / 2;
-      const wantX = meetX - dir * (STANDOFF / 2 + i * FAN);
-      // i === 0 squares up; the rest peel off alternating sides
-      const offsetY = i === 0 ? 0 : (i % 2 ? -FAN_Y : FAN_Y);
-      const dx = wantX - n.baseCX;
-      const dy = Math.max(-MAX_Y, Math.min(MAX_Y, target.baseCY + offsetY - n.baseCY));
-      // Nobody retreats to engage.
-      const clampedX = dir > 0 ? Math.max(0, dx) : Math.min(0, dx);
-      n.root.style.setProperty('--advance-x', `${Math.round(clampedX)}px`);
-      n.root.style.setProperty('--advance-y', `${Math.round(dy)}px`);
-      // Depth order by final height on screen: lower is nearer the viewer, so a
-      // unit that peeled downward covers the one it stepped in front of rather
-      // than showing through it.
-      n.root.style.zIndex = String(2 + Math.round(n.baseCY + dy));
-      n.root.classList.add('engaged');
-    });
+/** Which enemy the next action will hit. */
+function paintTargets() {
+  const picking = !!battle && battle.awaitingInput();
+  for (const n of nodes.values()) {
+    const selectable = picking && n.unit.side === 'enemy' && n.unit.alive;
+    n.root.classList.toggle('selectable', selectable);
+    n.root.classList.toggle('selected', selectable && n.unit.uid === selectedTarget);
   }
 }
 
-/**
- * The release frame draws the hands thrust forward but no beam, so the beam is
- * a DOM effect — which also lets it stretch to actually reach its target.
- */
-function fireBeam(beam, casterNode, unit, ms) {
-  const foe = battle.units.find((u) => u.side !== unit.side && u.alive);
-  const foeNode = foe && nodes.get(foe.uid)?.root;
-  let len = 150;                                  // PLACEHOLDER fallback length
-  if (foeNode) {
-    const a = casterNode.getBoundingClientRect();
-    const b = foeNode.getBoundingClientRect();
-    len = Math.max(70, Math.abs((unit.side === 'player' ? b.left - a.right : a.left - b.right)) + 40);
+/* ---------------- fx helpers ---------------- */
+
+function fireBeam(beam, node, unit, ms) {
+  const target = battle.units.find((u) => u.side !== unit.side && u.alive);
+  const tn = target && nodes.get(target.uid);
+  let len = 150;
+  if (tn) {
+    const a = node.getBoundingClientRect();
+    const b = tn.root.getBoundingClientRect();
+    len = Math.max(60, Math.abs((b.left + b.width / 2) - (a.left + a.width / 2)) - 30);
   }
   beam.style.setProperty('--beam-len', `${Math.round(len)}px`);
   beam.style.setProperty('--beam-ms', `${Math.round(ms)}ms`);
   beam.classList.remove('fire');
-  void beam.offsetWidth;                          // restart the animation
+  void beam.offsetWidth;
   beam.classList.add('fire');
-  setTimeout(() => beam.classList.remove('fire'), ms + 60);
 }
 
 function floater(host, text, kind) {
   const node = h('span', { class: `float ${kind}`, text });
-  // PLACEHOLDER: jitter so simultaneous numbers don't stack into one
-  // unreadable blob. Vertical offset matters more than horizontal.
   node.style.setProperty('--dx', `${(Math.random() * 46 - 23).toFixed(0)}px`);
   node.style.setProperty('--dy', `${(Math.random() * 26 - 8).toFixed(0)}px`);
   host.appendChild(node);
@@ -352,77 +486,37 @@ function callout(host, text, kind) {
   host.textContent = text;
   host.className = `u-callout show ${kind}`;
   clearTimeout(host._t);
-  host._t = setTimeout(() => { host.className = 'u-callout'; }, 900);
+  host._t = setTimeout(() => { host.className = 'u-callout'; }, 1100);
+}
+
+function banner(text) {
+  const arena = document.querySelector('.arena');
+  if (!arena) return;
+  const node = h('div', { class: 'phase-banner', text });
+  arena.appendChild(node);
+  setTimeout(() => node.remove(), 1600);
 }
 
 function pulse(node, cls) {
   node.classList.remove(cls);
-  // force reflow so the animation restarts on rapid repeat hits
   void node.offsetWidth;
   node.classList.add(cls);
-}
-
-/* ---------------- per-frame paint ---------------- */
-
-function paint(timerEl) {
-  timerEl.textContent = `${battle.elapsed.toFixed(1)}s`;
-  updateAdvance();   // cheap: only rewrites when a target or a life changes
-
-  for (const unit of battle.units) {
-    const n = nodes.get(unit.uid);
-    if (!n) continue;
-    const pct = Math.max(0, unit.hp / unit.maxHp) * 100;
-    n.fill.style.width = `${pct}%`;
-    n.fill.classList.toggle('low', pct < 30);
-
-    // Resting pose: closing the distance, badly hurt, or neither.
-    // PLACEHOLDER threshold for "badly hurt".
-    const closing = unit.alive && battle.elapsed < unit.readyAt;
-    n.root.classList.toggle('advancing', closing);
-    if (unit.alive) {
-      n.animator?.setIdleFrame(closing ? 'guard' : pct < 25 ? 'heavy_stun' : 'idle');
-    }
-
-    if (!n.dock) continue;
-    n.dockHp.style.width = `${pct}%`;
-
-    if (!unit.alive) {
-      n.dock.classList.add('down');
-      n.dockTimer.textContent = 'KO';
-      n.dockUlt.style.width = '0%';
-      continue;
-    }
-
-    // Individual technique cooldown countdown, as in the reference dock.
-    if (unit.skills.technique) {
-      n.dockTimer.textContent = `${Math.max(0, unit.techniqueTimer).toFixed(1)}s`;
-    } else {
-      n.dockTimer.textContent = '—';
-    }
-
-    const chargePct = unit.skills.ultimate
-      ? (unit.ultimateCharge / COMBAT.ultimateChargeMax) * 100
-      : 0;
-    n.dockUlt.style.width = `${Math.min(100, chargePct)}%`;
-    n.dock.classList.toggle('ult-ready', !!unit.ultimateReady);
-  }
 }
 
 /* ---------------- resolution ---------------- */
 
 function endBattle(ref) {
-  // A finishing ultimate ends the battle on the tick that started the
-  // time-stop, so the matching 'unfreeze' never arrives. Clear it here.
-  document.querySelector('.battle-screen')?.classList.remove('time-stop');
-  for (const n of nodes.values()) n.root.classList.remove('caster');
+  if (finished) return;
+  finished = true;
+  clearActions();
 
   const won = battle.state === 'victory';
   const survivors = battle.units.filter((u) => u.side === 'player' && u.alive).length;
-  const seconds = battle.elapsed;
+  const turns = battle.turn;
 
   const rewards = won ? completeEncounter(ref) : (recordDefeat(), null);
 
-  setTimeout(() => {
-    navigate('results', { ref, won, survivors, seconds, rewards });
-  }, 1000);
+  wait(700, () => {
+    navigate('results', { ref, won, survivors, turns, rewards });
+  });
 }

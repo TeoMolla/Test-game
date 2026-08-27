@@ -66,6 +66,7 @@ function buildUnits(entries) {
       row: entry.row || 'front',
       art: def.art,
       skills: def.skills,
+      phases: def.phases || null,
       stats: {
         atk: Math.round(def.stats.atk * scale),
         hp: Math.round(def.stats.hp * scale * HP_SCALE),

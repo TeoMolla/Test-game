@@ -24,30 +24,6 @@
   border-radius: 999px; padding: 3px 11px;
 }
 
-/* ---- time-stop ----
-   PLACEHOLDER staging for the ultimate cut-in that will replace it: the world
-   dims and desaturates, the caster stays lit, and every other animation holds
-   where it is. The frame-by-frame sprite clip runs off the wall clock, so the
-   ultimate itself plays straight through. */
-
-.battle-screen.time-stop .arena::before { opacity: 1; }
-
-.time-stop .unit:not(.caster) {
-  filter: grayscale(0.75) brightness(0.5);
-}
-/* Hold everyone else mid-motion — mid-swing, mid-recoil, numbers mid-flight. */
-.time-stop .unit:not(.caster) .u-art,
-.time-stop .unit:not(.caster) .float {
-  animation-play-state: paused;
-}
-.time-stop .unit.caster .u-art {
-  filter: drop-shadow(0 0 14px var(--aura)) brightness(1.08);
-}
-.time-stop .bt-timer { opacity: 0.45; }
-
-.unit:not(.caster), .unit.caster .u-art, .bt-timer {
-  transition: filter 130ms ease, opacity 130ms ease;
-}
 
 /* ---- arena ---- */
 
@@ -59,21 +35,6 @@
   min-height: 0;
   position: relative;
 }
-/* the time-stop wash; sits above the ground and below the units */
-.arena::before {
-  content: '';
-  position: absolute; inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(120% 90% at 50% 45%, rgba(8, 12, 30, 0.25), rgba(4, 7, 18, 0.72));
-  /* snap in, ease out — the hit should land, not fade in */
-  transition: opacity 260ms ease;
-}
-.battle-screen.time-stop .arena::before {
-  transition: opacity 90ms ease;
-}
-
 /* ground plane */
 .arena::after {
   content: '';
@@ -98,25 +59,10 @@
   position: relative;
   width: 74px;
   display: flex; flex-direction: column; align-items: center;
-  /* --advance-x/y is where this unit has run to engage; 0 for anyone holding
-     the back line. Every transform below has to carry it, or a unit snaps back
-     to its lane the moment another class touches `transform`. */
-  transform: translate(var(--advance-x, 0px), var(--advance-y, 0px));
-  transition: opacity 0.35s ease, transform var(--approach-ms, 550ms) ease-in-out;
+  transition: opacity 0.35s ease, transform 0.25s ease;
 }
-.unit.dead {
-  opacity: 0;
-  transform: translate(var(--advance-x, 0px), calc(var(--advance-y, 0px) + 14px)) scale(0.85);
-  pointer-events: none;
-}
+.unit.dead { opacity: 0; transform: translateY(14px) scale(0.85); pointer-events: none; }
 
-/* Running in. There is no run cycle in the sprite set, so the guard pose plus
-   a bob carries it; a real run frame would drop straight in here. */
-.unit.advancing .u-art { animation: runBob 280ms ease-in-out infinite; }
-@keyframes runBob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-5px); }
-}
 
 .u-art { width: 74px; height: 104px; position: relative; }
 
@@ -139,7 +85,7 @@
 /* Sprite units play their own defeat clip, so they hold at full opacity until
    it finishes. :not(.dead) matters — this selector is more specific than
    .unit.dead, and without it the body would never fade out afterwards. */
-.unit.has-sprite.dying:not(.dead) { opacity: 1; transform: translate(var(--advance-x, 0px), var(--advance-y, 0px)); }
+.unit.has-sprite.dying:not(.dead) { opacity: 1; transform: none; }
 .u-art::after {
   content: '';
   position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%);
@@ -246,6 +192,11 @@
 
 /* ---- skill call-out above the caster ---- */
 
+/* Callouts on the outer edges of the arena would run off screen if they were
+   centred on their unit, so each side's hang inward. */
+.unit.enemy .u-callout { left: auto; right: 0; transform: none; }
+.unit.player .u-callout { left: 0; right: auto; transform: none; }
+
 .u-callout {
   position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
   font-size: 10px; font-weight: 800; white-space: nowrap;
@@ -254,23 +205,30 @@
   border: 1px solid rgba(255, 255, 255, 0.18);
   opacity: 0; z-index: 5;
   transition: opacity 0.18s ease;
+  max-width: 128px; overflow: hidden; text-overflow: ellipsis;
 }
+/* Both sides shout at once constantly. Putting the enemy's callouts on their
+   own line stops two simultaneous skill names landing on top of each other. */
+.unit.enemy .u-callout { top: -32px; left: auto; right: 0; transform: none; }
 .u-callout.show { opacity: 1; }
 .u-callout.ultimate { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 14px -3px var(--gold); }
 .u-callout.technique { border-color: #38bdf8; color: #7dd3fc; }
 .u-callout.passive { border-color: #c084fc; color: #d8b4fe; }
+.u-callout.telegraph { border-color: var(--bad); color: #fecaca; box-shadow: 0 0 16px -2px var(--bad); }
+.u-callout.phase { border-color: #fb7185; color: #fecdd3; box-shadow: 0 0 20px -2px #fb7185; }
 
 /* ---- bottom dock: per-hero cooldown + ultimate meter ---- */
 
+/* A status readout now, not a control — the action bar below owns input. */
 .bt-dock {
   display: flex; gap: 8px; justify-content: center;
-  padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px));
-  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.55) 40%);
+  padding: 8px 12px 8px;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.5) 40%);
 }
 
 .dock-card {
   position: relative;
-  width: 88px;
+  width: 84px;
   border-radius: 13px;
   border: 1.5px solid var(--rarity, #64748b);
   background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(0,0,0,0.4));
@@ -279,10 +237,6 @@
 }
 .dock-card.down { filter: grayscale(1) brightness(0.5); }
 
-.dc-timer {
-  font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums;
-  color: #e2e8f0;
-}
 .dc-art { width: 46px; height: 46px; border-radius: 9px; overflow: hidden; background: rgba(0,0,0,0.3); }
 .dc-name { font-size: 9.5px; color: rgba(255,255,255,0.72); }
 
@@ -293,25 +247,192 @@
 .dc-ult-fill { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #fbbf24, #f97316); transition: width 0.15s linear; }
 .dc-hp-fill { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #22c55e, #86efac); transition: width 0.16s linear; }
 
+
 /* the "ultimate ready" state called for in the reference dock */
 .dock-card.ult-ready {
   border-color: var(--gold);
   box-shadow: 0 0 0 1px var(--gold), 0 0 18px -2px var(--gold);
   animation: ultReady 1s ease-in-out infinite;
 }
-.dock-card.ult-ready .dc-timer::after {
-  content: ' ⚡';
-  color: var(--gold);
-}
 @keyframes ultReady {
   0%, 100% { box-shadow: 0 0 0 1px var(--gold), 0 0 12px -3px var(--gold); }
   50%      { box-shadow: 0 0 0 1px var(--gold), 0 0 24px 1px var(--gold); }
 }
 
+
+/* ---- boss phase turn ---- */
+
+.phase-banner {
+  position: absolute; left: 0; right: 0; top: 38%;
+  text-align: center;
+  font-family: var(--font-display); font-size: 30px; letter-spacing: 0.03em;
+  color: #fff;
+  text-shadow: 0 0 22px #fb7185, 0 2px 4px #000;
+  animation: phaseIn 1.6s ease forwards;
+  pointer-events: none; z-index: 8;
+}
+@keyframes phaseIn {
+  0%   { opacity: 0; transform: scale(0.7); letter-spacing: 0.3em; }
+  22%  { opacity: 1; transform: scale(1); letter-spacing: 0.03em; }
+  75%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.06); }
+}
+/* A unit that has turned keeps a permanent mark of it. */
+.unit.phased .u-art { filter: drop-shadow(0 0 10px #fb7185); }
+
 @media (prefers-reduced-motion: reduce) {
   .u-art.hit, .u-art.lunge, .dock-card.ult-ready, .hero-card.unlockable { animation: none; }
-  .unit.advancing .u-art { animation: none; }
-  .arena::before { transition: none; }
+  .unit.charging::after, .unit.threatened::before, .unit.selected::before,
+  .phase-banner, .to-pip.now, .dock-card.nope { animation: none; }
+  .unit.charging::after, .unit.threatened::before { opacity: 0.8; }
+  .phase-banner { opacity: 1; }
   .unit { transition: opacity 0.35s ease; }
   .u-beam.fire { animation: none; width: var(--beam-len, 150px); opacity: 1; }
 }
+
+/* ---- turn order ----
+   The spine of a turn-based fight: who acts next has to be a fact on screen,
+   not something the player infers from speed stats. Left is soonest. */
+
+.turn-order {
+  display: flex; align-items: center; gap: 5px;
+  padding: 2px 14px 8px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.turn-order::-webkit-scrollbar { display: none; }
+
+.to-pip {
+  position: relative; flex: none;
+  width: 34px; height: 34px; border-radius: 10px;
+  border: 1.5px solid var(--rarity, #64748b);
+  background: rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  opacity: 0.55;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.to-pip .to-art { position: absolute; inset: 0; }
+/* The one acting right now leads the strip and is the only one at full size. */
+.to-pip.now {
+  opacity: 1; width: 42px; height: 42px; border-width: 2px;
+  box-shadow: 0 0 12px -2px var(--rarity);
+}
+.to-pip.enemy { border-style: dashed; }
+.to-pip .to-flag {
+  position: absolute; right: -1px; bottom: -2px;
+  font-size: 11px; color: var(--bad); text-shadow: 0 1px 3px #000;
+}
+
+/* ---- unit states ---- */
+
+/* Charging: announced this turn, lands on this unit's next one. */
+.unit.charging::after {
+  content: '';
+  position: absolute; inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--bad);
+  animation: chargeRing 0.9s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes chargeRing {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50%      { opacity: 0.95; transform: scale(1.06); }
+}
+.unit.charging .u-art { filter: drop-shadow(0 0 14px var(--bad)); }
+
+/* In the blast of something charging. */
+.unit.threatened::before {
+  content: '';
+  position: absolute; inset: -4px;
+  border-radius: 12px;
+  border: 2px dashed var(--bad);
+  animation: threatPulse 0.7s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes threatPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+
+/* Braced. Halves the next hit, so it needs to read at a glance. */
+.unit.guarding .u-art { filter: drop-shadow(0 0 10px #38bdf8) brightness(0.95); }
+.unit.guarding::after {
+  content: '🛡️';
+  position: absolute; top: 4px; right: 2px;
+  font-size: 15px; z-index: 4;
+  text-shadow: 0 1px 4px #000;
+}
+
+/* Whose turn it is. */
+.unit.acting .u-art { filter: drop-shadow(0 0 12px var(--gold)); }
+
+/* Picking a target. */
+.unit.selectable { cursor: pointer; }
+.unit.selectable .u-art { outline: 2px dotted rgba(255,255,255,0.28); outline-offset: 3px; border-radius: 10px; }
+.unit.selected::before {
+  content: '';
+  position: absolute; inset: -5px;
+  border-radius: 12px;
+  border: 2.5px solid var(--gold);
+  box-shadow: 0 0 16px -3px var(--gold);
+  pointer-events: none;
+}
+
+.unit.phased .u-art { filter: drop-shadow(0 0 10px #fb7185); }
+
+/* ---- phase turn ---- */
+
+.phase-banner {
+  position: absolute; left: 0; right: 0; top: 36%;
+  text-align: center;
+  font-family: var(--font-display); font-size: 30px; letter-spacing: 0.03em;
+  color: #fff;
+  text-shadow: 0 0 22px #fb7185, 0 2px 4px #000;
+  animation: phaseIn 1.6s ease forwards;
+  pointer-events: none; z-index: 8;
+}
+@keyframes phaseIn {
+  0%   { opacity: 0; transform: scale(0.7); letter-spacing: 0.3em; }
+  22%  { opacity: 1; transform: scale(1); letter-spacing: 0.03em; }
+  75%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.06); }
+}
+
+/* ---- action bar ----
+   Only ever shows what the engine says is legal, so a greyed button is a
+   cooldown or an unfilled meter and never a bug. */
+
+.action-bar-battle {
+  min-height: 92px;
+  padding: 0 10px calc(10px + env(safe-area-inset-bottom, 0px));
+}
+.ab-who {
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--gold); text-align: center; margin-bottom: 6px;
+}
+.ab-who.waiting { color: var(--muted); padding-top: 22px; }
+.ab-row { display: flex; gap: 6px; }
+.ab-btn {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 8px 4px 7px;
+  border-radius: 12px;
+  border: 1.5px solid var(--panel-line);
+  background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(0,0,0,0.42));
+  color: var(--text);
+}
+.ab-ico { font-size: 19px; line-height: 1; }
+.ab-name {
+  font-size: 9.5px; font-weight: 700; line-height: 1.15; text-align: center;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ab-sub { font-size: 9px; color: var(--muted); }
+.ab-btn.disabled { opacity: 0.4; pointer-events: none; }
+.ab-btn.ultimate { border-color: var(--gold); box-shadow: 0 0 14px -4px var(--gold); }
+.ab-btn.technique { border-color: #38bdf8; }
+.ab-btn.guard { border-color: #94a3b8; }
+.ab-btn:active { transform: scale(0.96); }
+
+/* AUTO is a mode, so it stays lit while it is on. */
+#bt-auto.on { border-color: var(--good); color: var(--good); }
+
+.float.guard { color: #7dd3fc; font-size: 12px; }
+.u-callout.charge { border-color: var(--bad); color: #fecaca; box-shadow: 0 0 16px -2px var(--bad); }
+.u-callout.phase { border-color: #fb7185; color: #fecdd3; box-shadow: 0 0 20px -2px #fb7185; }
+.u-callout.guard { border-color: #38bdf8; color: #bae6fd; }
