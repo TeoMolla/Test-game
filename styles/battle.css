@@ -78,8 +78,14 @@
 
 .lane { display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; }
 /* stagger stacked units sideways so a lane reads as a formation, not a column */
-.side-player .lane .unit:nth-child(even) { margin-left: 26px; }
-.side-enemy .lane .unit:nth-child(even) { margin-right: 26px; }
+/* Formation stagger. Kept modest: a side has to hold two lanes of two on a
+   390px screen, and a wider offset pushed the back rank off the edge. */
+.side-player .lane .unit:nth-child(even) { margin-left: 16px; }
+.side-enemy .lane .unit:nth-child(even) { margin-right: 16px; }
+/* The back lane tucks behind the front one rather than sitting beside it —
+   it is already drawn smaller and lifted, so the overlap reads as depth. */
+.side-player .lane-back { margin-right: -22px; }
+.side-enemy .lane-back { margin-left: -22px; }
 /* back row: smaller and lifted, so it reads as "further away" */
 .lane-back { transform: translateY(-40px) scale(0.8); opacity: 0.92; }
 
@@ -103,7 +109,7 @@
   position: absolute;
   bottom: 0;
   left: 50%;
-  height: 100%;
+  height: calc(100% * var(--sprite-scale, 1));
   width: auto;
   max-width: none;
   transform: translateX(calc(var(--cx, 0.5) * -100%));

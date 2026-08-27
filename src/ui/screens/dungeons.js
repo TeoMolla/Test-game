@@ -10,6 +10,7 @@
 
 import { h, fmt, onAction } from '../dom.js';
 import { bustSVG } from '../avatar.js';
+import { bustHTML } from '../sprites.js';
 import { dungeonList, dungeonRef } from '../../progression/index.js';
 import { teamPower } from '../../hero/index.js';
 import { rarityOf, RARITY_ORDER } from '../../config.js';
@@ -43,7 +44,7 @@ export function render(host) {
       const { meta, def, cleared, locked, underpowered, enemies } = t;
       const previews = enemies.map((e) => {
         const r = rarityOf(e.rarity);
-        return `<span class="enemy-chip" style="--rc:${r.color}">${bustSVG(e.art)}</span>`;
+        return `<span class="enemy-chip" style="--rc:${r.color}">${bustHTML(e.defId, e.art, bustSVG)}</span>`;
       }).join('');
 
       const statusClass = locked ? 'locked' : cleared ? 'cleared' : underpowered ? 'risky' : 'ready';

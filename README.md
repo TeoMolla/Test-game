@@ -31,7 +31,9 @@ Progress saves to `localStorage`, so it survives closing the tab.
   gear in its own level band.
 - **Formation** — pick up to 3 heroes and assign each to the front or back row
   before the fight.
-- **Sprites** — Goku is drawn art: 16 frames driving idle, a wind-up /
+- **Sprites** — Goku and the Saibamen are drawn art; the Elite Saibaman is the
+  same drawing pushed darker and colder, so it reads as a tougher version of a
+  thing you know rather than a new monster. Goku's set: 16 frames driving idle, a wind-up /
   contact / recoil punch, a kick, a three-stage Kamehameha, stagger and
   knockback, a hurt resting pose below 25% HP, and a three-frame defeat. Every
   other hero still uses the CSS placeholder, and the two mix freely on the
@@ -148,6 +150,22 @@ or it doesn't, and one without falls back to the CSS/SVG placeholder in
 `src/ui/avatar.js`. Nothing else in the game knows which is which, so characters
 can be drawn one at a time without a flag day.
 
+There are two kinds of source sheet, and they are keyed differently.
+
+**Checkerboard sheets** (the Saibaman) arrive as poses on a transparency
+checkerboard flattened into a JPEG, laid out in labelled bands. The character
+is saturated green and the checkerboard is pure grey, so one saturation key
+does most of the work. The band CAPTIONS are the interesting problem: they are
+dark navy text, which any "dark means ink" rule keeps. So components are only
+kept when they contain enough GREEN — which no glyph does — and the captions
+vanish without a single hand-tuned clamp. Motion arcs are separate components
+with barely any green, so they are merged back by x overlap with the figure
+they belong to. Frames align to their BAND's ground line rather than their own
+bounding box, which is what keeps an airborne pose in the air instead of
+dropping it onto the floor.
+
+**White-paper sheets** (Goku) are the original path, below.
+
 Frames come from a flat sheet of poses on white paper. `tools/slice-sprites.py`
 cuts it up — keying the paper, dropping the sheet's own captions and rule lines,
 putting every pose on one canvas height and one ground line, and recording each
@@ -164,6 +182,12 @@ part worth understanding: a hit interrupts a basic swing, but *not* a technique
 or ultimate — a front-row hero takes chip damage almost continuously, and
 letting hits interrupt those cancels the release frame, which is the whole
 payoff of a Kamehameha.
+
+A set can also carry a `scale` and a `filter`. Scale matters because frames are
+sized on screen by CSS height, so a set whose character fills more of its canvas
+renders larger for free — and it does the storytelling too: a Saibaman should
+stand a head shorter than Goku, not eye to eye with him. Filter is how one
+drawing serves two enemies.
 
 Frames do not all have to be the same pixel size. The renderer sizes them by CSS
 height and anchors them by `cx`, so only the character's share of the canvas has

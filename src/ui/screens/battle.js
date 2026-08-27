@@ -34,6 +34,23 @@ let timers = [];
 let selectedTarget = null;
 let els = {};
 
+/**
+ * Which sprite set a unit draws from. Heroes carry a heroId, enemies a defId,
+ * and either can have drawn art or fall back to the CSS placeholder.
+ */
+function artId(unit) {
+  return unit.heroId || unit.defId || null;
+}
+
+/** Per-set drawing corrections: relative size, and a recolour for variants. */
+function artStyle(set) {
+  if (!set) return '';
+  const bits = [];
+  if (set.filter) bits.push(`filter:${set.filter}`);
+  if (set.scale) bits.push(`--sprite-scale:${set.scale}`);
+  return bits.length ? ` style="${bits.join(';')}"` : '';
+}
+
 /** Base beats, in ms at x1. Everything else is derived from these. */
 const PACE = { open: 140, act: 620, big: 900, death: 480, cutIn: 1150 };
 
@@ -106,7 +123,7 @@ export function render(host, { ref }) {
 
   for (const unit of battle.units) {
     const r = rarityOf(unit.rarity);
-    const set = spriteSet(unit.heroId);
+    const set = spriteSet(artId(unit));
     const artInner = set
       ? '<div class="u-sprite"><img class="u-frame" alt="" decoding="async"></div><div class="u-beam"></div>'
       : bodySVG(unit.art, { facing: unit.side === 'player' ? 'right' : 'left' });
@@ -118,7 +135,7 @@ export function render(host, { ref }) {
       html: `
         <div class="u-callout"></div>
         <div class="u-fx"></div>
-        <div class="u-art">${artInner}</div>
+        <div class="u-art"${artStyle(set)}>${artInner}</div>
         <div class="u-bar"><span class="u-fill"></span></div>
         <div class="u-name">${unit.name}</div>`,
     });
@@ -161,7 +178,7 @@ export function render(host, { ref }) {
       style: { '--rarity': r.color, '--glow': r.glow },
       dataset: { uid: unit.uid },
       html: `
-        <span class="dc-art">${bustHTML(unit.heroId, unit.art, bustSVG)}</span>
+        <span class="dc-art">${bustHTML(artId(unit), unit.art, bustSVG)}</span>
         <span class="dc-ult"><span class="dc-ult-fill"></span></span>
         <span class="dc-name">${unit.name}</span>
         <span class="dc-hp"><span class="dc-hp-fill"></span></span>`,
@@ -500,7 +517,7 @@ function paintOrder() {
     els.order.appendChild(h('div', {
       class: `to-pip ${unit.side} ${i === 0 ? 'now' : ''}`,
       style: { '--rarity': r.color },
-      html: `<span class="to-art">${bustHTML(unit.heroId, unit.art, bustSVG)}</span>
+      html: `<span class="to-art">${bustHTML(artId(unit), unit.art, bustSVG)}</span>
              ${unit.charging ? '<span class="to-flag">⚠</span>' : ''}`,
     }));
   });
@@ -583,7 +600,7 @@ function playCutIn(ev) {
     html: `
       <div class="ci-lines"></div>
       <div class="ci-body">
-        <div class="ci-portrait">${bustHTML(unit.heroId, unit.art, bustSVG)}</div>
+        <div class="ci-portrait">${bustHTML(artId(unit), unit.art, bustSVG)}</div>
         <div class="ci-text">
           <div class="ci-who">${unit.name}</div>
           <div class="ci-move">${ev.name}</div>

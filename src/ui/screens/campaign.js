@@ -4,6 +4,7 @@
 
 import { h, fmt, onAction } from '../dom.js';
 import { bustSVG } from '../avatar.js';
+import { bustHTML } from '../sprites.js';
 import { stageList, buildEnemyTeam, stageRef } from '../../progression/index.js';
 import { teamPower } from '../../hero/index.js';
 import { rarityOf } from '../../config.js';
@@ -27,7 +28,7 @@ export function render(host) {
     const enemies = buildEnemyTeam(stage.id);
     const previews = enemies.slice(0, 4).map((e) => {
       const r = rarityOf(e.rarity);
-      return `<span class="enemy-chip" style="--rc:${r.color}">${bustSVG(e.art)}</span>`;
+      return `<span class="enemy-chip" style="--rc:${r.color}">${bustHTML(e.defId, e.art, bustSVG)}</span>`;
     }).join('');
 
     const statusClass = locked ? 'locked' : cleared ? 'cleared' : underpowered ? 'risky' : 'ready';

@@ -34,7 +34,7 @@ export function render(host, { ref }) {
           ${enemies.map((e) => {
             const r = rarityOf(e.rarity);
             return `<div class="lineup-unit" style="--rc:${r.color}">
-                <div class="lu-art">${bustSVG(e.art)}</div>
+                <div class="lu-art">${bustHTML(e.defId, e.art, bustSVG)}</div>
                 <div class="lu-name">${e.name}</div>
                 <div class="lu-row">${e.row === 'back' ? 'Back' : 'Front'}</div>
               </div>`;
