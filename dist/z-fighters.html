@@ -100,12 +100,16 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   font-size: 21px; letter-spacing: 0.02em; flex: 1;
 }
 
+/* Three currencies now, so the chips shrink rather than push the title out. */
+.wallet { display: flex; gap: 4px; flex: none; }
 .wallet-chip {
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex; align-items: center; gap: 4px;
   background: var(--panel); border: 1px solid var(--panel-line);
-  padding: 5px 11px; border-radius: 999px;
-  font-size: 13px; font-variant-numeric: tabular-nums;
+  padding: 4px 7px; border-radius: 999px;
+  font-size: 11.5px; font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
+.wallet-chip .ico { font-size: 12px; }
 
 #screen {
   flex: 1;
@@ -127,12 +131,15 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 
 .tab {
   flex: 1;
+  min-width: 0;
   background: none; border: 0;
   display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 9px 0 7px;
-  font-size: 11px; color: var(--muted);
+  padding: 9px 2px 7px;
+  /* Five tabs on a 390px screen: the label has to shrink rather than wrap. */
+  font-size: 9px; letter-spacing: -0.01em; color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.tab .ico { font-size: 20px; }
+.tab .ico { font-size: 18px; }
 .tab.active { color: var(--accent); }
 
 /* ---------------- shared bits ---------------- */
@@ -174,6 +181,8 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   padding: 12px;
   margin-bottom: 12px;
 }
+.section-head { margin: 16px 2px 10px; }
+.note + .section-head { margin-top: 22px; }
 .panel-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 10px; }
 
 .power-banner {
@@ -185,7 +194,8 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   margin-bottom: 14px;
 }
 .pb-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.pb-value { font-size: 19px; font-weight: 800; flex: 1; font-variant-numeric: tabular-nums; }
+.pb-value { font-size: 19px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.pb-note { font-size: 11px; color: var(--muted); flex: 1; text-align: right; }
 
 .stars { letter-spacing: 1px; }
 .stars .pip { color: rgba(255, 255, 255, 0.2); font-size: 12px; }
@@ -235,11 +245,142 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 }
 .enemy-row .more { font-size: 11px; color: var(--muted); }
 
-.stage-meta { margin-top: 6px; font-size: 11.5px; }
+.stage-meta { margin-top: 6px; font-size: 11.5px; display: flex; gap: 10px; flex-wrap: wrap; }
 .gate.ok { color: var(--good); }
 .gate.warn { color: var(--warn); }
 .stage-action { flex: none; }
 .stage-action .lock { font-size: 20px; opacity: 0.7; }
+
+/* ---------------- the protagonist ---------------- */
+
+/* He sits above the collection rather than inside it \002014 the roster grid is for
+   allies, and this card is the one character the whole game is about. */
+.lead-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px 10px 10px;
+  margin-bottom: 14px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--rarity, #64748b);
+  background:
+    linear-gradient(110deg, color-mix(in srgb, var(--rarity, #64748b) 26%, #0b1020), rgba(0, 0, 0, 0.3)),
+    var(--bg-2);
+  box-shadow: 0 0 22px -10px var(--glow, transparent);
+  cursor: pointer;
+}
+.lead-art {
+  width: 84px; height: 84px; flex: none;
+  border-radius: 12px; overflow: hidden;
+  background: rgba(0, 0, 0, 0.28);
+}
+.lead-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.lead-eyebrow {
+  position: absolute;
+  /* visually hidden \002014 the card's placement already says what it is, but the
+     label stays in the accessibility tree */
+  width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);
+}
+.lead-name { font-family: var(--font-display); font-size: 26px; letter-spacing: 0.01em; }
+.lead-card { position: relative; }
+.lead-sub { font-size: 12px; color: var(--muted); }
+.lead-stats { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; margin-top: 2px; }
+.lead-power {
+  font-size: 15px; font-weight: 800; color: var(--gold);
+  font-variant-numeric: tabular-nums; margin-top: 2px;
+}
+
+.lead-badge {
+  display: inline-block; margin-left: 6px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #241503; background: var(--gold);
+  padding: 2px 8px; border-radius: 999px;
+}
+
+/* Formation: the lead slot is held, so it has no swap affordance. */
+.form-unit.lead {
+  border-width: 2px;
+  box-shadow: 0 0 18px -8px var(--glow, transparent);
+}
+.form-unit.lead .fu-art { cursor: default; }
+.lead-tag {
+  font-size: 9px; font-weight: 800; letter-spacing: 0.12em;
+  color: var(--gold); text-align: center; margin-bottom: 1px;
+}
+
+/* ---------------- companion slots ---------------- */
+
+.companion-head {
+  display: flex; align-items: baseline; gap: 8px;
+  margin: 18px 2px 8px;
+}
+.ch-title {
+  font-family: var(--font-display); font-size: 18px; letter-spacing: 0.02em;
+}
+.ch-level { font-size: 15px; font-weight: 800; color: var(--gold); }
+.ch-note { font-size: 10.5px; color: var(--muted); flex: 1; text-align: right; }
+
+.slot-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+.comp-slot {
+  border: 1.5px solid var(--panel-line);
+  border-radius: 12px;
+  padding: 8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.22));
+  text-align: center;
+}
+/* The slot actually setting the companion level reads as the live one; a slot
+   that has run ahead is dimmed, because raising it further changes nothing. */
+.comp-slot.binding { border-color: var(--accent-2); }
+.comp-slot.ahead { opacity: 0.72; }
+.comp-slot.filled { border-color: var(--rarity, var(--panel-line)); }
+.cs-stars { margin-bottom: 3px; }
+.cs-bond {
+  font-size: 10px; color: var(--gold); font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+}
+.field-tag {
+  position: absolute; top: 4px; right: 5px;
+  font-size: 8.5px; font-weight: 800; letter-spacing: 0.04em;
+  background: var(--gold); color: #241503;
+  padding: 1px 5px; border-radius: 5px;
+}
+.hero-card.fielded { box-shadow: 0 0 0 1px var(--gold), 0 0 16px -6px var(--glow); }
+
+.cs-head { font-size: 11px; color: var(--muted); }
+.cs-lv { color: var(--text); font-weight: 700; }
+.cs-art {
+  width: 64px; height: 64px; margin: 5px auto 3px;
+  border-radius: 11px; overflow: hidden; background: rgba(0,0,0,0.3);
+  display: grid; place-items: center;
+}
+.cs-empty { font-size: 26px; color: var(--muted); }
+.cs-name { font-size: 12.5px; font-family: var(--font-display); margin-bottom: 6px; }
+.cs-warn { font-size: 9.5px; color: var(--warn); margin-top: 4px; }
+.btn.tiny.wide { display: block; width: 100%; }
+
+.recruit-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* ---------------- bonds ---------------- */
+
+.bond-panel {
+  background: var(--panel); border: 1px solid var(--panel-line);
+  border-left: 3px solid var(--muted);
+  border-radius: var(--radius); padding: 12px; margin-top: 12px;
+}
+.bond-panel.equipped { border-left-color: var(--gold); }
+.bond-head { display: flex; align-items: baseline; gap: 8px; }
+.bond-label { font-family: var(--font-display); font-size: 16px; flex: 1; }
+.bond-share { font-size: 10.5px; color: var(--muted); }
+.bond-rows { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.bond-stat {
+  font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--panel-line);
+  border-radius: 999px; padding: 3px 10px;
+}
+.bond-panel.equipped .bond-stat { border-color: rgba(251,191,36,0.4); color: var(--gold); }
 
 /* ---------------- roster ---------------- */
 
@@ -338,6 +479,13 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   overflow: hidden;
 }
 .portrait-art { position: absolute; inset: 8% 14% 0; }
+/* An ally has no gear slots to place, so the stage does not need to be square
+   \002014 and it must not be, or the Train button lands under the sticky tab bar. */
+.portrait-stage.no-gear {
+  aspect-ratio: 1 / 0.62;
+  max-width: 240px;
+}
+.portrait-stage.no-gear .portrait-art { inset: 5% 12% 0; }
 
 .gear-slot {
   position: absolute;
@@ -349,6 +497,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   font-size: 20px;
 }
 .gear-slot.filled { border-style: solid; border-color: var(--gr); box-shadow: 0 0 12px -4px var(--gr); }
+.gear-slot .gs-lv, .gear-slot .gs-item { z-index: 2; }
 .gear-slot:not(.filled) .gi { opacity: 0.35; }
 .slot-weapon { top: 10px; left: 10px; }
 .slot-chest  { top: 66px; left: 10px; }
@@ -368,6 +517,20 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   border-radius: var(--radius); padding: 10px; margin-top: 10px;
 }
 .level-line { text-align: center; font-size: 19px; font-weight: 800; color: var(--gold); }
+.xp-track {
+  height: 6px; border-radius: 3px; margin: 7px 4px 3px;
+  background: rgba(0, 0, 0, 0.5); overflow: hidden;
+}
+.xp-fill {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #a78bfa);
+  transition: width 0.3s ease;
+}
+.xp-line {
+  text-align: center; font-size: 11px; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.reward.level-up { border-color: var(--gold); color: var(--gold); }
 .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0 4px; }
 .stat { text-align: center; }
 .sn { display: block; font-size: 10px; color: var(--muted); }
@@ -535,6 +698,9 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   background: var(--gold); color: #241503; font-weight: 800; font-size: 12px;
   padding: 3px 12px; border-radius: 999px;
 }
+/* A dungeon opens the next difficulty rather than paying a one-off bonus. */
+.first-clear.unlock { background: var(--accent); color: #1a0d02; }
+
 .reward-list { margin: 22px 0; display: flex; flex-direction: column; gap: 9px; flex: 1; }
 .reward {
   display: flex; align-items: center; gap: 11px;
@@ -561,6 +727,303 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 .toast-good { border-color: var(--good); color: var(--good); }
 .toast-warn { border-color: var(--warn); color: var(--warn); }
 .toast.out { opacity: 0; transform: translateY(-8px); }
+
+/* ---------------- dungeons ---------------- */
+
+.dungeon-head { margin: 16px 2px 9px; }
+.dungeon-head .dh-saga {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent); font-weight: 700;
+}
+.dungeon-head .dh-name { font-family: var(--font-display); font-size: 20px; margin-top: 1px; }
+.dungeon-head .dh-sub { color: var(--muted); font-size: 12px; margin-top: 2px; line-height: 1.35; }
+.dungeon-head .dh-lock { color: var(--muted); font-size: 12px; margin-top: 6px; }
+/* A saga that is not built yet is a signpost, not a control. */
+.dungeon-head.soon { opacity: 0.42; }
+.dungeon-head.soon .dh-saga { color: var(--muted); }
+
+.tier-list { display: flex; flex-direction: column; gap: 9px; }
+
+.tier-card {
+  /* Top-aligned so the difficulty badge reads with the difficulty name rather
+     than floating opposite the middle of the card. */
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-left: 3px solid var(--tier, var(--panel-line));
+  border-radius: var(--radius);
+  padding: 9px 10px;
+}
+.tier-card.cleared { border-color: rgba(74, 222, 128, 0.3); border-left-color: var(--tier); }
+.tier-card.locked { opacity: 0.45; }
+.tier-card.risky { border-color: rgba(251, 191, 36, 0.32); border-left-color: var(--tier); }
+/* Extreme reads as an event, not just the fourth row down. */
+.tier-card.bonus { box-shadow: inset 0 0 22px -10px var(--tier-glow, transparent); }
+
+.tc-rank {
+  width: 32px; height: 32px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--tier) 22%, #0b1220);
+  color: var(--tier);
+  font-family: var(--font-display); font-size: 13px; letter-spacing: 0.02em;
+}
+
+.tc-body { flex: 1; min-width: 0; }
+.tc-name { font-family: var(--font-display); font-size: 16px; line-height: 1.1; }
+.tc-name .tick { color: var(--good); }
+/* Enemy faces sit beside the billing rather than under it \002014 four of these
+   cards have to fit on one phone screen. */
+.tc-line { display: flex; align-items: center; gap: 7px; margin-top: 4px; }
+.tc-line .enemy-row { margin-top: 0; flex: none; }
+.tc-line .enemy-chip { width: 24px; height: 24px; border-radius: 6px; border-width: 1.2px; }
+.bonus-tag {
+  margin-left: 6px; padding: 1px 5px; border-radius: 5px;
+  background: var(--tier); color: #0b1220;
+  font-family: system-ui, sans-serif; font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em;
+  vertical-align: 2px;
+}
+.tc-boss {
+  color: var(--muted); font-size: 11.5px; line-height: 1.3; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.tc-drops { display: flex; align-items: center; gap: 4px; margin-top: 5px; }
+.drop-count { font-size: 10.5px; font-weight: 700; color: var(--text); flex: none; }
+/* Two tiers often share a rarity and differ only here, so the band is the
+   headline number on the card, not a footnote. */
+.drop-lv { font-size: 10.5px; font-weight: 800; color: var(--gold); flex: none; }
+.drop-pip {
+  font-size: 9.5px; padding: 1px 5px; border-radius: 999px; white-space: nowrap;
+  color: color-mix(in srgb, var(--rc) 70%, var(--muted));
+  border: 1px solid color-mix(in srgb, var(--rc) 25%, transparent);
+}
+/* The rarity you should expect, as opposed to the ones that are merely possible. */
+.drop-pip.modal {
+  color: var(--rc); font-weight: 700;
+  border-color: color-mix(in srgb, var(--rc) 55%, transparent);
+  background: color-mix(in srgb, var(--rc) 14%, transparent);
+}
+.tier-card .stage-meta { margin-top: 5px; font-size: 11px; gap: 9px; }
+.tier-card .stage-action { align-self: center; }
+.tc-zeni { color: var(--muted); }
+
+/* A dungeon brief keeps its tier colour through the pre-battle screen. */
+.battle-brief.dungeon { border-left: 3px solid var(--tier, var(--panel-line)); }
+
+/* ---------------- gear levels ---------------- */
+
+/* The level is the number that actually differs between two copies of the same
+   item, so it reads as part of the name rather than as metadata beside it. */
+.glv {
+  font-size: 0.82em; font-weight: 800; color: var(--gold);
+  letter-spacing: 0.01em;
+}
+/* Two badges on one 46px slot, so each gets a corner and only the digits.
+   Bottom-right is the SLOT's bought level (+N, gold, the reference's
+   placement); top-left is the ITEM's own level in its rarity colour. */
+.gs-lv {
+  position: absolute; right: -3px; bottom: -3px;
+  font-size: 9.5px; font-weight: 800; line-height: 1;
+  padding: 2px 4px; border-radius: 999px;
+  background: linear-gradient(180deg, #3f2d06, #1b1303);
+  border: 1px solid var(--gold); color: var(--gold);
+}
+.gs-item {
+  position: absolute; left: -3px; top: -3px;
+  font-size: 9.5px; font-weight: 800; line-height: 1;
+  padding: 2px 4px; border-radius: 999px;
+  background: rgba(6, 11, 22, 0.92);
+  border: 1px solid var(--gr); color: var(--gr);
+}
+
+/* ---------------- gear detail card ---------------- */
+
+.sheet-backdrop.centred { align-items: center; justify-content: center; padding: 18px; }
+
+/* The card is the item, so it is tinted by the item's rarity throughout
+   rather than being a neutral panel with a coloured accent. */
+.sheet.gear-detail {
+  padding: 0; overflow: hidden;
+  width: auto; max-width: 340px;
+  border-radius: 18px;
+  border: 1px solid var(--panel-line);
+  box-shadow: 0 18px 50px -12px rgba(0, 0, 0, 0.8);
+  animation: cardIn 0.18s ease;
+}
+@keyframes cardIn { from { transform: scale(0.94); opacity: 0; } }
+
+.gd-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 11px 14px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--gr) 42%, #0b1220),
+    color-mix(in srgb, var(--gr) 20%, #0b1220));
+  border-bottom: 1px solid color-mix(in srgb, var(--gr) 45%, transparent);
+}
+.gd-name { font-family: var(--font-display); font-size: 20px; letter-spacing: 0.01em; min-width: 0;
+           overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gd-plus { font-family: var(--font-display); font-size: 20px; color: var(--gold); flex: none; }
+
+.gd-band {
+  position: relative;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px 14px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--gr) 14%, #0b1220), #0b1220);
+}
+.gd-slot { font-size: 12px; color: var(--muted); }
+.gd-rarity { font-family: var(--font-display); font-size: 17px; color: var(--gr); margin-top: 1px; }
+.gd-worth { font-family: var(--font-display); font-size: 22px; color: var(--gold); margin-top: 3px; }
+.gd-art {
+  font-size: 46px; line-height: 1;
+  filter: drop-shadow(0 3px 10px color-mix(in srgb, var(--gr) 60%, transparent));
+}
+.gd-level {
+  position: absolute; right: 0; bottom: 0;
+  padding: 3px 14px 3px 12px;
+  border-top-left-radius: 999px;
+  background: rgba(0, 0, 0, 0.5);
+  font-size: 12px; color: var(--muted);
+}
+.gd-level b { color: var(--text); font-size: 14px; }
+
+.gd-stats { padding: 10px 12px 4px; }
+/* The item's own flat numbers are its headline, so those get the stronger
+   ground; everything else is a plain row. (An even/odd zebra was tried and
+   miscounts, because the section headings are siblings too.) */
+.gd-stat {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  font-size: 13.5px;
+}
+.gd-stat + .gd-stat { background: rgba(255, 255, 255, 0.03); }
+.gd-stat b { font-variant-numeric: tabular-nums; }
+.gd-stat.main { background: rgba(255, 255, 255, 0.09); font-weight: 600; }
+.gd-stat.main b { color: var(--gold); }
+.gd-sub {
+  font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin: 10px 0 4px 10px;
+}
+
+.gd-actions {
+  display: flex; gap: 8px; padding: 10px 12px 12px;
+}
+/* Two buttons on a 340px card: the labels must not wrap. */
+.gd-actions .btn { flex: 1; white-space: nowrap; font-size: 12.5px; padding: 9px 8px; }
+
+.gear-row .scrap { flex: none; font-variant-numeric: tabular-nums; }
+.gear-row .scrap.danger { border-color: var(--bad); color: var(--bad); }
+
+/* ---------------- bag tabs ---------------- */
+
+/* The hero screen pins its tabs to the bottom; the Bag's belong at the top,
+   under the wallet, because its tabs switch between whole inventories rather
+   than between views of one hero. */
+.tab-bar.bag-tabs {
+  position: static; margin: 12px 0 4px;
+  padding: 0; background: none; backdrop-filter: none; border-top: 0;
+}
+.tab-bar.bag-tabs .tab-btn { padding: 9px 0; font-size: 13.5px; }
+.tab-bar.bag-tabs .tab-btn.active { background: var(--accent); color: #1a0d02; }
+.bag-tabs + .tab-body { padding-bottom: 20px; }
+
+/* ---------------- dismantle grid ---------------- */
+
+.scrap-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin: 6px 2px 10px;
+  font-size: 13px;
+}
+.sh-count b { color: var(--gold); font-size: 15px; }
+.sh-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: 0; color: var(--muted); font-size: 12.5px;
+}
+.sh-toggle .sh-box {
+  width: 17px; height: 17px; border-radius: 5px;
+  border: 1.5px solid var(--panel-line);
+  display: grid; place-items: center; font-size: 11px; line-height: 1;
+}
+.sh-toggle.on { color: var(--text); }
+.sh-toggle.on .sh-box { background: var(--good); border-color: var(--good); color: #0b1020; }
+
+.scrap-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px;
+}
+.scrap-tile {
+  position: relative; aspect-ratio: 1;
+  border-radius: 14px;
+  border: 2px solid var(--gr);
+  background: color-mix(in srgb, var(--gr) 12%, #0b1220);
+  display: grid; place-items: center;
+  font-size: 27px;
+}
+/* Selection is the ACCENT, never a rarity colour \002014 a green "selected" ring on
+   a green uncommon border is unreadable. */
+.scrap-tile.on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, #0b1220);
+  box-shadow: 0 0 0 2px var(--accent), 0 0 18px -5px var(--accent);
+}
+/* Held back rather than hidden: seeing why a piece is not on the table is the
+   whole point of the exclude toggle. */
+.scrap-tile.blocked { opacity: 0.42; }
+
+/* Unchecked is an empty outline, not a filled disc \002014 a dark disc on a dark
+   tile reads as a hole punched in the corner. */
+.st-check {
+  position: absolute; top: -4px; left: -4px;
+  width: 20px; height: 20px; border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  background: rgba(11, 18, 32, 0.75); color: #1a0d02;
+  display: grid; place-items: center;
+  font-size: 12px; font-weight: 900; line-height: 1;
+}
+.scrap-tile.on .st-check { background: var(--accent); border-color: var(--accent); }
+.scrap-tile.blocked .st-check { display: none; }
+.st-lv {
+  position: absolute; right: 3px; bottom: 2px;
+  font-size: 11px; font-weight: 800; color: var(--text);
+  text-shadow: 0 1px 3px #000;
+}
+.st-flag { position: absolute; top: 2px; right: 3px; font-size: 11px; }
+
+.scrap-rarities {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  margin: 14px 0 10px;
+}
+.rarity-pick {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 11px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--rc) 40%, transparent);
+  background: color-mix(in srgb, var(--rc) 10%, transparent);
+  color: var(--rc); font-size: 12px; font-weight: 700;
+}
+.rarity-pick small { color: var(--muted); font-weight: 500; }
+.rp-dot {
+  width: 9px; height: 9px; border-radius: 999px;
+  border: 1.5px solid var(--rc);
+}
+.rarity-pick.on {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border-color: var(--accent); color: var(--text);
+}
+.rarity-pick.on .rp-dot { background: var(--accent); border-color: var(--accent); }
+
+.scrap-actions { margin-top: 4px; }
+
+/* ---------------- lock ---------------- */
+
+.gd-lock {
+  margin-left: auto; flex: none;
+  width: 32px; height: 32px; border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.28);
+  font-size: 15px; line-height: 1;
+}
+.gd-lock.on { border-color: var(--gold); background: rgba(251, 191, 36, 0.16); }
+.lock-note { color: var(--gold); }
 
 
 /* battle.css \002014 the real-time battle screen.
@@ -589,6 +1052,31 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   border-radius: 999px; padding: 3px 11px;
 }
 
+/* ---- time-stop ----
+   PLACEHOLDER staging for the ultimate cut-in that will replace it: the world
+   dims and desaturates, the caster stays lit, and every other animation holds
+   where it is. The frame-by-frame sprite clip runs off the wall clock, so the
+   ultimate itself plays straight through. */
+
+.battle-screen.time-stop .arena::before { opacity: 1; }
+
+.time-stop .unit:not(.caster) {
+  filter: grayscale(0.75) brightness(0.5);
+}
+/* Hold everyone else mid-motion \002014 mid-swing, mid-recoil, numbers mid-flight. */
+.time-stop .unit:not(.caster) .u-art,
+.time-stop .unit:not(.caster) .float {
+  animation-play-state: paused;
+}
+.time-stop .unit.caster .u-art {
+  filter: drop-shadow(0 0 14px var(--aura)) brightness(1.08);
+}
+.time-stop .bt-timer { opacity: 0.45; }
+
+.unit:not(.caster), .unit.caster .u-art, .bt-timer {
+  transition: filter 130ms ease, opacity 130ms ease;
+}
+
 /* ---- arena ---- */
 
 .arena {
@@ -599,6 +1087,21 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   min-height: 0;
   position: relative;
 }
+/* the time-stop wash; sits above the ground and below the units */
+.arena::before {
+  content: '';
+  position: absolute; inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(120% 90% at 50% 45%, rgba(8, 12, 30, 0.25), rgba(4, 7, 18, 0.72));
+  /* snap in, ease out \002014 the hit should land, not fade in */
+  transition: opacity 260ms ease;
+}
+.battle-screen.time-stop .arena::before {
+  transition: opacity 90ms ease;
+}
+
 /* ground plane */
 .arena::after {
   content: '';
@@ -836,6 +1339,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 @media (prefers-reduced-motion: reduce) {
   .u-art.hit, .u-art.lunge, .dock-card.ult-ready, .hero-card.unlockable { animation: none; }
   .unit.advancing .u-art { animation: none; }
+  .arena::before { transition: none; }
   .unit { transition: opacity 0.35s ease; }
   .u-beam.fire { animation: none; width: var(--beam-len, 150px); opacity: 1; }
 }
@@ -847,6 +1351,8 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
     <button class="back-btn" data-action="back" aria-label="Back" hidden>&lsaquo;</button>
     <div class="screen-title" id="screen-title">Campaign</div>
     <div class="wallet">
+      <span class="wallet-chip" id="wallet-senzu"><span class="ico">&#129752;</span><span class="val">0</span></span>
+      <span class="wallet-chip" id="wallet-iron"><span class="ico">&#128297;</span><span class="val">0</span></span>
       <span class="wallet-chip" id="wallet-zeni"><span class="ico">&#128176;</span><span class="val">0</span></span>
     </div>
   </header>
@@ -855,7 +1361,9 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 
   <nav id="tabbar">
     <button class="tab" data-tab="campaign"><span class="ico">&#128506;&#65039;</span><span>Campaign</span></button>
-    <button class="tab" data-tab="roster"><span class="ico">&#128101;</span><span>Heroes</span></button>
+    <button class="tab" data-tab="dungeons"><span class="ico">&#127744;</span><span>Dungeons</span></button>
+    <button class="tab" data-tab="roster"><span class="ico">&#128293;</span><span>Hero</span></button>
+    <button class="tab" data-tab="companions"><span class="ico">&#128101;</span><span>Companions</span></button>
     <button class="tab" data-tab="bag"><span class="ico">&#127890;</span><span>Bag</span></button>
   </nav>
 </div>
@@ -955,10 +1463,21 @@ const SKILL_SLOT_UNLOCK = {
 const SKILL_SLOTS = ['attack', 'technique', 'ultimate', 'passive', 'transform'];
 
 /**
- * NOTE (future): 'transform' is intentionally reserved as an always-locked
- * fifth slot. The transformation / power-up form system is out of scope for
- * this pass \u2014 this reserves its place in the data model and UI so adding it
- * later does not require reshaping hero data.
+ * NOTE (future): 'transform' is the transformation slot, still locked. It
+ * belongs to the protagonist alone. The agreed design, for when it is built:
+ *
+ *   - MANUAL activation, not automatic. The player taps to transform.
+ *   - No countdown is shown. When a transformation is available the character
+ *     card glows; that glow is the whole affordance.
+ *   - Forms give a MODEST stat boost, not their nominal multiplier. Kaio-ken
+ *     x3 is stronger than plain Kaio-ken but nowhere near three times as
+ *     strong \u2014 think a step up, not a different league.
+ *   - Campaign difficulty gets retuned around the forms once they exist, so
+ *     they are part of the expected power curve rather than a free win.
+ *
+ * The Saiyan Saga ladder is Kaio-ken then Kaio-ken x3; Super Saiyan belongs to
+ * the next arc and is the first form that needs new art (gold hair). Kaio-ken
+ * is a red aura, which is a tint over the existing sprites.
  */
 const RESERVED_SLOTS = ['transform'];
 
@@ -976,17 +1495,114 @@ const RESERVED_SLOTS = ['transform'];
 const HP_SCALE = 2.0;
 
 const MAX_LEVEL = 60;             // PLACEHOLDER
-const LEVEL_STAT_STEP = 0.055;    // PLACEHOLDER: +5.5% of base per level
 
-/** PLACEHOLDER: zeni cost to go from `level` to `level + 1`. */
-function levelUpCost(level) {
-  return Math.round(60 * Math.pow(1.16, level - 1));
+/**
+ * PLACEHOLDER: +3.5% of base stats per level, so level 30 is about 2.0x rather
+ * than the 2.6x it used to be. Still a real step every time one lands \u2014 the
+ * point of the reduction is that gear and stars get to matter too, not that
+ * levelling should feel thin.
+ */
+const LEVEL_STAT_STEP = 0.035;
+
+/**
+ * PLACEHOLDER: XP needed to go from `level` to `level + 1`. The exponent is
+ * what makes levels earned rather than bought \u2014 each one costs meaningfully
+ * more than the last, so a level late in the game is a genuine milestone.
+ */
+function xpForLevel(level) {
+  return Math.round(80 * Math.pow(level, 1.55));
 }
+
+/** Cumulative XP to reach each level. Index i holds the total for level i + 1. */
+const XP_TABLE = (() => {
+  const table = [0];
+  for (let level = 1; level < MAX_LEVEL; level++) {
+    table.push(table[level - 1] + xpForLevel(level));
+  }
+  return table;
+})();
+
+/** Total XP required to stand at `level`. */
+function xpToReach(level) {
+  return XP_TABLE[Math.max(0, Math.min(MAX_LEVEL, level) - 1)];
+}
+
+/** The level a given lifetime XP total buys. */
+function levelFromXp(xp) {
+  let level = 1;
+  while (level < MAX_LEVEL && xp >= XP_TABLE[level]) level++;
+  return level;
+}
+
+/* ---------------- companions ----------------
+ *
+ * Companions do not level individually. There are COMPANION_SLOTS slots, each
+ * with its own level bought with senzu beans and zeni, and every companion you
+ * own \u2014 equipped or not \u2014 fights at the level of the LOWEST slot.
+ *
+ * That rule is the whole point: a chain is as strong as its weakest link, so
+ * there is nothing to gain from pouring everything into one slot, and raising
+ * the roster means raising both. It also means a companion recruited today
+ * arrives already useful instead of starting again at level 1.
+ */
+const COMPANION_SLOTS = 2;
+
+/** PLACEHOLDER: zeni to raise one slot from `level` to `level + 1`. */
+function slotTrainZeni(level) {
+  return Math.round(40 * Math.pow(1.18, level - 1));
+}
+
+/**
+ * PLACEHOLDER: senzu beans for the same step. See tools/economy.mjs \u2014 the
+ * slope has to outrun the cap, or beans go cheap and the cap silently becomes
+ * the only limit. Two slots means paying this twice per effective level.
+ */
+function slotTrainSenzu(level) {
+  return 1 + Math.floor((level - 1) / 2);
+}
+
+/**
+ * Companions never out-level the protagonist. Strict: pushing the team forward
+ * always means pushing him forward first.
+ */
+const COMPANION_LEVEL_CAP_OFFSET = 0;
+
+/* ---------------- bonds ----------------
+ *
+ * Every companion you own lends the protagonist something, whether or not it
+ * is fielded. That is what makes collecting worth doing: a companion you never
+ * equip still adds to your hero, and starring it up adds more.
+ *
+ * amount = base x rarity x star x slot share
+ */
+
+/** Rarer companions lend more. Epic and SSR are here for companions to come. */
+const BOND_RARITY_MULT = {
+  common: 0.6, uncommon: 1, rare: 1.5, epic: 2.2, ssr: 3.2,
+};
+
+/** Indexed by star rank. 0 means unowned, which lends nothing. */
+const BOND_STAR_MULT = [0, 1, 1.35, 1.8, 2.35, 3];
+
+/** An equipped companion lends in full; the rest of the collection a quarter. */
+const BOND_EQUIPPED_SHARE = 1;
+const BOND_COLLECTED_SHARE = 0.25;
 
 /**
  * PLACEHOLDER: Power Level is a single headline number derived from final
  * stats (gear included) plus star rank. Tune freely \u2014 nothing branches on it
  * except stage power gates.
+ *
+ * NOTE (pass 2): levels should be MEANINGFUL AND HARD-EARNED, not weak. The
+ * problem to solve is not that a level gives too much \u2014 it is that level is
+ * currently the only axis that matters. LEVEL_STAT_STEP compounds to about
+ * 2.6x by level 30, so power today is essentially a readout of level.
+ *
+ * The fix is two-sided, and doing only half of it makes levelling feel hollow:
+ *   - slow levels down, so each one is earned rather than bought;
+ *   - raise what gear, skill ranks and stars contribute, so power reads as the
+ *     sum of several tracks and no single one dominates.
+ * A level should still land as a real step up when it arrives.
  */
 function computePower(stats, star = 0) {
   return Math.round(
@@ -1021,6 +1637,25 @@ const COMBAT = {
    * scrappier brawl.
    */
   approachSeconds: 0.55,
+
+  /**
+   * Everything stops when an ultimate goes off \u2014 timers, cooldowns, the battle
+   * clock, every other unit. The cast's own animation keeps playing, because
+   * that runs on the wall clock rather than the simulation, so the moment is
+   * held for the ultimate alone.
+   * This is where the cut-in, flash and camera work will hang once they exist.
+   * PLACEHOLDER: long enough to land, short enough not to stall the fight.
+   */
+  ultimateFreezeSeconds: 0.7,
+
+  /**
+   * After any technique or ultimate, that unit does nothing at all for this
+   * long \u2014 no second skill, no auto-attack. Without it a hero whose ultimate
+   * comes up on one tick can fire its technique on the very next one, 50ms
+   * later, which reads on screen as both firing at once.
+   * PLACEHOLDER: about a third of an attack interval.
+   */
+  castRecoverySeconds: 0.5,
 };
 
 /**
@@ -1074,6 +1709,9 @@ const TEAM_SIZE = 3;
  *
  * `art` drives the CSS-drawn placeholder avatar in ui/avatar.js \u2014 clearly
  * temporary stand-ins for real art.
+ * `bond` is what a companion lends the protagonist just for being owned; see
+ * BOND_* in config.js for how it scales. The protagonist has none \u2014 he is the
+ * one receiving them.
  * `baseStats` are the 0-star, level-1 values before rarity multiplier.
  * PLACEHOLDER: all stat values below are unbalanced first-pass numbers.
  */
@@ -1083,6 +1721,11 @@ const HEROES = {
     id: 'goku',
     name: 'Goku',
     title: 'Raised on Earth',
+    // The protagonist. This one flag is what separates him from the allies:
+    // he is never benched, gear is his alone, and the deep progression tracks
+    // (skill ranks, transformations) hang off him. Exactly one hero may carry
+    // it \u2014 see PROTAGONIST_ID below.
+    protagonist: true,
     rarity: 'rare',
     role: 'Bruiser',
     preferredRow: 'front',
@@ -1111,6 +1754,8 @@ const HEROES = {
       ultimate: 'piccolo_ultimate',
     },
     art: { skin: '#4ade80', hair: '#f8fafc', hairStyle: 'turban', gi: '#a855f7', trim: '#e2e8f0', aura: '#a3e635' },
+    // Lent to the protagonist whether or not this companion is fielded.
+    bond: { label: 'Namekian Resolve', flat: { def: 4 }, pct: { hp: 0.025 } },
     startsOwned: false,
     startStar: 1,
     lore: 'A reluctant ally whose piercing beam can end a fight outright.',
@@ -1129,6 +1774,8 @@ const HEROES = {
       ultimate: 'gohan_ultimate',
     },
     art: { skin: '#f2c9a0', hair: '#1b1b23', hairStyle: 'bowl', gi: '#f8fafc', trim: '#dc2626', aura: '#facc15' },
+    // Lent to the protagonist whether or not this companion is fielded.
+    bond: { label: 'Latent Power', flat: { atk: 5 }, pct: { atk: 0.025 } },
     startsOwned: false,
     startStar: 1,
     lore: 'A frightened child with a power level nobody can explain.',
@@ -1147,6 +1794,8 @@ const HEROES = {
       ultimate: 'krillin_ultimate',
     },
     art: { skin: '#f2c9a0', hair: 'none', hairStyle: 'bald', gi: '#f97316', trim: '#1d4ed8', aura: '#38bdf8' },
+    // Lent to the protagonist whether or not this companion is fielded.
+    bond: { label: 'Sharp Eye', flat: { atk: 4 }, pct: { atk: 0.018 } },
     startsOwned: true,
     startStar: 2,
     lore: 'No hair, no ki to spare, and the sharpest technique on the field.',
@@ -1165,6 +1814,8 @@ const HEROES = {
       ultimate: 'yamcha_ultimate',
     },
     art: { skin: '#f2c9a0', hair: '#2a1d16', hairStyle: 'long', gi: '#fb923c', trim: '#166534', aura: '#f472b6' },
+    // Lent to the protagonist whether or not this companion is fielded.
+    bond: { label: 'Bandit Reflexes', flat: { atk: 3 }, pct: { speed: 0.012 } },
     startsOwned: true,
     startStar: 1,
     lore: 'Fast hands, bad luck. Do not leave him next to a Saibaman.',
@@ -1183,6 +1834,8 @@ const HEROES = {
       ultimate: 'tien_ultimate',
     },
     art: { skin: '#f6d6ae', hair: 'none', hairStyle: 'thirdEye', gi: '#22c55e', trim: '#facc15', aura: '#4ade80' },
+    // Lent to the protagonist whether or not this companion is fielded.
+    bond: { label: 'Iron Discipline', flat: { hp: 55 }, pct: { atk: 0.012 } },
     startsOwned: false,
     startStar: 1,
     lore: 'Will trade his own life force for one more shot at the enemy.',
@@ -1190,6 +1843,22 @@ const HEROES = {
 };
 
 const HERO_IDS = Object.keys(HEROES);
+
+/** Derived rather than hard-coded, so the flag above is the single source. */
+const PROTAGONIST_ID = (() => {
+  const found = Object.values(HEROES).filter((h) => h.protagonist);
+  if (found.length !== 1) {
+    throw new Error(`expected exactly one protagonist, found ${found.length}`);
+  }
+  return found[0].id;
+})();
+
+function isProtagonist(heroId) {
+  return heroId === PROTAGONIST_ID;
+}
+
+/** Everyone who is not the protagonist: the allies you bring along.  */
+const ALLY_IDS = HERO_IDS.filter((id) => id !== PROTAGONIST_ID);
 
 function getHeroDef(id) {
   return HEROES[id] || null;
@@ -1475,9 +2144,85 @@ function getSkill(id) {
  * shop). Pool is deliberately tiny; adding items is a data-only change.
  *
  * PLACEHOLDER: all bonuses and the rarity spread are untuned.
+ *
+ * These carry real weight now. Since levels were slowed down so that level is
+ * no longer the only thing driving power, gear has to be one of the tracks
+ * taking up the slack \u2014 a full set should read as a genuine step up, not a
+ * rounding error next to a couple of levels.
  */
 
 const GEAR_SLOTS = ['weapon', 'chest', 'gloves', 'boots'];
+
+/**
+ * GEAR LEVEL \u2014 the main axis of gear progression.
+ *
+ * An item drops at a level and keeps it forever; there is no upgrading. What
+ * a level is worth: +8% of the item's own base stats, compounding linearly, so
+ * a Lv.10 piece is 1.7x its Lv.1 self and a Lv.40 piece is 4.1x.
+ *
+ * Level is NOT tied to the hero's level and has no ceiling of its own. What
+ * limits it is content: every drop source declares the band it rolls in, so
+ * the deepest thing you have unlocked is the best gear you can hold. Adding a
+ * saga raises the ceiling without touching this file.
+ *
+ * The multiplier applies to flat AND percentage bonuses alike. Percentages are
+ * the ones to watch when tuning \u2014 they compound with every other multiplier in
+ * statsFor() \u2014 so if late-game gear ever starts dwarfing the other power
+ * tracks, this constant is the knob, not the drop tables.
+ *
+ * PLACEHOLDER: 0.08 is a first pass, checked against tools/simulate.mjs.
+ */
+const GEAR_LEVEL_STEP = 0.08;
+
+function gearLevelMult(level = 1) {
+  return 1 + (Math.max(1, level) - 1) * GEAR_LEVEL_STEP;
+}
+
+/**
+ * GEAR SLOT LEVEL \u2014 the slow grind that runs underneath the drops.
+ *
+ * Each of the four slots carries its own level, bought with iron from
+ * dismantling gear you do not want. It multiplies whatever is IN that slot, so
+ * an empty slot is worth nothing and a slot level is worth more once you have
+ * something good in it.
+ *
+ * The step is deliberately tiny: one slot level is 1/20th of one gear level.
+ * Slot levels are a sink for surplus, not a substitute for finding better
+ * gear, and the numbers are meant to climb into the hundreds over a long game
+ * the way the reference does.
+ *
+ * PLACEHOLDER: 0.004 and the cost curve are first-pass guesses.
+ */
+const GEAR_SLOT_LEVEL_STEP = 0.004;
+
+function gearSlotMult(slotLevel = 0) {
+  return 1 + Math.max(0, slotLevel) * GEAR_SLOT_LEVEL_STEP;
+}
+
+/** Iron to take a slot from `level` to `level + 1`. */
+function slotUpgradeCost(level = 0) {
+  return Math.round(6 * Math.pow(1.035, Math.max(0, level)));
+}
+
+/**
+ * Iron from dismantling one piece. Scales with both of the item's axes so
+ * scrapping a deep drop is worth more than scrapping a starter piece \u2014 which
+ * keeps the surplus a late dungeon produces meaningful instead of dwarfed by
+ * the cost curve.
+ */
+function dismantleYield(def, level = 1) {
+  const byRarity = { common: 3, uncommon: 7, rare: 16, epic: 34, ssr: 70 };
+  return Math.max(1, Math.round((byRarity[def?.rarity] ?? 3) * gearLevelMult(level)));
+}
+
+/** An item's actual bonuses at a given level. */
+function statsAtLevel(def, level = 1) {
+  const mult = gearLevelMult(level);
+  const scale = (obj) => Object.fromEntries(
+    Object.entries(obj || {}).map(([k, v]) => [k, v * mult])
+  );
+  return { flat: scale(def.flat), pct: scale(def.pct) };
+}
 
 const GEAR_SLOT_META = {
   weapon: { name: 'Weapon', icon: '\u2694\ufe0f' },
@@ -1487,55 +2232,63 @@ const GEAR_SLOT_META = {
 };
 
 const GEAR = {
+  // The common tier has to cover all four slots on its own: the story drops
+  // nothing else, so without a common weapon the campaign could never fill
+  // that slot at all.
+  bamboo_staff: {
+    id: 'bamboo_staff', name: 'Bamboo Training Staff', slot: 'weapon',
+    rarity: 'common', icon: '\ud83c\udf8b',
+    flat: { atk: 9 }, pct: {},
+  },
   training_weights: {
     id: 'training_weights', name: 'Weighted Wristbands', slot: 'gloves',
     rarity: 'common', icon: '\ud83e\udde4',
-    flat: { atk: 4, def: 3 }, pct: {},
+    flat: { atk: 6, def: 5 }, pct: {},
   },
   turtle_gi: {
     id: 'turtle_gi', name: 'Turtle School Gi', slot: 'chest',
     rarity: 'common', icon: '\ud83e\udd4b',
-    flat: { hp: 90, def: 5 }, pct: {},
+    flat: { hp: 150, def: 8 }, pct: {},
   },
   worn_boots: {
     id: 'worn_boots', name: 'Worn Training Boots', slot: 'boots',
     rarity: 'common', icon: '\ud83d\udc62',
-    flat: { def: 4 }, pct: { speed: 0.04 },
+    flat: { def: 6 }, pct: { speed: 0.04 },
   },
   power_pole: {
     id: 'power_pole', name: 'Power Pole', slot: 'weapon',
     rarity: 'uncommon', icon: '\ud83e\udd62',
-    flat: { atk: 12 }, pct: { atk: 0.05 },
+    flat: { atk: 18 }, pct: { atk: 0.05 },
   },
   kame_belt: {
     id: 'kame_belt', name: 'Kame Sash', slot: 'chest',
     rarity: 'uncommon', icon: '\ud83c\udf80',
-    flat: { hp: 160, def: 8 }, pct: {},
+    flat: { hp: 260, def: 14 }, pct: { hp: 0.05 },
   },
   scouter: {
     id: 'scouter', name: 'Cracked Scouter', slot: 'gloves',
     rarity: 'uncommon', icon: '\ud83d\udd0e',
-    flat: { atk: 9 }, pct: { speed: 0.06 },
+    flat: { atk: 14 }, pct: { speed: 0.06 },
   },
   saiyan_boots: {
     id: 'saiyan_boots', name: 'Saiyan Battle Boots', slot: 'boots',
     rarity: 'rare', icon: '\ud83e\udd7e',
-    flat: { def: 12, hp: 90 }, pct: { speed: 0.08 },
+    flat: { def: 18, hp: 150 }, pct: { speed: 0.08 },
   },
   saiyan_armor: {
     id: 'saiyan_armor', name: 'Saiyan Battle Armor', slot: 'chest',
     rarity: 'rare', icon: '\ud83d\udee1\ufe0f',
-    flat: { hp: 320, def: 18 }, pct: { def: 0.1 },
+    flat: { hp: 520, def: 28 }, pct: { def: 0.12, hp: 0.08 },
   },
   kaio_gloves: {
     id: 'kaio_gloves', name: 'King Kai\u2019s Gloves', slot: 'gloves',
     rarity: 'rare', icon: '\ud83e\udd4a',
-    flat: { atk: 18 }, pct: { atk: 0.08 },
+    flat: { atk: 26 }, pct: { atk: 0.08 },
   },
   z_sword_shard: {
     id: 'z_sword_shard', name: 'Splintered Blade', slot: 'weapon',
     rarity: 'rare', icon: '\ud83d\udde1\ufe0f',
-    flat: { atk: 26 }, pct: { atk: 0.1 },
+    flat: { atk: 38 }, pct: { atk: 0.12 },
   },
 };
 
@@ -1617,8 +2370,18 @@ function getEnemyDef(id) {
  *   requiredPower   team power gate (the only gate in this pass \u2014 no
  *                   resource-gated obstacles yet)
  *   enemies         [{ defId, row, scale }] \u2014 `scale` multiplies final stats
- *   rewards         granted on every clear
+ *   rewards         granted on every clear: zeni, XP, senzu beans, shards, gear
  *   firstClear      one-time bonus on the first clear
+ *
+ * GEAR FROM THE STORY is deliberately poor: common only, and at low levels.
+ * The campaign's job is XP, beans and shards; gear is what dungeons are for.
+ * What the story does give is a floor \u2014 each boss stage drops one GUARANTEED
+ * piece at a level above anything the stage itself rolls, so beating a boss
+ * always hands you a usable piece and an entry ticket to the next dungeon
+ * band.
+ *
+ *   gearLevel       [lo, hi] band every ordinary drop from this stage rolls in
+ *   bossDrop        { defId, level } \u2014 one guaranteed piece, boss stages only
  *
  * PLACEHOLDER: power gates, reward amounts and drop chances are all untuned.
  */
@@ -1635,10 +2398,12 @@ const STAGES = [
     ],
     rewards: {
       zeni: 120,
+      xp: 70,
       shards: { tien: 2 },
+      gearLevel: [1, 2],
       gearTable: [{ defId: 'training_weights', chance: 0.5 }],
     },
-    firstClear: { zeni: 150, shards: { tien: 3 } },
+    firstClear: { senzu: 3, zeni: 150, shards: { tien: 3 } },
   },
   {
     id: 2,
@@ -1652,13 +2417,16 @@ const STAGES = [
     ],
     rewards: {
       zeni: 165,
+      xp: 130,
+      senzu: 1,
       shards: { tien: 2 },
+      gearLevel: [1, 3],
       gearTable: [
         { defId: 'turtle_gi', chance: 0.45 },
         { defId: 'worn_boots', chance: 0.4 },
       ],
     },
-    firstClear: { zeni: 200, shards: { tien: 4 } },
+    firstClear: { senzu: 3, zeni: 200, shards: { tien: 4 } },
   },
   {
     id: 3,
@@ -1671,13 +2439,17 @@ const STAGES = [
     ],
     rewards: {
       zeni: 230,
+      xp: 240,
+      senzu: 1,
       shards: { piccolo: 3 },
+      gearLevel: [1, 3],
+      bossDrop: { defId: 'bamboo_staff', level: 5 },
       gearTable: [
-        { defId: 'power_pole', chance: 0.4 },
-        { defId: 'scouter', chance: 0.35 },
+        { defId: 'bamboo_staff', chance: 0.4 },
+        { defId: 'training_weights', chance: 0.35 },
       ],
     },
-    firstClear: { zeni: 320, shards: { piccolo: 5 } },
+    firstClear: { senzu: 4, zeni: 320, shards: { piccolo: 5 } },
   },
   {
     id: 4,
@@ -1692,13 +2464,16 @@ const STAGES = [
     ],
     rewards: {
       zeni: 280,
+      xp: 380,
+      senzu: 2,
       shards: { gohan: 3 },
+      gearLevel: [2, 4],
       gearTable: [
-        { defId: 'kame_belt', chance: 0.4 },
-        { defId: 'scouter', chance: 0.3 },
+        { defId: 'turtle_gi', chance: 0.4 },
+        { defId: 'worn_boots', chance: 0.3 },
       ],
     },
-    firstClear: { zeni: 380, shards: { gohan: 5 } },
+    firstClear: { senzu: 5, zeni: 380, shards: { gohan: 5 } },
   },
   {
     id: 5,
@@ -1712,13 +2487,17 @@ const STAGES = [
     ],
     rewards: {
       zeni: 360,
+      xp: 620,
+      senzu: 3,
       shards: { piccolo: 4 },
+      gearLevel: [3, 5],
+      bossDrop: { defId: 'worn_boots', level: 8 },
       gearTable: [
-        { defId: 'saiyan_boots', chance: 0.3 },
-        { defId: 'kaio_gloves', chance: 0.3 },
+        { defId: 'training_weights', chance: 0.4 },
+        { defId: 'bamboo_staff', chance: 0.3 },
       ],
     },
-    firstClear: { zeni: 500, shards: { piccolo: 8, gohan: 4 } },
+    firstClear: { senzu: 8, zeni: 500, shards: { piccolo: 8, gohan: 4 } },
   },
   {
     id: 6,
@@ -1730,18 +2509,159 @@ const STAGES = [
     ],
     rewards: {
       zeni: 520,
+      xp: 950,
+      senzu: 4,
       shards: { gohan: 5 },
+      gearLevel: [4, 6],
+      bossDrop: { defId: 'turtle_gi', level: 12 },
       gearTable: [
-        { defId: 'saiyan_armor', chance: 0.3 },
-        { defId: 'z_sword_shard', chance: 0.25 },
+        { defId: 'turtle_gi', chance: 0.4 },
+        { defId: 'worn_boots', chance: 0.35 },
       ],
     },
-    firstClear: { zeni: 900, shards: { gohan: 10, tien: 10 } },
+    firstClear: { senzu: 12, zeni: 900, shards: { gohan: 10, tien: 10 } },
   },
 ];
 
 function getStage(id) {
   return STAGES.find((s) => s.id === id) || null;
+}
+
+/* ===== src/progression/dungeons.js ===== */
+/**
+ * progression/dungeons.js \u2014 Gear dungeons (data only).
+ *
+ * Dungeons sit beside the story, not inside it. The campaign is where the arc
+ * advances and where XP, senzu and shards come from; a dungeon is a repeatable
+ * boss fight whose only real payout is GEAR. Keeping the two payout tables
+ * disjoint is deliberate \u2014 it means a dungeon can be farmed freely without
+ * quietly inflating the companion economy that tools/economy.mjs models.
+ *
+ * Shape
+ *   id           save key prefix; a clear is stored as `${id}:${tier}`
+ *   saga         grouping label in the UI ("Z Dungeon" holds the Z arcs)
+ *   available    false renders the card greyed out as a signpost only
+ *   tiers        one entry per difficulty, keyed by DUNGEON_TIERS
+ *
+ * Tier shape
+ *   boss           who the tier is *about* \u2014 drives the card art and billing
+ *   requiredPower  recommended, warned about, never enforced
+ *   enemies        same descriptor the campaign uses
+ *   zeni           flat payout
+ *   drops          { rolls, weights, level } \u2014 see gear/index.js rollGearTable()
+ *
+ * The two axes move at very different speeds on purpose. RARITY climbs slowly
+ * \u2014 the whole Saiyan Saga runs common, common, uncommon, uncommon \u2014 while
+ * LEVEL climbs every tier. That makes level the thing you are actually farming
+ * for and leaves rarity as a rare, chunky milestone, which is why a tier can
+ * be worth running even when the one below it drops the same rarity.
+ *
+ * PLACEHOLDER: every number here is a first-pass guess. Run limits (keys,
+ * daily attempts, an energy currency) are the obvious next layer and are
+ * deliberately absent \u2014 right now a dungeon can be run as often as you like.
+ */
+
+/** Ordered easiest to hardest. Extreme is the bonus tier. */
+const DUNGEON_TIERS = ['easy', 'normal', 'hard', 'extreme'];
+
+const TIER_META = {
+  easy: {
+    id: 'easy', name: 'Easy', short: 'I',
+    color: '#4ade80', glow: 'rgba(74,222,128,0.5)',
+  },
+  normal: {
+    id: 'normal', name: 'Normal', short: 'II',
+    color: '#38bdf8', glow: 'rgba(56,189,248,0.5)',
+  },
+  hard: {
+    id: 'hard', name: 'Hard', short: 'III',
+    color: '#c084fc', glow: 'rgba(192,132,252,0.5)',
+  },
+  extreme: {
+    id: 'extreme', name: 'Extreme', short: 'EX',
+    color: '#fb7185', glow: 'rgba(251,113,133,0.55)',
+    bonus: true,
+  },
+};
+
+const DUNGEONS = [
+  {
+    id: 'z_saiyan',
+    saga: 'Z Dungeon',
+    name: 'Saiyan Saga',
+    subtitle: 'The invaders, fought on your terms.',
+    available: true,
+    tiers: {
+      easy: {
+        boss: 'raditz',
+        title: 'Raditz',
+        note: 'Alone, and not expecting a fight.',
+        requiredPower: 1800,
+        enemies: [{ defId: 'raditz', row: 'front', scale: 0.9 }],
+        zeni: 140,
+        drops: { rolls: 2, weights: { common: 100 }, level: [5, 10] },
+      },
+      normal: {
+        boss: 'nappa',
+        title: 'Nappa',
+        note: 'He brought help and still barely cares.',
+        requiredPower: 4200,
+        enemies: [
+          { defId: 'nappa', row: 'front', scale: 0.95 },
+          { defId: 'saibaman_elite', row: 'back', scale: 1.0 },
+        ],
+        zeni: 260,
+        drops: { rolls: 2, weights: { common: 100 }, level: [10, 18] },
+      },
+      hard: {
+        boss: 'vegeta',
+        title: 'Vegeta',
+        note: 'The prince, with nothing held back.',
+        requiredPower: 6300,
+        enemies: [{ defId: 'vegeta', row: 'front', scale: 1.0 }],
+        zeni: 420,
+        drops: { rolls: 2, weights: { uncommon: 100 }, level: [18, 28] },
+      },
+      extreme: {
+        boss: 'vegeta',
+        title: 'Raditz \u00b7 Nappa \u00b7 Vegeta',
+        note: 'Every Saiyan who ever landed, on the field together.',
+        requiredPower: 9000,
+        enemies: [
+          { defId: 'vegeta', row: 'front', scale: 1.12 },
+          { defId: 'nappa', row: 'front', scale: 1.08 },
+          { defId: 'raditz', row: 'back', scale: 1.05 },
+        ],
+        zeni: 700,
+        // PLACEHOLDER: rare is a bonus here rather than the expected drop \u2014
+        // the Namek saga is where rare should become routine, and epic lands
+        // in whatever tops the ladder after that.
+        drops: { rolls: 3, weights: { uncommon: 88, rare: 12 }, level: [28, 40] },
+      },
+    },
+  },
+  {
+    id: 'z_namek',
+    saga: 'Z Dungeon',
+    name: 'Namek Saga',
+    subtitle: 'Frieza\u2019s forces. Not yet open.',
+    available: false,
+    lockNote: 'Opens with the Namek arc.',
+    tiers: {},
+  },
+];
+
+function getDungeon(id) {
+  return DUNGEONS.find((d) => d.id === id) || null;
+}
+
+function getDungeonTier(id, tier) {
+  return getDungeon(id)?.tiers?.[tier] || null;
+}
+
+/** Save key for one cleared difficulty. */
+function dungeonKey(id, tier) {
+  return `${id}:${tier}`;
 }
 
 /* ===== src/save/index.js ===== */
@@ -1757,11 +2677,17 @@ function getStage(id) {
 
 
 
+
+// The key is deliberately NOT versioned: bumping it would orphan every save on
+// every device. SCHEMA_VERSION plus migrate() handle format changes in place.
 const STORAGE_KEY = 'dbz-rpg-prototype:v1';
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 9;
 
 /** PLACEHOLDER: starting purse. */
 const STARTING_ZENI = 800;
+
+/** PLACEHOLDER: enough to train one ally a couple of levels and see how it works. */
+const STARTING_SENZU = 3;
 
 /** PLACEHOLDER: shards the player begins with, to show unlock progress. */
 const STARTING_SHARDS = { piccolo: 4, gohan: 2, tien: 6 };
@@ -1780,24 +2706,37 @@ function defaultState() {
     heroes[def.id] = {
       owned: !!def.startsOwned,
       star: def.startsOwned ? (def.startStar ?? 1) : 0,
-      level: 1,
+      // Only the protagonist carries progression of his own: lifetime XP,
+      // from which his level is derived. Companions have no per-hero level \u2014
+      // theirs comes from the slots below.
+      xp: 0,
       equipped: emptyEquipped(),
     };
   }
 
-  const startingTeam = Object.values(HEROES)
-    .filter((h) => h.startsOwned)
-    .slice(0, 3)
+  // The protagonist always leads; allies fill the remaining slots.
+  const startingTeam = [HEROES[PROTAGONIST_ID], ...Object.values(HEROES)
+    .filter((h) => h.startsOwned && !isProtagonist(h.id))]
+    .slice(0, TEAM_SIZE)
     .map((h) => ({ heroId: h.id, row: h.preferredRow }));
 
   return {
     version: SCHEMA_VERSION,
     zeni: STARTING_ZENI,
+    senzu: STARTING_SENZU,
+    iron: 0,
     heroes,
     shards: { ...STARTING_SHARDS },
     gear: [],
+    // One level per gear slot, bought with iron. Independent of each other and
+    // of whatever item is in the slot.
+    gearSlotLevels: Object.fromEntries(GEAR_SLOTS.map((s) => [s, 0])),
     campaign: { cleared: {}, highestCleared: 0 },
+    // Dungeon clears, keyed `${dungeonId}:${tier}` \u2014 see progression/dungeons.js.
+    dungeons: { cleared: {} },
     team: startingTeam,
+    // One level per companion slot. Every companion fights at the lowest.
+    companionSlots: Array.from({ length: COMPANION_SLOTS }, () => ({ level: 1 })),
     stats: { battlesWon: 0, battlesLost: 0 },
   };
 }
@@ -1812,6 +2751,7 @@ function migrate(raw) {
 
   const merged = { ...base, ...raw, version: SCHEMA_VERSION };
   merged.heroes = { ...base.heroes };
+  let bestAllyLevel = 1;
   for (const [id, saved] of Object.entries(raw.heroes || {})) {
     if (!base.heroes[id]) continue; // hero removed from the game
     merged.heroes[id] = {
@@ -1819,14 +2759,73 @@ function migrate(raw) {
       ...saved,
       equipped: { ...emptyEquipped(), ...(saved.equipped || {}) },
     };
+    // v2 -> v3 levels became XP; v3 -> v4 allies went back to a stored level.
+    // v5 drops per-companion levels entirely \u2014 the slots carry it now \u2014 so a
+    // companion's old level is folded into the starting slot level instead of
+    // being thrown away.
+    const hero = merged.heroes[id];
+    const storedXp = Math.max(saved.xp ?? 0, xpToReach(saved.level ?? 1));
+    if (isProtagonist(id)) {
+      hero.xp = storedXp;
+    } else {
+      hero.xp = 0;
+      bestAllyLevel = Math.max(bestAllyLevel, saved.level ?? levelFromXp(storedXp));
+    }
+    delete hero.level;
   }
+  merged.senzu = Number.isFinite(raw.senzu) ? raw.senzu : base.senzu;
+  // v8 adds iron and per-slot levels. An older save simply has neither.
+  merged.iron = Number.isFinite(raw.iron) ? raw.iron : 0;
+  merged.gearSlotLevels = Object.fromEntries(
+    GEAR_SLOTS.map((s) => [s, Math.max(0, Math.round(raw.gearSlotLevels?.[s] ?? 0))])
+  );
   merged.shards = { ...raw.shards };
-  merged.gear = Array.isArray(raw.gear) ? raw.gear : [];
+  // v7 gives every gear instance a level. Anything from an older save was
+  // earned before levels existed, so it starts at 1 rather than being guessed
+  // at from where it might have dropped.
+  // v9 adds a lock flag. Anything from an older save starts unlocked.
+  merged.gear = (Array.isArray(raw.gear) ? raw.gear : []).map((g) => ({
+    ...g,
+    level: Math.max(1, Math.round(g.level ?? 1)),
+    locked: !!g.locked,
+  }));
   merged.campaign = { ...base.campaign, ...(raw.campaign || {}) };
   merged.campaign.cleared = { ...(raw.campaign?.cleared || {}) };
+  // v6 adds dungeons. An older save simply has none cleared.
+  merged.dungeons = { cleared: { ...(raw.dungeons?.cleared || {}) } };
   merged.team = Array.isArray(raw.team) ? raw.team.filter((s) => s && merged.heroes[s.heroId]) : base.team;
   merged.stats = { ...base.stats, ...(raw.stats || {}) };
+
+  // v1 -> v2: gear used to belong to every hero. Anything an ally was wearing
+  // goes back in the bag rather than quietly disappearing, and the protagonist
+  // is put back at the head of the team if an old save had him benched.
+  for (const [id, hero] of Object.entries(merged.heroes)) {
+    if (isProtagonist(id)) continue;
+    for (const slot of GEAR_SLOTS) {
+      const uid = hero.equipped[slot];
+      if (!uid) continue;
+      const inst = merged.gear.find((g) => g.uid === uid);
+      if (inst) inst.equippedBy = null;
+      hero.equipped[slot] = null;
+    }
+  }
+  merged.team = enforceProtagonist(merged.team, merged.heroes);
+
+  merged.companionSlots = Array.from({ length: COMPANION_SLOTS }, (_, i) => ({
+    level: Math.max(1, raw.companionSlots?.[i]?.level ?? bestAllyLevel),
+  }));
   return merged;
+}
+
+/**
+ * The protagonist is never absent and never anywhere but the first slot. Called
+ * on load and after any team edit, so no path can produce a team without him.
+ */
+function enforceProtagonist(team, heroes = getState().heroes) {
+  const rest = (team || []).filter((s) => s && s.heroId !== PROTAGONIST_ID && heroes[s.heroId]);
+  const lead = (team || []).find((s) => s && s.heroId === PROTAGONIST_ID)
+    || { heroId: PROTAGONIST_ID, row: HEROES[PROTAGONIST_ID].preferredRow };
+  return [lead, ...rest].slice(0, TEAM_SIZE);
 }
 
 let state = defaultState();
@@ -1904,13 +2903,14 @@ function emit() {
 
 
 
+
 let uidCounter = 0;
 
-/** Create an owned instance of a gear definition. */
-function createGearInstance(defId, seedUid) {
+/** Create an owned instance of a gear definition at a given level. */
+function createGearInstance(defId, level = 1, seedUid) {
   if (!GEAR[defId]) return null;
   const uid = seedUid || `g_${Date.now().toString(36)}_${(uidCounter++).toString(36)}`;
-  return { uid, defId, equippedBy: null };
+  return { uid, defId, level: Math.max(1, Math.round(level)), locked: false, equippedBy: null };
 }
 
 /**
@@ -1918,7 +2918,7 @@ function createGearInstance(defId, seedUid) {
  * { flat, pct } totals. Unknown / missing uids are ignored, so a save that
  * references deleted gear degrades gracefully.
  */
-function bonusesFor(equipped, gearInstances) {
+function bonusesFor(equipped, gearInstances, slotLevels = {}) {
   const flat = { atk: 0, hp: 0, def: 0, speed: 0 };
   const pct = { atk: 0, hp: 0, def: 0, speed: 0 };
   if (!equipped) return { flat, pct };
@@ -1929,34 +2929,132 @@ function bonusesFor(equipped, gearInstances) {
     const inst = gearInstances.find((g) => g.uid === uid);
     const def = inst && getGearDef(inst.defId);
     if (!def) continue;
+    // The instance's level is what makes two copies of the same item differ;
+    // the SLOT's level then multiplies whatever is sitting in it, which is why
+    // an empty slot's level is worth nothing.
+    const at = statsAtLevel(def, inst.level);
+    const sm = gearSlotMult(slotLevels[slot]);
     for (const k of Object.keys(flat)) {
-      if (def.flat && def.flat[k]) flat[k] += def.flat[k];
-      if (def.pct && def.pct[k]) pct[k] += def.pct[k];
+      if (at.flat[k]) flat[k] += at.flat[k] * sm;
+      if (at.pct[k]) pct[k] += at.pct[k] * sm;
     }
   }
   return { flat, pct };
 }
 
-/** Short "+12 ATK, +5% ATK" style summary for list rows. */
-function describeGear(def) {
+/** Short "+12 ATK, +5% ATK" style summary for list rows, at a given level. */
+function describeGear(def, level = 1) {
   if (!def) return '';
+  const at = statsAtLevel(def, level);
   const parts = [];
-  for (const [k, v] of Object.entries(def.flat || {})) parts.push(`+${v} ${k.toUpperCase()}`);
-  for (const [k, v] of Object.entries(def.pct || {})) parts.push(`+${Math.round(v * 100)}% ${k.toUpperCase()}`);
+  for (const [k, v] of Object.entries(at.flat)) parts.push(`+${Math.round(v)} ${k.toUpperCase()}`);
+  for (const [k, v] of Object.entries(at.pct)) parts.push(`+${Math.round(v * 100)}% ${k.toUpperCase()}`);
   return parts.join(' \u00b7 ');
 }
 
 /**
- * Roll a drop from a stage's drop table.
- * PLACEHOLDER: flat weighted roll, no pity, no level scaling.
- * table: [{ defId, weight, chance }]
+ * One number for "how good is this piece", used to rank the bag and the equip
+ * picker so the best option is always the first thing you see. Weights match
+ * computePower()'s intent closely enough for ordering; it is not a power value
+ * and is never shown.
  */
-function rollGearDrops(table) {
+function gearScore(inst) {
+  const def = getGearDef(inst?.defId);
+  if (!def) return 0;
+  const at = statsAtLevel(def, inst.level);
+  const W = { atk: 2.4, hp: 0.22, def: 1.8, speed: 60 };
+  let score = 0;
+  for (const [k, v] of Object.entries(at.flat)) score += v * (W[k] || 1);
+  // Percentages are worth more than their face value; scale them against a
+  // rough mid-game stat line so the two halves are comparable.
+  const REF = { atk: 200, hp: 4000, def: 100, speed: 1 };
+  for (const [k, v] of Object.entries(at.pct)) score += v * (REF[k] || 1) * (W[k] || 1);
+  return score;
+}
+
+/** Best first. Ties break on rarity, then level, so the order is stable. */
+function sortGear(list) {
+  return [...list].sort((a, b) => {
+    const d = gearScore(b) - gearScore(a);
+    if (Math.abs(d) > 0.01) return d;
+    const ra = rarityOf(getGearDef(a.defId)?.rarity).order;
+    const rb = rarityOf(getGearDef(b.defId)?.rarity).order;
+    return rb - ra || (b.level || 1) - (a.level || 1);
+  });
+}
+
+/**
+ * Roll a drop from a stage's drop table. Named items, each with its own
+ * chance, at a level rolled from the stage's band.
+ * PLACEHOLDER: no pity timer.
+ * table: [{ defId, chance }]
+ */
+function rollGearDrops(table, levelBand) {
   const drops = [];
   for (const entry of table || []) {
-    if (Math.random() < (entry.chance ?? 0.35)) drops.push(entry.defId);
+    if (Math.random() < (entry.chance ?? 0.35)) {
+      drops.push({ defId: entry.defId, level: rollLevel(levelBand) });
+    }
   }
   return drops;
+}
+
+/**
+ * A level from an inclusive [lo, hi] band. This is the only thing limiting
+ * gear level in the game: every drop source declares its band, so how good a
+ * piece you can hold is set by how deep you have got, not by a cap constant
+ * and not by your hero's level.
+ */
+function rollLevel(band) {
+  if (!band) return 1;
+  const [lo, hi] = Array.isArray(band) ? band : [band, band];
+  return lo + Math.floor(Math.random() * (hi - lo + 1));
+}
+
+/** Every gear id of a given rarity. */
+function gearIdsByRarity(rarity) {
+  return GEAR_IDS.filter((id) => GEAR[id].rarity === rarity);
+}
+
+/**
+ * Dungeon-style drop: roll a RARITY from weights, then a random item of that
+ * rarity. This is the difference between the two systems \u2014 a campaign stage
+ * drops specific named items tied to its story beat, a dungeon drops "gear of
+ * roughly this quality", which is what makes difficulty tiers mean something.
+ *
+ * A rarity with no items defined yet (epic, ssr) walks back down the ladder
+ * rather than dropping nothing, so adding higher-rarity gear later needs no
+ * change to any dungeon's table.
+ *
+ * spec: { rolls, weights: { common: 80, uncommon: 20, ... }, level: [lo, hi] }
+ */
+function rollGearTable(spec) {
+  const weights = Object.entries(spec?.weights || {}).filter(([, w]) => w > 0);
+  const total = weights.reduce((sum, [, w]) => sum + w, 0);
+  if (!total) return [];
+
+  const drops = [];
+  for (let i = 0; i < (spec.rolls || 1); i += 1) {
+    let roll = Math.random() * total;
+    let rarity = weights[weights.length - 1][0];
+    for (const [id, w] of weights) {
+      roll -= w;
+      if (roll <= 0) { rarity = id; break; }
+    }
+    const id = pickOfRarityOrBelow(rarity);
+    if (id) drops.push({ defId: id, level: rollLevel(spec.level) });
+  }
+  return drops;
+}
+
+function pickOfRarityOrBelow(rarity) {
+  let idx = RARITY_ORDER.indexOf(rarity);
+  if (idx < 0) idx = 0;
+  for (let i = idx; i >= 0; i -= 1) {
+    const pool = gearIdsByRarity(RARITY_ORDER[i]);
+    if (pool.length) return pool[Math.floor(Math.random() * pool.length)];
+  }
+  return null;
 }
 
 /* ===== src/inventory/index.js ===== */
@@ -1967,6 +3065,7 @@ function rollGearDrops(table) {
  * exactly one place that touches the numbers (and one place to add analytics,
  * animations or anti-cheat later).
  */
+
 
 
 
@@ -1987,6 +3086,45 @@ function spendZeni(amount) {
   const s = getState();
   if (s.zeni < amount) return false;
   s.zeni -= amount;
+  persist();
+  return true;
+}
+
+/* ---------------- senzu beans ---------------- */
+
+function senzu() {
+  return getState().senzu;
+}
+
+function addSenzu(amount) {
+  getState().senzu += amount;
+  persist();
+}
+
+function spendSenzu(amount) {
+  const s = getState();
+  if (s.senzu < amount) return false;
+  s.senzu -= amount;
+  persist();
+  return true;
+}
+
+/* ---------------- iron ---------------- */
+
+function iron() {
+  return getState().iron || 0;
+}
+
+function addIron(amount) {
+  const s = getState();
+  s.iron = (s.iron || 0) + amount;
+  persist();
+}
+
+function spendIron(amount) {
+  const s = getState();
+  if ((s.iron || 0) < amount) return false;
+  s.iron -= amount;
   persist();
   return true;
 }
@@ -2021,8 +3159,8 @@ function gearByUid(uid) {
   return getState().gear.find((g) => g.uid === uid) || null;
 }
 
-function addGear(defId) {
-  const inst = createGearInstance(defId);
+function addGear(defId, level = 1) {
+  const inst = createGearInstance(defId, level);
   if (!inst) return null;
   getState().gear.push(inst);
   persist();
@@ -2041,8 +3179,14 @@ function availableGearForSlot(slot) {
  * Equip an item onto a hero. Handles swapping out whatever occupied the slot
  * and stealing the item off another hero if it was equipped elsewhere.
  */
+/**
+ * Gear belongs to the protagonist alone. Allies have no equipment slots, which
+ * keeps the hierarchy clear and keeps the bag from becoming six parallel
+ * inventories to manage on a phone screen.
+ */
 function equipGear(heroId, uid) {
   const s = getState();
+  if (!isProtagonist(heroId)) return false;
   const inst = gearByUid(uid);
   const hero = s.heroes[heroId];
   if (!inst || !hero) return false;
@@ -2079,22 +3223,130 @@ function unequipGear(heroId, slot) {
   return true;
 }
 
+/**
+ * Scrap a piece for iron. Equipped gear is refused rather than silently
+ * unequipped \u2014 dismantling is destructive and should never be something that
+ * happens to the item you are currently wearing by accident.
+ * Returns the iron gained, or 0 if nothing happened.
+ */
+function dismantleGear(uid) {
+  const s = getState();
+  const idx = s.gear.findIndex((g) => g.uid === uid);
+  if (idx < 0) return 0;
+  const inst = s.gear[idx];
+  if (!canDismantle(inst)) return 0;
+  const def = getGearDef(inst.defId);
+  if (!def) return 0;
+
+  const gained = dismantleYield(def, inst.level);
+  s.gear.splice(idx, 1);
+  s.iron = (s.iron || 0) + gained;
+  persist();
+  return gained;
+}
+
+/** Equipped and locked gear is never scrappable, by either path. */
+function canDismantle(inst) {
+  return !!inst && !inst.equippedBy && !inst.locked;
+}
+
+/** Scrap a batch. Returns the total iron and how many pieces actually went. */
+function dismantleMany(uids) {
+  let iron = 0;
+  let count = 0;
+  for (const uid of uids) {
+    const gained = dismantleGear(uid);
+    if (gained) { iron += gained; count += 1; }
+  }
+  return { iron, count };
+}
+
+/** Lock a piece against scrapping, or unlock it. Returns the new state. */
+function toggleGearLock(uid) {
+  const inst = gearByUid(uid);
+  if (!inst) return false;
+  inst.locked = !inst.locked;
+  persist();
+  return inst.locked;
+}
+
+/**
+ * The pieces the dismantle screen is allowed to offer, and why each one is or
+ * is not on the table. `excludeUpgrades` is the "don't let me scrap something
+ * I should be wearing" safety net.
+ *
+ * What that protects is the single BEST piece you own for each slot, counting
+ * the equipped one. Protecting everything that merely beats what is equipped
+ * looked right until a slot was empty \u2014 then every piece for it beat nothing
+ * and the whole slot became unscrappable. Best-per-slot says the same thing
+ * where it matters and stays true when the slot is bare.
+ */
+function dismantleCandidates({ excludeUpgrades = true } = {}) {
+  const best = bestPerSlot();
+  return getState().gear
+    .filter((inst) => !inst.equippedBy)
+    .map((inst) => {
+      const def = getGearDef(inst.defId);
+      const isBest = !!def && best.get(def.slot) === inst.uid;
+      const blocked = inst.locked ? 'locked' : (excludeUpgrades && isBest ? 'best' : null);
+      return { inst, isBest, blocked, yield: dismantleYield(def, inst.level) };
+    });
+}
+
+/** uid of the strongest piece owned for each slot, equipped or not. */
+function bestPerSlot() {
+  const best = new Map();
+  const score = new Map();
+  for (const inst of getState().gear) {
+    const def = getGearDef(inst.defId);
+    if (!def) continue;
+    const s = gearScore(inst);
+    if (!best.has(def.slot) || s > score.get(def.slot)) {
+      best.set(def.slot, inst.uid);
+      score.set(def.slot, s);
+    }
+  }
+  return best;
+}
+
+/** What one slot upgrade costs and whether it is affordable right now. */
+function slotUpgradeInfo(slot) {
+  if (!GEAR_SLOTS.includes(slot)) return null;
+  const level = getState().gearSlotLevels?.[slot] ?? 0;
+  const cost = slotUpgradeCost(level);
+  return { slot, level, cost, haveIron: iron(), canUpgrade: iron() >= cost };
+}
+
+/** Spend iron to raise one gear slot a level. */
+function upgradeGearSlot(slot) {
+  const info = slotUpgradeInfo(slot);
+  if (!info || !info.canUpgrade) return false;
+  if (!spendIron(info.cost)) return false;
+  getState().gearSlotLevels[slot] = info.level + 1;
+  persist();
+  return true;
+}
+
 /** Grant a batch of rewards from a stage clear. Returns a display summary. */
-function grantRewards({ zeni: z = 0, shards: sh = {}, gear: gearDefIds = [] } = {}) {
-  const summary = { zeni: z, shards: [], gear: [] };
+function grantRewards({ zeni: z = 0, senzu: sz = 0, shards: sh = {}, gear: gearDrops = [] } = {}) {
+  const summary = { zeni: z, senzu: sz, shards: [], gear: [] };
   if (z) addZeni(z);
+  if (sz) addSenzu(sz);
   for (const [heroId, amount] of Object.entries(sh)) {
     if (!amount) continue;
     addShards(heroId, amount);
     summary.shards.push({ heroId, amount });
   }
-  for (const defId of gearDefIds) {
-    const inst = addGear(defId);
-    if (inst) summary.gear.push(getGearDef(defId));
+  // Gear arrives as { defId, level } \u2014 the level is rolled by whichever
+  // source granted it and is fixed from here on.
+  for (const drop of gearDrops) {
+    const { defId, level = 1 } = typeof drop === 'string' ? { defId: drop } : drop;
+    const inst = addGear(defId, level);
+    if (inst) summary.gear.push({ ...getGearDef(defId), level: inst.level, uid: inst.uid });
   }
   return summary;
 }
-const inventory = { zeni, addZeni, spendZeni, shards, addShards, spendShards, allGear, gearByUid, addGear, availableGearForSlot, equipGear, unequipGear, grantRewards };
+const inventory = { zeni, addZeni, spendZeni, senzu, addSenzu, spendSenzu, iron, addIron, spendIron, shards, addShards, spendShards, allGear, gearByUid, addGear, availableGearForSlot, equipGear, unequipGear, dismantleGear, canDismantle, dismantleMany, toggleGearLock, dismantleCandidates, slotUpgradeInfo, upgradeGearSlot, grantRewards };
 
 /* ===== src/skills/index.js ===== */
 /**
@@ -2189,6 +3441,114 @@ function heroSave(heroId) {
   return getState().heroes[heroId] || null;
 }
 
+/**
+ * The protagonist's level is derived from lifetime XP. Companions have no level
+ * of their own \u2014 they all fight at the companion level below.
+ */
+function levelOf(heroId) {
+  const hs = heroSave(heroId);
+  if (!hs) return 1;
+  return isProtagonist(heroId) ? levelFromXp(hs.xp || 0) : companionLevel();
+}
+
+/** Companions can never pass the protagonist. */
+function companionLevelCap() {
+  return Math.min(MAX_LEVEL, levelOf(PROTAGONIST_ID) + COMPANION_LEVEL_CAP_OFFSET);
+}
+
+/**
+ * The level every companion fights at: the LOWEST slot, capped at the hero's
+ * level. Running one slot ahead of the other buys nothing, which is what forces
+ * the investment to be spread rather than dumped into a favourite.
+ */
+function companionLevel() {
+  const slots = getState().companionSlots || [];
+  if (!slots.length) return 1;
+  return Math.min(companionLevelCap(), ...slots.map((s) => s.level || 1));
+}
+
+/** Per-slot state for the training panel. */
+function slotInfo(index) {
+  const slots = getState().companionSlots || [];
+  const slot = slots[index];
+  if (!slot) return null;
+  const level = slot.level || 1;
+  const lowest = Math.min(...slots.map((s) => s.level || 1));
+  const cap = companionLevelCap();
+  const atMax = level >= MAX_LEVEL;
+  const atCap = level >= cap;
+  const zeniCost = slotTrainZeni(level);
+  const senzuCost = slotTrainSenzu(level);
+  return {
+    index, level, cap, atCap, atMax,
+    // A slot above the lowest is not the level companions are fighting at, so
+    // raising it further changes nothing until the other one catches up.
+    binding: level === lowest,
+    zeniCost, senzuCost,
+    haveZeni: inventory.zeni(), haveSenzu: inventory.senzu(),
+    canTrain: !atCap && !atMax
+      && inventory.zeni() >= zeniCost && inventory.senzu() >= senzuCost,
+  };
+}
+
+/** Spend beans and zeni to raise one companion slot. */
+function trainSlot(index) {
+  const info = slotInfo(index);
+  if (!info || !info.canTrain) return false;
+  // Take the scarce resource first: if beans are short, nothing is spent.
+  if (!inventory.spendSenzu(info.senzuCost)) return false;
+  if (!inventory.spendZeni(info.zeniCost)) {
+    inventory.addSenzu(info.senzuCost);
+    return false;
+  }
+  getState().companionSlots[index].level = info.level + 1;
+  persist();
+  return true;
+}
+
+/* ---------------- bonds ---------------- */
+
+/** Which companions are currently fielded. */
+function equippedCompanions() {
+  return new Set(
+    getState().team.filter((s) => s?.heroId && !isProtagonist(s.heroId)).map((s) => s.heroId)
+  );
+}
+
+/**
+ * What one companion lends, at its current star rank and slot share. Null for
+ * the protagonist and for anyone not yet recruited.
+ */
+function bondOf(heroId) {
+  const def = getHeroDef(heroId);
+  const hs = heroSave(heroId);
+  if (!def?.bond || !hs?.owned || isProtagonist(heroId)) return null;
+  const mult = (BOND_RARITY_MULT[def.rarity] ?? 1)
+    * (BOND_STAR_MULT[Math.min(hs.star, BOND_STAR_MULT.length - 1)] ?? 0);
+  const share = equippedCompanions().has(heroId) ? BOND_EQUIPPED_SHARE : BOND_COLLECTED_SHARE;
+  const scale = mult * share;
+  const flat = {};
+  const pct = {};
+  for (const [k, v] of Object.entries(def.bond.flat || {})) flat[k] = v * scale;
+  for (const [k, v] of Object.entries(def.bond.pct || {})) pct[k] = v * scale;
+  return { label: def.bond.label, equipped: share === BOND_EQUIPPED_SHARE, flat, pct };
+}
+
+/** Everything the collection lends the protagonist, summed. */
+function bondTotals() {
+  const flat = { atk: 0, hp: 0, def: 0, speed: 0 };
+  const pct = { atk: 0, hp: 0, def: 0, speed: 0 };
+  for (const id of ALLY_IDS) {
+    const bond = bondOf(id);
+    if (!bond) continue;
+    for (const k of Object.keys(flat)) {
+      flat[k] += bond.flat[k] || 0;
+      pct[k] += bond.pct[k] || 0;
+    }
+  }
+  return { flat, pct };
+}
+
 function isOwned(heroId) {
   const hs = heroSave(heroId);
   return !!(hs && hs.owned);
@@ -2219,11 +3579,20 @@ function statsFor(heroId, override = {}) {
   if (!def) return { atk: 0, hp: 0, def: 0, speed: 1 };
   const hs = heroSave(heroId) || { star: 0, level: 1, equipped: {} };
   const star = override.star ?? hs.star;
-  const level = override.level ?? hs.level;
+  const level = override.level ?? levelOf(heroId);
   const equipped = override.equipped ?? hs.equipped;
 
   const base = baseStatsAt(def, star, level);
-  const { flat, pct } = bonusesFor(equipped, getState().gear);
+  const { flat, pct } = bonusesFor(equipped, getState().gear, getState().gearSlotLevels);
+
+  // Bonds land on the protagonist only \u2014 he is the one the collection lends to.
+  if (isProtagonist(heroId) && override.bonds !== false) {
+    const bonds = bondTotals();
+    for (const k of Object.keys(flat)) {
+      flat[k] += bonds.flat[k] || 0;
+      pct[k] += bonds.pct[k] || 0;
+    }
+  }
 
   return {
     atk: Math.round((base.atk + flat.atk) * (1 + pct.atk)),
@@ -2288,8 +3657,9 @@ function promoteInfo(heroId) {
   const atMax = hs.star >= MAX_STARS;
   const cost = atMax ? 0 : STAR_PROMOTE_SHARDS[hs.star];
   const have = inventory.shards(heroId);
-  const current = baseStatsAt(def, hs.star, hs.level);
-  const next = atMax ? current : baseStatsAt(def, hs.star + 1, hs.level);
+  const level = levelOf(heroId);
+  const current = baseStatsAt(def, hs.star, level);
+  const next = atMax ? current : baseStatsAt(def, hs.star + 1, level);
   return { star: hs.star, atMax, cost, have, canPromote: !atMax && have >= cost, current, next };
 }
 
@@ -2304,24 +3674,57 @@ function promote(heroId) {
 
 /* ---------------- levelling ---------------- */
 
-function levelInfo(heroId) {
+/** Everything the UI needs to draw an XP bar. */
+function xpInfo(heroId) {
   const hs = heroSave(heroId);
   if (!hs) return null;
-  const atMax = hs.level >= MAX_LEVEL;
-  const cost = atMax ? 0 : levelUpCost(hs.level);
-  return { level: hs.level, atMax, cost, have: inventory.zeni(), canLevel: !atMax && inventory.zeni() >= cost };
+  const level = levelOf(heroId);
+  const atMax = level >= MAX_LEVEL;
+  const xp = hs.xp || 0;
+  const base = xpToReach(level);
+  const needed = atMax ? 0 : xpForLevel(level);
+  const into = atMax ? 0 : xp - base;
+  return { level, atMax, xp, into, needed, pct: atMax ? 100 : Math.min(100, (into / needed) * 100) };
 }
 
-function levelUp(heroId) {
-  const info = levelInfo(heroId);
-  if (!info || !info.canLevel) return false;
-  if (!inventory.spendZeni(info.cost)) return false;
-  heroSave(heroId).level += 1;
+/**
+ * Award XP and report what it bought. Levels fall out of the total, so this
+ * cannot desynchronise from the stored value.
+ */
+function grantXp(heroId, amount) {
+  const hs = heroSave(heroId);
+  if (!hs || !hs.owned || amount <= 0) return { gained: 0, from: 1, to: 1 };
+  const from = levelOf(heroId);
+  hs.xp = (hs.xp || 0) + Math.round(amount);
+  const to = levelOf(heroId);
   persist();
-  return true;
+  return { gained: Math.round(amount), from, to };
+}
+
+/**
+ * Battle XP belongs to the protagonist alone. Allies learn nothing from
+ * fighting \u2014 they are trained with beans and zeni instead, so that the two
+ * tracks stay distinct and his is the one the campaign feeds.
+ */
+function awardBattleXp(amount) {
+  const res = grantXp(PROTAGONIST_ID, amount);
+  return res.gained ? [{ heroId: PROTAGONIST_ID, ...res }] : [];
 }
 
 /* ---------------- roster view model ---------------- */
+
+/**
+ * The collection grid: companions actually recruited. Ones you do not own are
+ * deliberately absent \u2014 the Bag tracks shard progress toward them instead.
+ */
+function allyEntries() {
+  return rosterEntries().filter((e) => !isProtagonist(e.id) && e.owned);
+}
+
+/** Companions you have enough shards to recruit right now. */
+function recruitableEntries() {
+  return rosterEntries().filter((e) => !isProtagonist(e.id) && !e.owned && e.unlock.canUnlock);
+}
 
 function rosterEntries() {
   return HERO_IDS.map((id) => {
@@ -2330,8 +3733,9 @@ function rosterEntries() {
     const owned = !!hs?.owned;
     return {
       id, def, rarity: rarityOf(def.rarity), owned,
+      protagonist: isProtagonist(id),
       star: hs?.star ?? 0,
-      level: hs?.level ?? 1,
+      level: levelOf(id),
       power: owned ? powerOf(id) : 0,
       unlock: unlockInfo(id),
     };
@@ -2343,6 +3747,8 @@ function rosterEntries() {
  * progression/index.js \u2014 Campaign state: which stages are open, what a clear
  * pays out, and how the enemy team for a stage is built.
  */
+
+
 
 
 
@@ -2385,9 +3791,13 @@ function nextStage() {
 
 /** Build the concrete enemy units for a stage (pre-battle preview + combat). */
 function buildEnemyTeam(stageId) {
-  const stage = getStage(stageId);
-  if (!stage) return [];
-  return stage.enemies.map((entry, i) => {
+  return buildUnits(getStage(stageId)?.enemies);
+}
+
+/** Shared by stages and dungeons \u2014 both describe enemies the same way. */
+function buildUnits(entries) {
+  if (!entries) return [];
+  return entries.map((entry, i) => {
     const def = getEnemyDef(entry.defId);
     if (!def) return null;
     const scale = entry.scale ?? 1;
@@ -2411,7 +3821,11 @@ function buildEnemyTeam(stageId) {
 
 /** Rough "how hard is this" number, shown next to the team's power. */
 function stagePower(stageId) {
-  return buildEnemyTeam(stageId).reduce(
+  return unitsPower(buildEnemyTeam(stageId));
+}
+
+function unitsPower(units) {
+  return units.reduce(
     (sum, e) => sum + Math.round(e.stats.atk * 2.4 + e.stats.hp * 0.22 + e.stats.def * 1.8),
     0
   );
@@ -2428,15 +3842,27 @@ function completeStage(stageId) {
 
   const shards = { ...(stage.rewards.shards || {}) };
   let zeni = stage.rewards.zeni || 0;
+  let senzu = stage.rewards.senzu || 0;
   if (first && stage.firstClear) {
     zeni += stage.firstClear.zeni || 0;
+    senzu += stage.firstClear.senzu || 0;
     for (const [heroId, amount] of Object.entries(stage.firstClear.shards || {})) {
       shards[heroId] = (shards[heroId] || 0) + amount;
     }
   }
 
-  const gear = rollGearDrops(stage.rewards.gearTable);
-  const summary = inventory.grantRewards({ zeni, shards, gear });
+  const gear = rollGearDrops(stage.rewards.gearTable, stage.rewards.gearLevel);
+  // A boss stage always hands over one piece, at a level above anything it
+  // rolls \u2014 so clearing a boss is never a dry run and always moves the gear
+  // floor up.
+  if (stage.rewards.bossDrop) gear.push({ ...stage.rewards.bossDrop });
+  const summary = inventory.grantRewards({ zeni, senzu, shards, gear });
+
+  // XP is not an inventory item \u2014 it goes straight to the roster. First clears
+  // pay double, which is what makes pushing forward better than farming.
+  const xp = (stage.rewards.xp || 0) * (first ? 2 : 1);
+  summary.xp = xp;
+  summary.levels = awardBattleXp(xp).filter((r) => r.to > r.from);
 
   const st = getState();
   st.campaign.cleared[stageId] = true;
@@ -2450,6 +3876,148 @@ function completeStage(stageId) {
 function recordDefeat() {
   getState().stats.battlesLost += 1;
   persist();
+}
+
+/* ==========================================================================
+   DUNGEONS
+
+   Repeatable gear fights, kept structurally separate from the campaign: a
+   dungeon has no story position, no XP, no senzu and no shards. It exists so
+   the gear track has a source the player controls, rather than gear arriving
+   only as a side effect of pushing the story forward.
+   ========================================================================== */
+
+function isDungeonCleared(dungeonId, tier) {
+  return !!getState().dungeons.cleared[dungeonKey(dungeonId, tier)];
+}
+
+/**
+ * View model for the dungeon screen: every dungeon, each with its four
+ * difficulties resolved against what the player has cleared.
+ *
+ * A tier opens when the one below it is cleared, and Easy is always open. As
+ * on the campaign, `requiredPower` is a warning rather than a wall \u2014 the
+ * difficulty ladder is the real gate.
+ */
+function dungeonList() {
+  const power = teamPower();
+  return DUNGEONS.map((dungeon) => ({
+    dungeon,
+    available: dungeon.available,
+    tiers: DUNGEON_TIERS.map((tier, idx) => {
+      const def = dungeon.tiers[tier];
+      if (!def) return null;
+      const prev = DUNGEON_TIERS[idx - 1];
+      return {
+        tier,
+        meta: TIER_META[tier],
+        def,
+        cleared: isDungeonCleared(dungeon.id, tier),
+        locked: !!prev && !isDungeonCleared(dungeon.id, prev),
+        underpowered: power < def.requiredPower,
+        enemies: buildUnits(def.enemies),
+      };
+    }).filter(Boolean),
+  }));
+}
+
+function buildDungeonEnemies(dungeonId, tier) {
+  return buildUnits(getDungeonTier(dungeonId, tier)?.enemies);
+}
+
+/**
+ * Pay out a dungeon clear. Gear and zeni only \u2014 see the note at the top of
+ * this block for why nothing else belongs here.
+ */
+function completeDungeon(dungeonId, tier) {
+  const def = getDungeonTier(dungeonId, tier);
+  if (!def) return null;
+  const first = !isDungeonCleared(dungeonId, tier);
+
+  const summary = inventory.grantRewards({
+    zeni: def.zeni || 0,
+    gear: rollGearTable(def.drops),
+  });
+  summary.xp = 0;
+  summary.levels = [];
+
+  const st = getState();
+  st.dungeons.cleared[dungeonKey(dungeonId, tier)] = true;
+  st.stats.battlesWon += 1;
+  persist();
+
+  // Dungeons pay the same on every run \u2014 there is no first-clear bonus to
+  // announce. What a first clear *does* do is open the next difficulty, so
+  // that is what the results screen gets told about.
+  const next = DUNGEON_TIERS[DUNGEON_TIERS.indexOf(tier) + 1];
+  const unlocked = first && next && getDungeonTier(dungeonId, next)
+    ? TIER_META[next].name
+    : null;
+
+  return { ...summary, firstClear: false, unlocked, dungeon: getDungeon(dungeonId), tier };
+}
+
+/* ==========================================================================
+   ENCOUNTERS
+
+   The battle and results screens do not care whether a fight came from the
+   story or a dungeon \u2014 they need a name, a lineup, a recommended power and
+   something to call on victory. An encounter reference is the small
+   serialisable value that carries that, so those screens have exactly one
+   code path and adding a third source of fights later touches neither.
+   ========================================================================== */
+
+function stageRef(stageId) {
+  return { kind: 'stage', stageId: Number(stageId) };
+}
+
+function dungeonRef(dungeonId, tier) {
+  return { kind: 'dungeon', dungeonId, tier };
+}
+
+/** Everything the pre-battle and battle screens need to draw an encounter. */
+function encounterInfo(ref) {
+  if (ref?.kind === 'dungeon') {
+    const dungeon = getDungeon(ref.dungeonId);
+    const def = getDungeonTier(ref.dungeonId, ref.tier);
+    if (!dungeon || !def) return null;
+    const meta = TIER_META[ref.tier];
+    return {
+      kind: 'dungeon',
+      title: `${dungeon.name} \u00b7 ${meta.name}`,
+      shortTitle: `${meta.name} \u2014 ${def.title}`,
+      subtitle: def.note,
+      requiredPower: def.requiredPower,
+      enemies: buildUnits(def.enemies),
+      accent: meta.color,
+      cleared: isDungeonCleared(ref.dungeonId, ref.tier),
+    };
+  }
+
+  const stage = getStage(ref?.stageId);
+  if (!stage) return null;
+  return {
+    kind: 'stage',
+    title: `${stage.id}. ${stage.name}`,
+    shortTitle: stage.name,
+    subtitle: stage.subtitle,
+    requiredPower: stage.requiredPower,
+    enemies: buildEnemyTeam(stage.id),
+    accent: null,
+    cleared: isCleared(stage.id),
+  };
+}
+
+function buildEncounterEnemies(ref) {
+  return ref?.kind === 'dungeon'
+    ? buildDungeonEnemies(ref.dungeonId, ref.tier)
+    : buildEnemyTeam(ref?.stageId);
+}
+
+function completeEncounter(ref) {
+  return ref?.kind === 'dungeon'
+    ? completeDungeon(ref.dungeonId, ref.tier)
+    : completeStage(ref?.stageId);
 }
 
 /* ===== src/battle/targeting.js ===== */
@@ -2631,6 +4199,7 @@ function makeUnit(desc, side) {
     engages: engagesInMelee(desc.row === 'back' ? 'back' : 'front', skills.attack),
     readyAt: 0,
     targetUid: null,
+    recover: 0,
     techniqueTimer: skills.technique ? (skills.technique.cooldown || 8) * 0.6 : Infinity,
     ultimateCharge: 0,
     ultimateReady: false,
@@ -2674,6 +4243,8 @@ function createBattle({ playerUnits = [], enemyUnits = [], stageId = null } = {}
     stageId,
     units,
     elapsed: 0,
+    freeze: 0,             // seconds of held time left after an ultimate
+    frozenTotal: 0,        // seconds spent in time-stop, excluded from `elapsed`
     state: 'running',      // 'running' | 'victory' | 'defeat'
     events: [],
     _accumulator: 0,
@@ -2704,6 +4275,7 @@ function createBattle({ playerUnits = [], enemyUnits = [], stageId = null } = {}
   battle.requestUltimate = (uid) => {
     const unit = battle.unitById(uid);
     if (!unit || !unit.alive || !unit.ultimateReady) return false;
+    if (unit.recover > 0 || battle.freeze > 0) return false;
     castSkill(battle, unit, unit.skills.ultimate, 'ultimate');
     unit.ultimateCharge = 0;
     unit.ultimateReady = false;
@@ -2724,6 +4296,19 @@ function createBattle({ playerUnits = [], enemyUnits = [], stageId = null } = {}
 
     while (battle._accumulator >= step && battle.state === 'running') {
       battle._accumulator -= step;
+
+      // Time-stop: the world is held, so the clock does not advance and no
+      // timer moves. The ultimate's animation is on the wall clock and plays
+      // straight through it.
+      if (battle.freeze > 0) {
+        battle.freeze -= step;
+        battle.frozenTotal += step;
+        if (battle.freeze <= 0) {
+          battle.freeze = 0;
+          battle.events.push({ t: 'unfreeze' });
+        }
+        continue;
+      }
       tick(battle, step);
     }
     return battle.events;
@@ -2736,6 +4321,9 @@ function tick(battle, dt) {
   battle.elapsed += dt;
 
   for (const unit of battle.units) {
+    // An ultimate fired earlier in this same pass: nobody else gets to act on
+    // the tick that started the time-stop.
+    if (battle.freeze > 0) break;
     if (!unit.alive) continue;
 
     // 1. buffs expire
@@ -2749,24 +4337,30 @@ function tick(battle, dt) {
     // Still closing the distance \u2014 no attacking, charging or cooling down yet.
     if (battle.elapsed < unit.readyAt) continue;
 
-    // 2. ultimate meter
-    if (unit.skills.ultimate) {
-      if (!unit.ultimateReady) {
-        addCharge(unit, COMBAT.ultimateChargePerSecond * dt);
-        if (unit.ultimateCharge >= COMBAT.ultimateChargeMax) {
-          unit.ultimateReady = true;
-          battle.events.push({ t: 'ultReady', uid: unit.uid });
-        }
-      }
-      if (unit.ultimateReady && ULTIMATE_MODE === 'auto') {
-        castSkill(battle, unit, unit.skills.ultimate, 'ultimate');
-        unit.ultimateCharge = 0;
-        unit.ultimateReady = false;
-        continue; // one action per tick keeps the readout legible
+    // 2. ultimate meter. Charging continues through recovery; only acting stops.
+    if (unit.skills.ultimate && !unit.ultimateReady) {
+      addCharge(unit, COMBAT.ultimateChargePerSecond * dt);
+      if (unit.ultimateCharge >= COMBAT.ultimateChargeMax) {
+        unit.ultimateReady = true;
+        battle.events.push({ t: 'ultReady', uid: unit.uid });
       }
     }
 
-    // 3. technique
+    // 3. recovering from the last cast \u2014 no skill, no swing, no exceptions.
+    if (unit.recover > 0) {
+      unit.recover -= dt;
+      continue;
+    }
+
+    // 4. ultimate
+    if (unit.ultimateReady && ULTIMATE_MODE === 'auto') {
+      castSkill(battle, unit, unit.skills.ultimate, 'ultimate');
+      unit.ultimateCharge = 0;
+      unit.ultimateReady = false;
+      continue; // one action per tick keeps the readout legible
+    }
+
+    // 5. technique
     if (unit.skills.technique) {
       unit.techniqueTimer -= dt;
       if (unit.techniqueTimer <= 0) {
@@ -2776,7 +4370,7 @@ function tick(battle, dt) {
       }
     }
 
-    // 4. auto-attack
+    // 6. auto-attack
     if (unit.skills.attack) {
       unit.attackTimer -= dt;
       if (unit.attackTimer <= 0) {
@@ -2800,6 +4394,19 @@ function castSkill(battle, caster, skill, slot) {
 
   for (const effect of skill.effects || []) {
     applyEffect(battle, caster, effect, targets, { skill, slot });
+  }
+
+  // A cast leaves the unit recovering, so a technique and an ultimate can never
+  // land on top of each other.
+  if (slot === 'technique' || slot === 'ultimate') {
+    caster.recover = COMBAT.castRecoverySeconds;
+  }
+  if (slot === 'ultimate') {
+    battle.freeze = Math.max(battle.freeze, COMBAT.ultimateFreezeSeconds);
+    battle.events.push({
+      t: 'freeze', uid: caster.uid, skillId: skill.id,
+      name: skill.name, icon: skill.icon, seconds: COMBAT.ultimateFreezeSeconds,
+    });
   }
   return true;
 }
@@ -2975,7 +4582,7 @@ function buildPlayerUnits(team = getState().team) {
         rarity: def.rarity,
         row: slot.row || def.preferredRow,
         art: def.art,
-        level: hs.level,
+        level: levelOf(slot.heroId),
         star: hs.star,
         stats: statsFor(slot.heroId),
         // Only unlocked slots make it into combat \u2014 a 0\u2605 hero really does
@@ -2997,6 +4604,19 @@ function startStageBattle(stageId) {
 }
 
 /**
+ * Start a fight from an encounter reference (a story stage or a dungeon tier).
+ * The engine is told nothing about where the enemies came from \u2014 it only ever
+ * sees two lists of units.
+ */
+function startEncounterBattle(ref) {
+  return createBattle({
+    stageId: ref?.stageId ?? null,
+    playerUnits: buildPlayerUnits(),
+    enemyUnits: buildEncounterEnemies(ref),
+  });
+}
+
+/**
  * Headless run used for balance checks (see tools/simulate.js). Returns the
  * result plus how long the fight took.
  */
@@ -3006,6 +4626,10 @@ function simulate(battle, { maxSeconds = 120, step = 0.05 } = {}) {
   return {
     result: battle.state,
     seconds: +battle.elapsed.toFixed(1),
+    // Time-stop is held outside `elapsed`, so a fight lasts this much longer
+    // on the clock than the simulation says.
+    frozen: +battle.frozenTotal.toFixed(1),
+    wall: +(battle.elapsed + battle.frozenTotal).toFixed(1),
     survivors: battle.units.filter((u) => u.side === 'player' && u.alive).length,
     enemyHpLeft: battle.units.filter((u) => u.side === 'enemy').reduce((s, u) => s + u.hp, 0),
   };
@@ -3043,6 +4667,12 @@ function h(tag, attrs = {}, children = []) {
 }
 
 function clear(node) {
+  // Drop the node's delegated action handlers along with its content. Without
+  // this every navigation left another live listener on #screen, so a screen
+  // the player had already left kept answering clicks \u2014 and two screens using
+  // the same action name (say `open`) would both fire, oldest first.
+  const map = actionMaps.get(node);
+  if (map) for (const key of Object.keys(map)) delete map[key];
   while (node.firstChild) node.removeChild(node.firstChild);
   return node;
 }
@@ -3051,13 +4681,28 @@ const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
 /** Bind clicks by [data-action] within a root \u2014 cheap event delegation. */
+const actionMaps = new WeakMap();
+
+/**
+ * Delegated click handling for [data-action] descendants.
+ *
+ * The handlers live in a map owned by the node, not in this closure, so one
+ * listener is ever attached per node and clear() can empty it. Calling this
+ * twice on the same node merges rather than stacking.
+ */
 function onAction(root, handlers) {
-  root.addEventListener('click', (ev) => {
-    const target = ev.target.closest('[data-action]');
-    if (!target || !root.contains(target)) return;
-    const fn = handlers[target.dataset.action];
-    if (fn) { ev.preventDefault(); fn(target, ev); }
-  });
+  let map = actionMaps.get(root);
+  if (!map) {
+    map = {};
+    actionMaps.set(root, map);
+    root.addEventListener('click', (ev) => {
+      const target = ev.target.closest('[data-action]');
+      if (!target || !root.contains(target)) return;
+      const fn = map[target.dataset.action];
+      if (fn) { ev.preventDefault(); fn(target, ev); }
+    });
+  }
+  Object.assign(map, handlers);
 }
 
 function fmt(n) {
@@ -3443,6 +5088,179 @@ function createAnimator(set, img, { speed = () => 1, onBeam = null } = {}) {
   return { play, stop, setIdleFrame, playing: () => current };
 }
 
+/* ===== src/ui/gearCard.js ===== */
+/**
+ * ui/gearCard.js \u2014 The item card, shared by the hero screen and the Bag.
+ *
+ * One piece of gear, everything about it, and the things you can do to it.
+ * It opens in two modes because the same item means different things in
+ * different places:
+ *
+ *   SLOT mode  \u2014 reached by tapping a slot on the hero. The slot may be empty.
+ *                Stats are shown already multiplied by the slot level, because
+ *                that is what the hero actually receives. Actions: Replace,
+ *                Enhance.
+ *   ITEM mode  \u2014 reached by tapping a row in the Bag, for a piece that is not
+ *                equipped. Stats are the item's own; the slot's level is shown
+ *                as what it *would* add. Actions: Equip, Scrap.
+ *
+ * Locking lives in the header in both modes, which is the point of putting the
+ * card behind Bag rows at all \u2014 before this, unequipped gear could not be
+ * inspected, so there was nowhere to lock it.
+ */
+
+
+
+
+
+
+
+
+
+const STAT_LABEL = { atk: 'ATK', hp: 'HP', def: 'DEF', speed: 'SPD' };
+
+/**
+ * @param {object} opts
+ *   slot       \u2014 open the card for this equipment slot (may be empty)
+ *   uid        \u2014 open the card for this owned piece; if it happens to be
+ *                equipped, the card falls back to slot mode for its slot
+ *   onReplace  \u2014 called instead of the built-in equip when the player taps the
+ *                first action button (the hero screen passes its gear picker)
+ */
+function openGearCard({ slot, uid, onReplace } = {}) {
+  const heroId = PROTAGONIST_ID;
+
+  // An equipped piece is always shown as its slot \u2014 "what am I wearing" is the
+  // same question however you arrived at it.
+  let mode = 'item';
+  let openSlot = slot || null;
+  if (!openSlot) {
+    const inst = uid ? inventory.gearByUid(uid) : null;
+    const def = inst && getGearDef(inst.defId);
+    if (inst?.equippedBy && def) { openSlot = def.slot; }
+  }
+  if (openSlot) mode = 'slot';
+
+  const cardHTML = () => {
+    const hs = heroSave(heroId);
+    const inst = mode === 'slot'
+      ? (hs.equipped[openSlot] ? inventory.gearByUid(hs.equipped[openSlot]) : null)
+      : inventory.gearByUid(uid);
+    const def = inst ? getGearDef(inst.defId) : null;
+    const slotId = openSlot || def?.slot;
+    const meta = GEAR_SLOT_META[slotId] || { name: 'Gear', icon: '\ud83c\udf92' };
+    const r = def
+      ? rarityOf(def.rarity)
+      : { color: 'var(--panel-line)', name: 'Empty' };
+    const up = inventory.slotUpgradeInfo(slotId);
+    // In slot mode the slot level is already in these numbers; in item mode it
+    // is not, because the piece is not in the slot yet.
+    const mult = mode === 'slot' ? gearSlotMult(up.level) : 1;
+
+    const worth = (mode === 'slot' && def)
+      ? powerOf(heroId) - powerOf(heroId, { equipped: { ...hs.equipped, [openSlot]: null } })
+      : 0;
+
+    const at = def ? statsAtLevel(def, inst.level) : { flat: {}, pct: {} };
+    const mainRows = Object.entries(at.flat).filter(([, v]) => v)
+      .map(([k, v]) => `<div class="gd-stat main"><span>${STAT_LABEL[k] || k}</span><b>+${fmt(Math.round(v * mult))}</b></div>`).join('');
+    const addRows = Object.entries(at.pct).filter(([, v]) => v)
+      .map(([k, v]) => `<div class="gd-stat"><span>${STAT_LABEL[k] || k}</span><b>+${(v * mult * 100).toFixed(1)}%</b></div>`).join('');
+
+    const slotPct = (up.level * GEAR_SLOT_LEVEL_STEP * 100).toFixed(1);
+    const slotRow = mode === 'slot'
+      ? `<div class="gd-stat"><span>Slot level +${up.level}</span><b>+${slotPct}%</b></div>`
+      : `<div class="gd-stat"><span>${meta.name} slot is +${up.level}</span><b>+${slotPct}% once equipped</b></div>`;
+
+    const actions = mode === 'slot'
+      ? `<button class="btn ghost small" data-action="replace">${def ? 'Replace' : 'Equip'}</button>
+         <button class="btn ${up.canUpgrade ? 'primary' : 'ghost'} small ${up.canUpgrade ? '' : 'disabled'}"
+                 data-action="enhance">Enhance \ud83d\udd29${fmt(up.cost)}</button>`
+      : `<button class="btn primary small" data-action="equip">Equip</button>
+         <button class="btn ghost small ${inst?.locked ? 'disabled' : ''}" data-action="scrap">
+           Scrap \ud83d\udd29${inst ? fmt(inventory.dismantleCandidates({ excludeUpgrades: false })
+             .find((c) => c.inst.uid === inst.uid)?.yield ?? 0) : 0}
+         </button>`;
+
+    return `
+      <div class="gd-head" style="--gr:${r.color}">
+        <span class="gd-name">${def ? def.name : meta.name}</span>
+        ${mode === 'slot' ? `<span class="gd-plus">+${up.level}</span>` : ''}
+        ${inst ? `<button class="gd-lock ${inst.locked ? 'on' : ''}" data-action="lock"
+                    aria-label="${inst.locked ? 'Unlock' : 'Lock'}">${inst.locked ? '\ud83d\udd12' : '\ud83d\udd13'}</button>` : ''}
+      </div>
+
+      <div class="gd-band" style="--gr:${r.color}">
+        <div class="gd-band-text">
+          <div class="gd-slot">${meta.name}</div>
+          <div class="gd-rarity">${def ? r.name : 'Empty'}</div>
+          ${worth ? `<div class="gd-worth">\u26a1 ${fmt(worth)}</div>` : ''}
+        </div>
+        <div class="gd-art">${def ? def.icon : meta.icon}</div>
+        ${def ? `<div class="gd-level">Level <b>${inst.level}</b></div>` : ''}
+      </div>
+
+      <div class="gd-stats">
+        ${def ? mainRows : '<p class="note">Nothing equipped in this slot.</p>'}
+        ${addRows ? `<div class="gd-sub">Additional Stats</div>${addRows}` : ''}
+        <div class="gd-sub">Slot</div>
+        ${slotRow}
+        ${inst?.locked ? '<p class="note lock-note">\ud83d\udd12 Locked \u2014 this piece will not be offered for scrapping.</p>' : ''}
+      </div>
+
+      <div class="gd-actions">${actions}</div>`;
+  };
+
+  const sheet = h('div', {
+    // Centred rather than a bottom sheet: the picker is a list you scroll, this
+    // is a single object you are looking at, and they should not feel alike.
+    class: 'sheet-backdrop centred',
+    html: `<div class="sheet gear-detail">${cardHTML()}</div>`,
+  });
+  const redraw = () => { sheet.querySelector('.gear-detail').innerHTML = cardHTML(); };
+
+  let armedScrap = false;
+  onAction(sheet, {
+    lock: () => {
+      const target = mode === 'slot' ? heroSave(heroId).equipped[openSlot] : uid;
+      inventory.toggleGearLock(target);
+      armedScrap = false;
+      redraw();
+      refresh();
+    },
+    replace: () => { sheet.remove(); onReplace?.(); },
+    // Enhancing is a repeated action, so the card updates in place: the +N, the
+    // stat rows and the power figure all move together on each tap.
+    enhance: () => {
+      if (inventory.upgradeGearSlot(openSlot)) { redraw(); refresh(); }
+      else toast('Not enough iron. Scrap spare gear in the Bag.', 'warn');
+    },
+    equip: () => {
+      inventory.equipGear(heroId, uid);
+      sheet.remove();
+      refresh();
+      openGearCard({ uid, onReplace });
+    },
+    // Two taps: scrapping is destructive and there is no undo.
+    scrap: (el) => {
+      if (!armedScrap) {
+        armedScrap = true;
+        el.classList.add('danger');
+        el.textContent = 'Scrap for good?';
+        return;
+      }
+      const gained = inventory.dismantleGear(uid);
+      sheet.remove();
+      if (gained) toast(`Scrapped for ${gained} iron.`, 'good');
+      else toast('Locked gear cannot be scrapped.', 'warn');
+      refresh();
+    },
+  });
+  sheet.addEventListener('click', (ev) => { if (ev.target === sheet) sheet.remove(); });
+  document.body.appendChild(sheet);
+  return sheet;
+}
+
 /* ===== src/ui/screens/campaign.js ===== */
 const __screen_campaign = (() => {
 /**
@@ -3508,21 +5326,23 @@ function render(host) {
   }));
 
   onAction(host, {
-    play: (el) => navigate('formation', { stageId: Number(el.dataset.stage) }),
-    'edit-team': () => navigate('formation', { stageId: null }),
+    play: (el) => navigate('formation', { ref: stageRef(el.dataset.stage) }),
+    'edit-team': () => navigate('formation', { ref: null }),
   });
 }
 return { render };
 })();
 
-/* ===== src/ui/screens/roster.js ===== */
-const __screen_roster = (() => {
+/* ===== src/ui/screens/dungeons.js ===== */
+const __screen_dungeons = (() => {
 /**
- * ui/screens/roster.js \u2014 Hero grid.
+ * ui/screens/dungeons.js \u2014 Gear dungeons, grouped by saga.
  *
- * Owned heroes show level + stars; unowned heroes are greyed out with a
- * shard-collection fraction (e.g. "5/15") toward unlocking, mirroring the
- * reference roster screen.
+ * One card per difficulty, stacked, because the difficulty ladder *is* the
+ * content: each tier is the same fight raised, and the thing the player is
+ * choosing between is how hard a run they want and what quality of gear it
+ * pays. Sagas that are not built yet still get a card \u2014 greyed out and
+ * unclickable \u2014 so the shape of what is coming reads off the screen.
  */
 
 
@@ -3531,53 +5351,350 @@ const __screen_roster = (() => {
 
 
 
+
 function render(host) {
-  const entries = rosterEntries();
-  const owned = entries.filter((e) => e.owned).length;
+  const power = teamPower();
 
   host.appendChild(h('div', {
     class: 'power-banner',
-    html: `<div class="pb-label">Collection</div>
-           <div class="pb-value">${owned} / ${entries.length} heroes</div>`,
+    html: `<div class="pb-label">Team Power</div>
+           <div class="pb-value">\u26a1 ${fmt(power)}</div>
+           <div class="pb-note">gear runs</div>`,
   }));
 
-  const grid = h('div', { class: 'hero-grid' });
+  for (const entry of dungeonList()) {
+    const { dungeon, available, tiers } = entry;
 
-  for (const entry of entries) {
-    const { id, def, rarity, owned: isOwned, star, level, unlock } = entry;
-    const canUnlock = unlock.canUnlock;
-
-    grid.appendChild(h('button', {
-      class: `hero-card ${isOwned ? '' : 'locked'} ${canUnlock ? 'unlockable' : ''}`,
-      style: { '--rarity': rarity.color, '--glow': rarity.glow },
-      dataset: { action: isOwned ? 'open' : 'unlock', hero: id },
-      html: `
-        <span class="rarity-tag">${rarity.short}</span>
-        <span class="card-art">${bustHTML(id, def.art, bustSVG)}</span>
-        <span class="card-name">${def.name}</span>
-        ${isOwned
-          ? `<span class="card-sub">Lv.${level} \u00b7 \u26a1${fmt(entry.power)}</span>
-             <span class="card-stars">${starRow(star)}</span>`
-          : `<span class="shard-frac ${canUnlock ? 'ready' : ''}">${unlock.have}/${unlock.need}</span>
-             <span class="card-sub">${canUnlock ? 'Tap to summon' : 'Shards needed'}</span>`}`,
+    host.appendChild(h('div', {
+      class: `dungeon-head ${available ? '' : 'soon'}`,
+      html: `<div class="dh-saga">${dungeon.saga}</div>
+             <div class="dh-name">${dungeon.name}</div>
+             <div class="dh-sub">${dungeon.subtitle}</div>
+             ${available ? '' : `<div class="dh-lock">\ud83d\udd12 ${dungeon.lockNote}</div>`}`,
     }));
+
+    if (!available) continue;
+
+    const list = h('div', { class: 'tier-list' });
+    for (const t of tiers) {
+      const { meta, def, cleared, locked, underpowered, enemies } = t;
+      const previews = enemies.map((e) => {
+        const r = rarityOf(e.rarity);
+        return `<span class="enemy-chip" style="--rc:${r.color}">${bustSVG(e.art)}</span>`;
+      }).join('');
+
+      const statusClass = locked ? 'locked' : cleared ? 'cleared' : underpowered ? 'risky' : 'ready';
+
+      list.appendChild(h('div', {
+        class: `tier-card ${statusClass} ${meta.bonus ? 'bonus' : ''}`,
+        style: { '--tier': meta.color, '--tier-glow': meta.glow },
+        html: `
+          <div class="tc-rank">${meta.short}</div>
+          <div class="tc-body">
+            <div class="tc-name">
+              ${meta.name}${meta.bonus ? '<span class="bonus-tag">BONUS</span>' : ''}
+              ${cleared ? '<span class="tick">\u2713</span>' : ''}
+            </div>
+            <div class="tc-line">
+              <span class="enemy-row">${previews}</span>
+              <span class="tc-boss">${def.title}</span>
+            </div>
+            <div class="tc-drops">${dropLine(def.drops)}</div>
+            <div class="stage-meta">
+              <span class="gate ${underpowered ? 'warn' : 'ok'}">\u26a1 ${fmt(def.requiredPower)}</span>
+              <span class="tc-zeni">\ud83d\udcb0 ${fmt(def.zeni)}</span>
+            </div>
+          </div>
+          <div class="stage-action">
+            ${locked
+              ? '<span class="lock">\ud83d\udd12</span>'
+              : `<button class="btn ${underpowered ? 'warn' : 'primary'} small"
+                         data-action="run" data-tier="${t.tier}" data-dungeon="${dungeon.id}">
+                   ${cleared ? 'Run' : 'Enter'}
+                 </button>`}
+          </div>`,
+      }));
+    }
+    host.appendChild(list);
   }
 
-  host.appendChild(grid);
-  host.appendChild(h('p', { class: 'note', text: 'Shards drop from campaign stages. Collect enough and a hero joins the team.' }));
+  host.appendChild(h('p', {
+    class: 'note',
+    text: 'Dungeons drop gear and zeni only \u2014 no XP, no beans, no shards. Clear a '
+        + 'difficulty to open the next one. Run them as often as you like.',
+  }));
+
+  onAction(host, {
+    run: (el) => navigate('formation', {
+      ref: dungeonRef(el.dataset.dungeon, el.dataset.tier),
+    }),
+  });
+}
+
+/**
+ * The reason to pick this tier over the one below, in one line that must not
+ * wrap on a 390px card: how many pieces, at what LEVEL band, and which
+ * rarities can drop with the expected one filled. The level band leads the
+ * rarities because two tiers can share a rarity and differ only in level \u2014
+ * that is the normal case on this ladder, not the exception. Exact drop
+ * percentages were tried here and pushed the line onto three rows.
+ */
+function dropLine(drops) {
+  if (!drops) return '';
+  const weights = Object.entries(drops.weights || {}).filter(([, w]) => w > 0);
+  if (!weights.length) return '';
+  const modal = weights.reduce((best, e) => (e[1] > best[1] ? e : best))[0];
+  const pips = weights
+    .sort((a, b) => RARITY_ORDER.indexOf(a[0]) - RARITY_ORDER.indexOf(b[0]))
+    .map(([id]) => {
+      const r = rarityOf(id);
+      return `<span class="drop-pip ${id === modal ? 'modal' : ''}" style="--rc:${r.color}">${r.name}</span>`;
+    });
+  const band = drops.level
+    ? `<span class="drop-lv">Lv.${drops.level[0]}\u2013${drops.level[1]}</span>`
+    : '';
+  return `<span class="drop-count">${drops.rolls}\u00d7 gear</span>${band}${pips.join('')}`;
+}
+return { render };
+})();
+
+/* ===== src/ui/screens/roster.js ===== */
+const __screen_roster = (() => {
+/**
+ * ui/screens/roster.js \u2014 Your hero.
+ *
+ * This screen is about the protagonist: his power, his stats, and who is
+ * standing beside him. Managing the collection \u2014 levelling the slots, starring
+ * companions up, recruiting \u2014 lives on the Companions screen, so this one does
+ * not turn into a console.
+ */
+
+
+
+
+
+
+
+
+function render(host) {
+  /* ---- team power leads ----
+     Power is a team figure \u2014 the hero plus whichever companions are fielded \u2014
+     so it sits above everything rather than on his card, where it read as his
+     alone. */
+  const fielded = getState().team.length;
+  host.appendChild(h('div', {
+    class: 'power-banner',
+    html: `<div class="pb-label">Team Power</div>
+           <div class="pb-value">\u26a1 ${fmt(teamPower())}</div>
+           <div class="pb-note">hero + ${fielded - 1} compan${fielded - 1 === 1 ? 'ion' : 'ions'}</div>`,
+  }));
+
+  const hero = rosterEntries().find((e) => e.id === PROTAGONIST_ID);
+  const hStats = statsFor(hero.id);
+  host.appendChild(h('button', {
+    class: 'lead-card',
+    style: { '--rarity': hero.rarity.color, '--glow': hero.rarity.glow },
+    dataset: { action: 'open', hero: hero.id },
+    html: `
+      <span class="lead-eyebrow">Your hero</span>
+      <span class="lead-art">${bustHTML(hero.id, hero.def.art, bustSVG)}</span>
+      <span class="lead-body">
+        <span class="lead-name">${hero.def.name}</span>
+        <span class="lead-sub">Lv.${hero.level} \u00b7 ${starRow(hero.star)}</span>
+        <span class="lead-stats">\u2694\ufe0f ${fmt(hStats.atk)} \u00b7 \u2764\ufe0f ${fmt(hStats.hp)} \u00b7 \ud83d\udee1\ufe0f ${fmt(hStats.def)}</span>
+      </span>`,
+  }));
+
+  /* ---- who is fighting beside him ----
+     Equipped companions only. The rest of the collection is not this screen's
+     business. */
+  const fieldedCompanions = getState().team
+    .filter((s) => s.heroId !== PROTAGONIST_ID)
+    .map((s) => getHeroDef(s.heroId))
+    .filter(Boolean);
+
+  host.appendChild(h('div', {
+    class: 'companion-head',
+    html: `<span class="ch-title">Fighting with you</span>
+           <span class="ch-level">Lv.${companionLevel()}</span>
+           <button class="btn ghost tiny" data-action="manage">Manage \u2192</button>`,
+  }));
+
+  const row = h('div', { class: 'slot-row-2' });
+  for (const def of fieldedCompanions) {
+    const entry = rosterEntries().find((e) => e.id === def.id);
+    const bond = bondOf(def.id);
+    const stats = [
+      ...Object.entries(bond?.flat || {}).filter(([, v]) => v >= 0.5)
+        .map(([k, v]) => `+${fmt(v)} ${k.toUpperCase()}`),
+      ...Object.entries(bond?.pct || {}).filter(([, v]) => v >= 0.0005)
+        .map(([k, v]) => `+${(v * 100).toFixed(1)}% ${k.toUpperCase()}`),
+    ];
+    row.appendChild(h('button', {
+      class: 'comp-slot filled',
+      style: { '--rarity': entry.rarity.color },
+      dataset: { action: 'open', hero: def.id },
+      html: `
+        <div class="cs-art">${bustHTML(def.id, def.art, bustSVG)}</div>
+        <div class="cs-name">${def.name}</div>
+        <div class="cs-stars">${starRow(entry.star)}</div>
+        <div class="cs-bond">${stats.join(' \u00b7 ') || '\u2014'}</div>`,
+    }));
+  }
+  if (!fieldedCompanions.length) {
+    row.appendChild(h('div', { class: 'comp-slot', html: '<div class="cs-empty">No companions in your team</div>' }));
+  }
+  host.appendChild(row);
+
+  host.appendChild(h('p', {
+    class: 'note',
+    text: 'Companions fighting beside you lend their full bond; the rest of your '
+        + 'collection lends a quarter. Manage, train and recruit them in Companions.',
+  }));
 
   onAction(host, {
     open: (el) => navigate('heroDetail', { heroId: el.dataset.hero }),
+    manage: () => navigate('companions', {}, { replace: true }),
+  });
+}
+return { render };
+})();
+
+/* ===== src/ui/screens/companions.js ===== */
+const __screen_companions = (() => {
+/**
+ * ui/screens/companions.js \u2014 The companion console.
+ *
+ * Everything to do with the collection lives here rather than on the hero
+ * screen: raising the slot levels, recruiting with shards, and opening a
+ * companion to star it up. The hero screen only shows who is fighting.
+ */
+
+
+
+
+
+
+
+
+
+function render(host) {
+  const owned = allyEntries();
+  const team = getState().team.filter((s) => s.heroId !== PROTAGONIST_ID);
+  const slots = Array.from({ length: COMPANION_SLOTS }, (_, i) => slotInfo(i)).filter(Boolean);
+  const level = companionLevel();
+
+  /* ---- the slots carry the level ----
+     Every companion fights at the LOWEST slot, so that number leads and the
+     panel marks which slot is holding it back. */
+  host.appendChild(h('div', {
+    class: 'power-banner',
+    html: `<div class="pb-label">Companion Level</div>
+           <div class="pb-value">${level}</div>
+           <div class="pb-note">lowest slot \u00b7 cap Lv.${companionLevelCap()}</div>`,
+  }));
+
+  const slotRow = h('div', { class: 'slot-row-2' });
+  slots.forEach((slot, i) => {
+    const occupant = team[i] ? getHeroDef(team[i].heroId) : null;
+    const ahead = slot.level > level;
+    slotRow.appendChild(h('div', {
+      class: `comp-slot ${slot.binding ? 'binding' : 'ahead'}`,
+      html: `
+        <div class="cs-head">Slot ${i + 1} <span class="cs-lv">Lv.${slot.level}</span></div>
+        <div class="cs-art">${occupant
+          ? bustHTML(occupant.id, occupant.art, bustSVG)
+          : '<span class="cs-empty">\uff0b</span>'}</div>
+        <div class="cs-name">${occupant ? occupant.name : 'Empty'}</div>
+        <button class="btn ${slot.binding ? 'primary' : 'ghost'} tiny wide ${slot.canTrain ? '' : 'disabled'}"
+                data-action="train-slot" data-slot="${i}">
+          ${slot.atMax ? 'Max'
+            : slot.atCap ? `Hero Lv.${slot.cap}`
+            : `\ud83e\uded8 ${slot.senzuCost} \u00b7 \ud83d\udcb0 ${fmt(slot.zeniCost)}`}
+        </button>
+        ${ahead ? '<div class="cs-warn">ahead \u2014 raise the other slot</div>' : ''}`,
+    }));
+  });
+  host.appendChild(slotRow);
+
+  host.appendChild(h('p', {
+    class: 'note',
+    text: 'Both slots must rise for your companions to grow: they all fight at the '
+        + 'lowest one, and neither can pass your hero.',
+  }));
+
+  /* ---- recruiting ---- */
+  const ready = recruitableEntries();
+  if (ready.length) {
+    host.appendChild(h('h2', { class: 'panel-title section-head', text: 'Ready to recruit' }));
+    host.appendChild(h('div', {
+      class: 'recruit-row',
+      html: ready.map((e) => `
+        <button class="btn gold small" data-action="unlock" data-hero="${e.id}">
+          \ud83d\udd37 Recruit ${e.def.name}
+        </button>`).join(''),
+    }));
+  }
+
+  /* ---- the collection ---- */
+  host.appendChild(h('h2', {
+    class: 'panel-title section-head',
+    text: `Collection \u2014 ${owned.length} recruited`,
+  }));
+
+  const fielded = new Set(team.map((s) => s.heroId));
+  const grid = h('div', { class: 'hero-grid' });
+  for (const entry of owned) {
+    const bond = bondOf(entry.id);
+    grid.appendChild(h('button', {
+      class: `hero-card ${fielded.has(entry.id) ? 'fielded' : ''}`,
+      style: { '--rarity': entry.rarity.color, '--glow': entry.rarity.glow },
+      dataset: { action: 'open', hero: entry.id },
+      html: `
+        <span class="rarity-tag">${entry.rarity.short}</span>
+        ${fielded.has(entry.id) ? '<span class="field-tag">In team</span>' : ''}
+        <span class="card-art">${bustHTML(entry.id, entry.def.art, bustSVG)}</span>
+        <span class="card-name">${entry.def.name}</span>
+        <span class="card-sub">${bond ? bond.label : ''}</span>
+        <span class="card-stars">${starRow(entry.star)}</span>`,
+    }));
+  }
+  host.appendChild(grid);
+
+  if (!owned.length) {
+    host.appendChild(h('p', { class: 'note', text: 'No companions yet. Shards drop from campaign stages.' }));
+  } else {
+    host.appendChild(h('p', {
+      class: 'note',
+      text: 'Open a companion to star it up with shards. Every star raises what it '
+          + 'lends your hero, whether or not it is fighting.',
+    }));
+  }
+
+  onAction(host, {
+    'train-slot': (el) => {
+      const i = Number(el.dataset.slot);
+      const info = slotInfo(i);
+      if (trainSlot(i)) {
+        toast(info.binding
+          ? 'Companions grew stronger.'
+          : 'Slot raised \u2014 the other slot still sets the level.', 'good');
+        refresh();
+      } else if (info?.atCap) toast(`Your hero must reach Lv.${info.cap + 1} first.`, 'warn');
+      else if (info && info.haveSenzu < info.senzuCost) toast('Not enough senzu beans.', 'warn');
+      else toast('Not enough zeni.', 'warn');
+    },
     unlock: (el) => {
       const heroId = el.dataset.hero;
       if (unlockHero(heroId)) {
-        toast(`${heroId.toUpperCase()} joined your team!`, 'good');
+        toast(`${getHeroDef(heroId).name} joined you!`, 'good');
         navigate('heroDetail', { heroId });
       } else {
         toast('Not enough shards yet.', 'warn');
         refresh();
       }
     },
+    open: (el) => navigate('heroDetail', { heroId: el.dataset.hero }),
   });
 }
 return { render };
@@ -3586,7 +5703,15 @@ return { render };
 /* ===== src/ui/screens/bag.js ===== */
 const __screen_bag = (() => {
 /**
- * ui/screens/bag.js \u2014 Shared inventory: currency, hero shards, gear.
+ * ui/screens/bag.js \u2014 Shared inventory, in three tabs.
+ *
+ *   Items      currency, senzu, hero shards, record
+ *   Gear       everything you own, best first; tap a row for its item card
+ *   Dismantle  a selectable grid for clearing surplus in bulk
+ *
+ * Gear got its own tab once the bag started filling with near-identical
+ * fixed-level drops: it is the longest list in the game and it was pushing the
+ * record and reset controls off the bottom of a phone screen.
  */
 
 
@@ -3599,15 +5724,76 @@ const __screen_bag = (() => {
 
 
 
+
+let activeTab = 'items';
+/** Selection survives a re-render, so ticking a box does not clear the rest. */
+let selected = new Set();
+let excludeUpgrades = true;
+
+const TABS = [
+  { id: 'items', label: 'Items' },
+  { id: 'gear', label: 'Gear' },
+  { id: 'dismantle', label: 'Dismantle' },
+];
+
 function render(host) {
   const state = getState();
 
   host.appendChild(h('div', {
     class: 'power-banner',
-    html: `<div class="pb-label">Zeni</div><div class="pb-value">\ud83d\udcb0 ${fmt(state.zeni)}</div>`,
+    html: `<div class="pb-label">Zeni</div><div class="pb-value">\ud83d\udcb0 ${fmt(state.zeni)}</div>
+           <div class="pb-note">\ud83e\uded8 ${fmt(state.senzu)} \u00b7 \ud83d\udd29 ${fmt(state.iron || 0)}</div>`,
   }));
 
-  /* ---- shards ---- */
+  // Same treatment as the hero screen's tabs \u2014 top of the page here, since the
+  // Bag's content scrolls far and the tabs should not drift away from the
+  // wallet they sit under.
+  const tabs = h('div', {
+    class: 'tab-bar bag-tabs',
+    html: TABS.map((t) => `<button class="tab-btn ${activeTab === t.id ? 'active' : ''}" data-tab="${t.id}">${t.label}</button>`).join(''),
+  });
+  host.appendChild(tabs);
+
+  const body = h('div', { class: 'tab-body' });
+  host.appendChild(body);
+
+  if (activeTab === 'items') renderItems(body, state);
+  else if (activeTab === 'gear') renderGear(body, state);
+  else renderDismantle(body);
+
+  for (const btn of tabs.querySelectorAll('.tab-btn')) {
+    btn.addEventListener('click', () => {
+      activeTab = btn.dataset.tab;
+      if (activeTab !== 'dismantle') selected.clear();
+      refresh();
+    });
+  }
+}
+
+/* ---------------- Items ---------------- */
+
+function renderItems(body, state) {
+  body.appendChild(h('section', {
+    class: 'panel',
+    html: `<h2 class="panel-title">Senzu Beans</h2>
+      <p class="note" style="margin-top:0">
+        Beans train your allies. Every stage from 2 onward drops them, and the
+        deeper the stage the more it gives \u2014 stage 6 pays four a run against
+        stage 2's one. Farming the hardest fight you can win is the fastest way
+        to raise the team, which is why your hero has to get there first.
+      </p>`,
+  }));
+
+  body.appendChild(h('section', {
+    class: 'panel',
+    html: `<h2 class="panel-title">Iron</h2>
+      <p class="note" style="margin-top:0">
+        Iron comes from scrapping gear you will not use, and buys levels on your
+        hero's gear slots. Deep drops scrap for more, so surplus from a hard
+        dungeon is worth more than surplus from an easy one.
+      </p>`,
+  }));
+
   const shardRows = HERO_IDS
     .filter((id) => (state.shards[id] || 0) > 0 || !isOwned(id))
     .map((id) => {
@@ -3622,30 +5808,12 @@ function render(host) {
         </div>`;
     }).join('');
 
-  host.appendChild(h('section', {
+  body.appendChild(h('section', {
     class: 'panel',
     html: `<h2 class="panel-title">Hero Shards</h2>${shardRows || '<p class="note">No shards yet \u2014 clear campaign stages.</p>'}`,
   }));
 
-  /* ---- gear ---- */
-  const gearRows = state.gear.map((inst) => {
-    const def = getGearDef(inst.defId);
-    if (!def) return '';
-    const r = rarityOf(def.rarity);
-    const holder = inst.equippedBy ? getHeroDef(inst.equippedBy) : null;
-    return `<div class="gear-row static" style="--gr:${r.color}">
-        <span class="gi">${def.icon}</span>
-        <span class="gt"><b>${def.name}</b><small>${describeGear(def)}</small></span>
-        <span class="gr-tag">${holder ? holder.name : r.short}</span>
-      </div>`;
-  }).join('');
-
-  host.appendChild(h('section', {
-    class: 'panel',
-    html: `<h2 class="panel-title">Gear (${state.gear.length})</h2>${gearRows || '<p class="note">No gear yet \u2014 it drops from campaign stages.</p>'}`,
-  }));
-
-  host.appendChild(h('section', {
+  body.appendChild(h('section', {
     class: 'panel',
     html: `<h2 class="panel-title">Record</h2>
       <p class="note">Won ${state.stats.battlesWon} \u00b7 Lost ${state.stats.battlesLost} \u00b7 Cleared ${Object.keys(state.campaign.cleared).length} stages</p>
@@ -3655,7 +5823,7 @@ function render(host) {
   // Two-tap confirmation rather than confirm(): a sandboxed embed (and some
   // in-app browsers) will not show a native modal at all.
   let resetArmed = false;
-  onAction(host, {
+  onAction(body, {
     reset: (el) => {
       if (!resetArmed) {
         resetArmed = true;
@@ -3676,6 +5844,157 @@ function render(host) {
     },
   });
 }
+
+/* ---------------- Gear ---------------- */
+
+function renderGear(body, state) {
+  // Best first: with fixed-level drops the bag fills up with near-identical
+  // pieces, and the only question being asked of this list is "what is my best
+  // option for this slot".
+  const rows = sortGear(state.gear).map((inst) => {
+    const def = getGearDef(inst.defId);
+    if (!def) return '';
+    const r = rarityOf(def.rarity);
+    const holder = inst.equippedBy ? getHeroDef(inst.equippedBy) : null;
+    return `<button class="gear-row" data-action="open" data-uid="${inst.uid}" style="--gr:${r.color}">
+        <span class="gi">${def.icon}</span>
+        <span class="gt">
+          <b>${inst.locked ? '\ud83d\udd12 ' : ''}${def.name} <span class="glv">Lv.${inst.level}</span></b>
+          <small>${describeGear(def, inst.level)}</small>
+        </span>
+        <span class="gr-tag">${holder ? holder.name : r.short}</span>
+      </button>`;
+  }).join('');
+
+  body.appendChild(h('section', {
+    class: 'panel',
+    html: `<h2 class="panel-title">Gear (${state.gear.length})</h2>${rows
+      || '<p class="note">No gear yet \u2014 story stages drop a little, dungeons drop the rest.</p>'}
+      ${state.gear.length ? '<p class="note">Tap a piece to inspect it, equip it, or lock it against scrapping.</p>' : ''}`,
+  }));
+
+  onAction(body, { open: (el) => openGearCard({ uid: el.dataset.uid }) });
+}
+
+/* ---------------- Dismantle ---------------- */
+
+function renderDismantle(body) {
+  const candidates = inventory.dismantleCandidates({ excludeUpgrades });
+  const open = candidates.filter((c) => !c.blocked);
+  const openUids = new Set(open.map((c) => c.inst.uid));
+
+  // A piece can stop being selectable while it is selected \u2014 the exclude
+  // toggle flips, or it gets locked \u2014 so the set is pruned every render rather
+  // than trusted.
+  for (const uid of [...selected]) if (!openUids.has(uid)) selected.delete(uid);
+
+  const ironTotal = open.filter((c) => selected.has(c.inst.uid))
+    .reduce((sum, c) => sum + c.yield, 0);
+
+  const grid = h('div', { class: 'scrap-grid' });
+  for (const c of sortGear(candidates.map((x) => x.inst))) {
+    const entry = candidates.find((x) => x.inst.uid === c.uid);
+    const def = getGearDef(c.defId);
+    const r = rarityOf(def.rarity);
+    const on = selected.has(c.uid);
+    grid.appendChild(h('button', {
+      class: `scrap-tile ${on ? 'on' : ''} ${entry.blocked ? `blocked ${entry.blocked}` : ''}`,
+      style: { '--gr': r.color },
+      dataset: { action: entry.blocked ? 'blocked' : 'pick', uid: c.uid, why: entry.blocked || '' },
+      html: `
+        <span class="st-check">${on ? '\u2713' : ''}</span>
+        <span class="st-art">${def.icon}</span>
+        <span class="st-lv">${c.level}</span>
+        ${entry.blocked === 'locked' ? '<span class="st-flag">\ud83d\udd12</span>' : ''}
+        ${entry.blocked === 'best' ? '<span class="st-flag">\u25b2</span>' : ''}`,
+    }));
+  }
+
+  body.appendChild(h('div', {
+    class: 'scrap-head',
+    html: `<span class="sh-count">Selected: <b>${selected.size}</b>/${open.length}</span>
+           <button class="sh-toggle ${excludeUpgrades ? 'on' : ''}" data-action="toggle-exclude">
+             <span class="sh-box">${excludeUpgrades ? '\u2713' : ''}</span> Keep best per slot
+           </button>`,
+  }));
+
+  body.appendChild(grid);
+
+  if (!candidates.length) {
+    body.appendChild(h('p', { class: 'note', text: 'Nothing spare to scrap \u2014 everything you own is equipped.' }));
+  }
+
+  // One tap per rarity is the fast path for clearing junk. Tapping a rarity
+  // that is already fully selected clears it again, so the button is a toggle
+  // rather than a one-way action.
+  const present = RARITY_ORDER.filter((id) => open.some((c) => getGearDef(c.inst.defId).rarity === id));
+  if (present.length) {
+    body.appendChild(h('div', {
+      class: 'scrap-rarities',
+      html: present.map((id) => {
+        const r = rarityOf(id);
+        const ofRarity = open.filter((c) => getGearDef(c.inst.defId).rarity === id);
+        const all = ofRarity.every((c) => selected.has(c.inst.uid));
+        return `<button class="rarity-pick ${all ? 'on' : ''}" style="--rc:${r.color}"
+                        data-action="pick-rarity" data-rarity="${id}">
+                  <span class="rp-dot"></span>${r.name} <small>${ofRarity.length}</small>
+                </button>`;
+      }).join(''),
+    }));
+  }
+
+  body.appendChild(h('div', {
+    class: 'scrap-actions',
+    html: `<button class="btn ${selected.size ? 'primary' : 'ghost'} wide ${selected.size ? '' : 'disabled'}"
+                   data-action="dismantle">
+             Dismantle ${selected.size || ''} ${selected.size ? `\u00b7 \ud83d\udd29 ${fmt(ironTotal)}` : ''}
+           </button>`,
+  }));
+
+  body.appendChild(h('p', {
+    class: 'note',
+    text: excludeUpgrades
+      ? 'Your best piece for each slot (\u25b2) and anything locked (\ud83d\udd12) is held back. Tap a piece in the Gear tab to lock it.'
+      : 'Nothing is held back except locked pieces (\ud83d\udd12). Check what you are selecting.',
+  }));
+
+  let armed = false;
+  onAction(body, {
+    pick: (el) => {
+      const uid = el.dataset.uid;
+      if (selected.has(uid)) selected.delete(uid); else selected.add(uid);
+      armed = false;
+      refresh();
+    },
+    blocked: (el) => toast(el.dataset.why === 'locked'
+      ? 'That piece is locked.'
+      : 'That is the best one you own for its slot.', 'warn'),
+    'toggle-exclude': () => { excludeUpgrades = !excludeUpgrades; armed = false; refresh(); },
+    'pick-rarity': (el) => {
+      const ofRarity = open.filter((c) => getGearDef(c.inst.defId).rarity === el.dataset.rarity);
+      const all = ofRarity.every((c) => selected.has(c.inst.uid));
+      for (const c of ofRarity) {
+        if (all) selected.delete(c.inst.uid); else selected.add(c.inst.uid);
+      }
+      armed = false;
+      refresh();
+    },
+    // Two taps, because this destroys several pieces at once and there is no
+    // undo. The count and the iron are in the label both times.
+    dismantle: (el) => {
+      if (!armed) {
+        armed = true;
+        el.classList.add('danger');
+        el.textContent = `Scrap ${selected.size} for good?`;
+        return;
+      }
+      const { iron, count } = inventory.dismantleMany([...selected]);
+      selected.clear();
+      toast(`Scrapped ${count} for ${iron} iron.`, 'good');
+      refresh();
+    },
+  });
+}
 return { render };
 })();
 
@@ -3686,6 +6005,8 @@ const __screen_heroDetail = (() => {
  * mirroring the reference hero screens (gear slots around the portrait,
  * star promotion with a stat preview, locked skill slots).
  */
+
+
 
 
 
@@ -3713,6 +6034,7 @@ function render(host, { heroId }) {
     class: 'hero-hero',
     html: `
       <span class="rarity-badge">${rarity.name}</span>
+      ${isProtagonist(heroId) ? '<span class="lead-badge">Hero</span>' : ''}
       <div class="hero-name">${def.name}</div>
       <div class="hero-title">${def.title}</div>`,
   }));
@@ -3751,9 +6073,17 @@ function renderStats(body, heroId) {
   const def = getHeroDef(heroId);
   const hs = heroSave(heroId);
   const stats = statsFor(heroId);
-  const lvl = levelInfo(heroId);
+  const lead = isProtagonist(heroId);
+  const lvl = xpInfo(heroId);
+  const bond = lead ? null : bondOf(heroId);
 
-  const gearNodes = GEAR_SLOTS.map((slot) => {
+  // Gear is the protagonist's alone; allies have no equipment slots.
+  // The slot on the hero screen carries ONE number \u2014 the slot's own level.
+  // Everything about the item in it (its level, its stats, what it is worth)
+  // lives in the card that opens when you tap it, so this view stays a
+  // glanceable summary rather than a stat sheet.
+  const slotLevels = getState().gearSlotLevels || {};
+  const gearNodes = !isProtagonist(heroId) ? '' : GEAR_SLOTS.map((slot) => {
     const uid = hs.equipped[slot];
     const inst = uid ? inventory.gearByUid(uid) : null;
     const gdef = inst ? getGearDef(inst.defId) : null;
@@ -3762,11 +6092,12 @@ function renderStats(body, heroId) {
               style="--gr:${gdef ? rarityOf(gdef.rarity).color : 'transparent'}"
               aria-label="${GEAR_SLOT_META[slot].name}">
               <span class="gi">${gdef ? gdef.icon : GEAR_SLOT_META[slot].icon}</span>
+              <span class="gs-lv">+${slotLevels[slot] || 0}</span>
             </button>`;
   }).join('');
 
   body.appendChild(h('div', {
-    class: 'portrait-stage',
+    class: `portrait-stage ${isProtagonist(heroId) ? '' : 'no-gear'}`,
     html: `
       <div class="portrait-art">${portraitHTML(heroId, def.art, bustSVG)}</div>
       ${gearNodes}
@@ -3776,26 +6107,53 @@ function renderStats(body, heroId) {
   body.appendChild(h('div', {
     class: 'stat-panel',
     html: `
-      <div class="level-line">Lv.${hs.level}</div>
+      <div class="level-line">Lv.${lead ? lvl.level : levelOf(heroId)}</div>
+      ${lead ? `
+        <div class="xp-track" role="img" aria-label="${lvl.atMax ? 'Max level' : `${fmt(lvl.into)} of ${fmt(lvl.needed)} XP`}">
+          <span class="xp-fill" style="width:${lvl.pct}%"></span>
+        </div>
+        <div class="xp-line">${lvl.atMax ? 'Max level' : `${fmt(lvl.into)} / ${fmt(lvl.needed)} XP to Lv.${lvl.level + 1}`}</div>`
+        : '<div class="xp-line">Level comes from your companion slots</div>'}
       <div class="stat-grid">
         <div class="stat"><span class="sn">\u2694\ufe0f ATK</span><span class="sv">${fmt(stats.atk)}</span></div>
         <div class="stat"><span class="sn">\u2764\ufe0f HP</span><span class="sv">${fmt(stats.hp)}</span></div>
         <div class="stat"><span class="sn">\ud83d\udee1\ufe0f DEF</span><span class="sv">${fmt(stats.def)}</span></div>
         <div class="stat"><span class="sn">\ud83d\udca8 SPD</span><span class="sv">${stats.speed.toFixed(2)}</span></div>
       </div>
-      <button class="btn primary wide ${lvl.canLevel ? '' : 'disabled'}" data-action="levelup">
-        ${lvl.atMax ? 'Max Level' : `Upgrade <span class="cost">\ud83d\udcb0 ${fmt(lvl.cost)} / ${fmt(lvl.have)}</span>`}
-      </button>`,
+      `,
   }));
 
-  body.appendChild(h('p', { class: 'note', text: def.lore }));
+  if (bond) {
+    const rows = [
+      ...Object.entries(bond.flat).filter(([, v]) => v >= 0.5)
+        .map(([k, v]) => `+${fmt(v)} ${k.toUpperCase()}`),
+      ...Object.entries(bond.pct).filter(([, v]) => v >= 0.0005)
+        .map(([k, v]) => `+${(v * 100).toFixed(1)}% ${k.toUpperCase()}`),
+    ];
+    body.appendChild(h('section', {
+      class: `bond-panel ${bond.equipped ? 'equipped' : ''}`,
+      html: `
+        <div class="bond-head">
+          <span class="bond-label">${bond.label}</span>
+          <span class="bond-share">${bond.equipped ? 'Equipped \u00b7 full' : 'Collected \u00b7 25%'}</span>
+        </div>
+        <div class="bond-rows">${rows.map((r) => `<span class="bond-stat">${r}</span>`).join('')}</div>
+        <p class="note" style="margin-top:8px">
+          Lent to your hero${bond.equipped ? '' : ' even while benched'}. Starring
+          this companion up raises it.
+        </p>`,
+    }));
+  }
+
+  body.appendChild(h('p', {
+    class: 'note',
+    text: lead
+      ? `${def.lore} Levels come from fighting \u2014 clear stages to earn XP.`
+      : `${def.lore}`,
+  }));
 
   onAction(body, {
-    levelup: () => {
-      if (levelUp(heroId)) { toast('Level up!', 'good'); refresh(); }
-      else toast('Not enough zeni.', 'warn');
-    },
-    gear: (el) => openGearSheet(heroId, el.dataset.slot),
+    gear: (el) => openSlotCard(el.dataset.slot),
   });
 }
 
@@ -3885,17 +6243,26 @@ function renderSkills(body, heroId) {
 
 /* ---------------- Gear picker sheet ---------------- */
 
-function openGearSheet(heroId, slot) {
+/** Tapping a slot lands on the item card; Replace is what reaches the picker. */
+function openSlotCard(slot) {
+  openGearCard({ slot, onReplace: () => openGearSheet(slot) });
+}
+
+function openGearSheet(slot) {
+  const heroId = PROTAGONIST_ID;
   const hs = heroSave(heroId);
   const equippedUid = hs.equipped[slot];
   const options = inventory.availableGearForSlot(slot);
 
-  const rows = options.map((inst) => {
+  const rows = sortGear(options).map((inst) => {
     const gdef = getGearDef(inst.defId);
     const r = rarityOf(gdef.rarity);
     return `<button class="gear-row" data-action="equip" data-uid="${inst.uid}" style="--gr:${r.color}">
         <span class="gi">${gdef.icon}</span>
-        <span class="gt"><b>${gdef.name}</b><small>${describeGear(gdef)}</small></span>
+        <span class="gt">
+          <b>${gdef.name} <span class="glv">Lv.${inst.level}</span></b>
+          <small>${describeGear(gdef, inst.level)}</small>
+        </span>
         <span class="gr-tag">${r.short}</span>
       </button>`;
   }).join('');
@@ -3904,10 +6271,10 @@ function openGearSheet(heroId, slot) {
     class: 'sheet-backdrop',
     html: `
       <div class="sheet">
-        <div class="sheet-title">${GEAR_SLOT_META[slot].name}</div>
+        <div class="sheet-title">Choose ${GEAR_SLOT_META[slot].name}</div>
         ${equippedUid ? '<button class="btn ghost wide" data-action="unequip">Unequip current</button>' : ''}
-        <div class="gear-rows">${rows || '<p class="note">No spare gear for this slot. Gear drops from campaign stages.</p>'}</div>
-        <button class="btn ghost wide" data-action="close">Close</button>
+        <div class="gear-rows">${rows || '<p class="note">No spare gear for this slot. Dungeons are where gear comes from.</p>'}</div>
+        <button class="btn ghost wide" data-action="close">Back</button>
       </div>`,
   });
 
@@ -3915,15 +6282,18 @@ function openGearSheet(heroId, slot) {
     equip: (el) => {
       inventory.equipGear(heroId, el.dataset.uid);
       sheet.remove();
-      toast('Equipped.', 'good');
       refresh();
+      openSlotCard(slot);
     },
     unequip: () => {
       inventory.unequipGear(heroId, slot);
       sheet.remove();
       refresh();
+      openSlotCard(slot);
     },
-    close: () => sheet.remove(),
+    // Closing the picker returns to the item card it was opened from, rather
+    // than dumping the player back on the hero screen mid-decision.
+    close: () => { sheet.remove(); openSlotCard(slot); },
   });
   sheet.addEventListener('click', (ev) => { if (ev.target === sheet) sheet.remove(); });
 
@@ -3951,19 +6321,21 @@ const __screen_formation = (() => {
 
 
 
-function render(host, { stageId }) {
+function render(host, { ref }) {
   const state = getState();
-  const stage = stageId ? getStage(stageId) : null;
+  // No ref means "just edit the team" \u2014 reached from the Campaign banner.
+  const info = ref ? encounterInfo(ref) : null;
   const power = teamPower();
 
-  if (stage) {
-    const enemies = buildEnemyTeam(stage.id);
-    const under = power < stage.requiredPower;
+  if (info) {
+    const enemies = info.enemies;
+    const under = power < info.requiredPower;
     host.appendChild(h('div', {
-      class: 'battle-brief',
+      class: `battle-brief ${info.kind}`,
+      style: info.accent ? { '--tier': info.accent } : {},
       html: `
-        <div class="brief-title">${stage.id}. ${stage.name}</div>
-        <div class="brief-sub">${stage.subtitle}</div>
+        <div class="brief-title">${info.title}</div>
+        <div class="brief-sub">${info.subtitle}</div>
         <div class="enemy-lineup">
           ${enemies.map((e) => {
             const r = rarityOf(e.rarity);
@@ -3975,7 +6347,7 @@ function render(host, { stageId }) {
           }).join('')}
         </div>
         <div class="power-compare ${under ? 'warn' : 'ok'}">
-          Your power \u26a1 ${fmt(power)} \u00b7 recommended \u26a1 ${fmt(stage.requiredPower)}
+          Your power \u26a1 ${fmt(power)} \u00b7 recommended \u26a1 ${fmt(info.requiredPower)}
           ${under ? '<span class="warn-tag">Underpowered</span>' : ''}
         </div>`,
     }));
@@ -3997,13 +6369,17 @@ function render(host, { stageId }) {
       const def = getHeroDef(slot.heroId);
       const hsv = state.heroes[slot.heroId];
       const r = rarityOf(def.rarity);
+      const lead = isProtagonist(slot.heroId);
       slots.appendChild(h('div', {
-        class: 'form-unit',
+        class: `form-unit ${lead ? 'lead' : ''}`,
         style: { '--rarity': r.color, '--glow': r.glow },
         html: `
-          <button class="fu-art" data-action="swap" data-hero="${slot.heroId}">${bustHTML(slot.heroId, def.art, bustSVG)}</button>
+          ${lead ? '<div class="lead-tag">HERO</div>' : ''}
+          ${lead
+            ? `<div class="fu-art">${bustHTML(slot.heroId, def.art, bustSVG)}</div>`
+            : `<button class="fu-art" data-action="swap" data-hero="${slot.heroId}">${bustHTML(slot.heroId, def.art, bustSVG)}</button>`}
           <div class="fu-name">${def.name}</div>
-          <div class="fu-sub">Lv.${hsv.level} \u26a1${fmt(powerOf(slot.heroId))}</div>
+          <div class="fu-sub">Lv.${levelOf(slot.heroId)} \u26a1${fmt(powerOf(slot.heroId))}</div>
           <div class="fu-stars">${starRow(hsv.star)}</div>
           <button class="btn ghost tiny" data-action="toggle-row" data-hero="${slot.heroId}">
             Move to ${rowName === 'front' ? 'back' : 'front'}
@@ -4012,7 +6388,7 @@ function render(host, { stageId }) {
     }
 
     if (rowName === 'front' && state.team.length < TEAM_SIZE) {
-      slots.appendChild(h('button', { class: 'form-unit empty', dataset: { action: 'add' }, html: '<span class="plus">\uff0b</span><span>Add hero</span>' }));
+      slots.appendChild(h('button', { class: 'form-unit empty', dataset: { action: 'add' }, html: '<span class="plus">\uff0b</span><span>Add ally</span>' }));
     }
 
     rowEl.appendChild(slots);
@@ -4022,7 +6398,7 @@ function render(host, { stageId }) {
 
   host.appendChild(h('div', {
     class: 'action-bar',
-    html: stage
+    html: info
       ? `<button class="btn primary wide ${state.team.length ? '' : 'disabled'}" data-action="start">Start Battle</button>`
       : '<button class="btn ghost wide" data-action="done">Done</button>',
   }));
@@ -4039,7 +6415,7 @@ function render(host, { stageId }) {
     add: () => openHeroPicker(null),
     start: () => {
       if (!state.team.length) return toast('Add at least one hero.', 'warn');
-      navigate('battle', { stageId });
+      navigate('battle', { ref });
     },
     done: () => navigate('campaign', {}, { replace: true }),
   });
@@ -4049,13 +6425,14 @@ function render(host, { stageId }) {
 function openHeroPicker(replacingHeroId) {
   const state = getState();
   const inTeam = new Set(state.team.map((s) => s.heroId));
-  const candidates = rosterEntries().filter((e) => e.owned && (!inTeam.has(e.id) || e.id === replacingHeroId));
+  // Allies only \u2014 the protagonist holds his slot and is not offered here.
+  const candidates = allyEntries().filter((e) => e.owned && (!inTeam.has(e.id) || e.id === replacingHeroId));
 
   const sheet = h('div', {
     class: 'sheet-backdrop',
     html: `
       <div class="sheet">
-        <div class="sheet-title">${replacingHeroId ? 'Swap hero' : 'Add hero'}</div>
+        <div class="sheet-title">${replacingHeroId ? 'Swap ally' : 'Add ally'}</div>
         <div class="pick-grid">
           ${candidates.map((e) => `
             <button class="hero-card small ${e.id === replacingHeroId ? 'current' : ''}"
@@ -4065,7 +6442,7 @@ function openHeroPicker(replacingHeroId) {
               <span class="card-art">${bustHTML(e.id, e.def.art, bustSVG)}</span>
               <span class="card-name">${e.def.name}</span>
               <span class="card-sub">\u26a1${fmt(e.power)}</span>
-            </button>`).join('') || '<p class="note">No other heroes available.</p>'}
+            </button>`).join('') || '<p class="note">No other allies available.</p>'}
         </div>
         ${replacingHeroId ? '<button class="btn ghost wide" data-action="remove">Remove from team</button>' : ''}
         <button class="btn ghost wide" data-action="close">Close</button>
@@ -4082,12 +6459,13 @@ function openHeroPicker(replacingHeroId) {
       } else if (state.team.length < TEAM_SIZE) {
         state.team.push({ heroId, row: def.preferredRow });
       }
+      state.team = enforceProtagonist(state.team);
       persist();
       sheet.remove();
       refresh();
     },
     remove: () => {
-      state.team = state.team.filter((s) => s.heroId !== replacingHeroId);
+      state.team = enforceProtagonist(state.team.filter((s) => s.heroId !== replacingHeroId));
       persist();
       sheet.remove();
       refresh();
@@ -4136,10 +6514,10 @@ function dispose() {
   finished = false;
 }
 
-function render(host, { stageId }) {
+function render(host, { ref }) {
   dispose();
-  const stage = getStage(stageId);
-  battle = startStageBattle(stageId);
+  const info = encounterInfo(ref);
+  battle = startEncounterBattle(ref);
   speed = 1;
 
   const screen = h('div', { class: 'battle-screen' });
@@ -4148,7 +6526,7 @@ function render(host, { stageId }) {
   const top = h('div', {
     class: 'bt-top',
     html: `
-      <span class="bt-stage">${stage ? `${stage.id}. ${stage.name}` : 'Battle'}</span>
+      <span class="bt-stage">${info ? info.title : 'Battle'}</span>
       <span class="bt-timer" id="bt-timer">0.0s</span>
       <button class="btn ghost tiny" id="bt-speed">x1</button>`,
   });
@@ -4269,7 +6647,7 @@ function render(host, { stageId }) {
       raf = requestAnimationFrame(frame);
     } else if (!finished) {
       finished = true;
-      endBattle(stageId);
+      endBattle(ref);
     }
   };
   raf = requestAnimationFrame(frame);
@@ -4318,6 +6696,25 @@ function handleEvent(ev) {
     case 'debuff':
       if (n) floater(n.fx, `${ev.stat.toUpperCase()} \u25bc`, 'debuff');
       break;
+    case 'freeze': {
+      // PLACEHOLDER staging for the real cut-in: hold everything but the
+      // caster, so the ultimate has the screen to itself.
+      const screen = document.querySelector('.battle-screen');
+      if (screen) {
+        screen.style.setProperty('--freeze-ms', `${Math.round((ev.seconds * 1000) / Math.max(0.25, speed))}ms`);
+        screen.classList.add('time-stop');
+      }
+      for (const other of nodes.values()) other.root.classList.remove('caster');
+      if (n) n.root.classList.add('caster');
+      break;
+    }
+
+    case 'unfreeze': {
+      document.querySelector('.battle-screen')?.classList.remove('time-stop');
+      for (const other of nodes.values()) other.root.classList.remove('caster');
+      break;
+    }
+
     case 'death':
       if (!n) break;
       if (n.animator) {
@@ -4495,15 +6892,20 @@ function paint(timerEl) {
 
 /* ---------------- resolution ---------------- */
 
-function endBattle(stageId) {
+function endBattle(ref) {
+  // A finishing ultimate ends the battle on the tick that started the
+  // time-stop, so the matching 'unfreeze' never arrives. Clear it here.
+  document.querySelector('.battle-screen')?.classList.remove('time-stop');
+  for (const n of nodes.values()) n.root.classList.remove('caster');
+
   const won = battle.state === 'victory';
   const survivors = battle.units.filter((u) => u.side === 'player' && u.alive).length;
   const seconds = battle.elapsed;
 
-  const rewards = won ? completeStage(stageId) : (recordDefeat(), null);
+  const rewards = won ? completeEncounter(ref) : (recordDefeat(), null);
 
   setTimeout(() => {
-    navigate('results', { stageId, won, survivors, seconds, rewards });
+    navigate('results', { ref, won, survivors, seconds, rewards });
   }, 1000);
 }
 return { dispose, render };
@@ -4523,11 +6925,24 @@ const __screen_results = (() => {
 
 
 
-function render(host, { stageId, won, survivors, seconds, rewards }) {
-  const stage = getStage(stageId);
+function render(host, { ref, won, survivors, seconds, rewards }) {
+  const info = encounterInfo(ref);
 
   const rewardRows = [];
   if (rewards) {
+    if (rewards.xp) {
+      rewardRows.push(`<div class="reward"><span class="ri">\u2728</span><span>${fmt(rewards.xp)} XP</span></div>`);
+    }
+    for (const up of rewards.levels || []) {
+      const def = getHeroDef(up.heroId);
+      rewardRows.push(`<div class="reward level-up">
+          <span class="ri">\u2b06\ufe0f</span>
+          <span>${def.name} reached <b>Lv.${up.to}</b></span>
+        </div>`);
+    }
+    if (rewards.senzu) {
+      rewardRows.push(`<div class="reward"><span class="ri">\ud83e\uded8</span><span>Senzu Bean \u00d7${rewards.senzu}</span></div>`);
+    }
     if (rewards.zeni) rewardRows.push(`<div class="reward"><span class="ri">\ud83d\udcb0</span><span>${fmt(rewards.zeni)} Zeni</span></div>`);
     for (const s of rewards.shards) {
       const def = getHeroDef(s.heroId);
@@ -4535,38 +6950,65 @@ function render(host, { stageId, won, survivors, seconds, rewards }) {
     }
     for (const g of rewards.gear) {
       const r = rarityOf(g.rarity);
-      rewardRows.push(`<div class="reward"><span class="ri" style="color:${r.color}">${g.icon}</span><span>${g.name}</span></div>`);
+      rewardRows.push(`<div class="reward">
+          <span class="ri" style="color:${r.color}">${g.icon}</span>
+          <span>${g.name} <span class="glv" style="color:${r.color}">Lv.${g.level}</span></span>
+        </div>`);
     }
   }
 
-  const next = stageList().find((s) => !s.cleared && !s.locked);
+  // What to offer next depends on where the fight came from: the story moves
+  // you forward, a dungeon offers the difficulty you just unlocked.
+  const follow = won ? nextEncounter(ref) : null;
+  const home = ref?.kind === 'dungeon'
+    ? { screen: 'dungeons', label: 'Dungeons' }
+    : { screen: 'campaign', label: 'Campaign' };
 
   host.appendChild(h('div', {
     class: `results ${won ? 'win' : 'lose'}`,
     html: `
       <div class="res-banner">${won ? 'VICTORY' : 'DEFEAT'}</div>
-      <div class="res-stage">${stage ? `${stage.id}. ${stage.name}` : ''}</div>
+      <div class="res-stage">${info ? info.title : ''}</div>
       <div class="res-line">${seconds.toFixed(1)}s \u00b7 ${survivors} hero${survivors === 1 ? '' : 'es'} standing</div>
       ${rewards?.firstClear ? '<div class="first-clear">First Clear Bonus!</div>' : ''}
+      ${rewards?.unlocked ? `<div class="first-clear unlock">${rewards.unlocked} Unlocked!</div>` : ''}
       <div class="reward-list">
         ${won ? (rewardRows.join('') || '<p class="note">No drops this time.</p>')
               : '<p class="note">No rewards. Promote a hero, equip gear, or rethink your formation.</p>'}
       </div>
       <div class="res-actions">
-        ${won && next
-          ? `<button class="btn primary wide" data-action="next" data-stage="${next.stage.id}">Next: ${next.stage.name}</button>`
-          : `<button class="btn primary wide" data-action="retry" data-stage="${stageId}">${won ? 'Fight Again' : 'Retry'}</button>`}
+        ${follow
+          ? `<button class="btn primary wide" data-action="next">Next: ${follow.label}</button>`
+          : `<button class="btn primary wide" data-action="retry">${won ? 'Fight Again' : 'Retry'}</button>`}
         <button class="btn ghost wide" data-action="roster">Manage Heroes</button>
-        <button class="btn ghost wide" data-action="campaign">Campaign</button>
+        <button class="btn ghost wide" data-action="home">${home.label}</button>
       </div>`,
   }));
 
   onAction(host, {
-    next: (el) => navigate('formation', { stageId: Number(el.dataset.stage) }, { replace: true }),
-    retry: (el) => navigate('formation', { stageId: Number(el.dataset.stage) }, { replace: true }),
+    next: () => navigate('formation', { ref: follow.ref }, { replace: true }),
+    retry: () => navigate('formation', { ref }, { replace: true }),
     roster: () => navigate('roster', {}, { replace: true }),
-    campaign: () => navigate('campaign', {}, { replace: true }),
+    home: () => navigate(home.screen, {}, { replace: true }),
   });
+}
+
+/**
+ * The natural follow-up after a win. A story clear points at the next stage;
+ * a dungeon clear points at the difficulty that clear just opened, and stops
+ * offering one at Extreme.
+ */
+function nextEncounter(ref) {
+  if (ref?.kind === 'dungeon') {
+    const entry = dungeonList().find((d) => d.dungeon.id === ref.dungeonId);
+    const idx = entry?.tiers.findIndex((t) => t.tier === ref.tier) ?? -1;
+    const up = idx >= 0 ? entry.tiers[idx + 1] : null;
+    return up
+      ? { label: `${up.meta.name} \u2014 ${up.def.title}`, ref: dungeonRef(ref.dungeonId, up.tier) }
+      : null;
+  }
+  const next = stageList().find((s) => !s.cleared && !s.locked);
+  return next ? { label: next.stage.name, ref: stageRef(next.stage.id) } : null;
 }
 return { render };
 })();
@@ -4590,11 +7032,16 @@ return { render };
 
 
 
-const SCREENS = { campaign: __screen_campaign, roster: __screen_roster, bag: __screen_bag, heroDetail: __screen_heroDetail, formation: __screen_formation, battle: __screen_battle, results: __screen_results };
+
+
+
+const SCREENS = { campaign: __screen_campaign, dungeons: __screen_dungeons, roster: __screen_roster, companions: __screen_companions, bag: __screen_bag, heroDetail: __screen_heroDetail, formation: __screen_formation, battle: __screen_battle, results: __screen_results };
 
 const TITLES = {
   campaign: 'Campaign',
-  roster: 'Heroes',
+  dungeons: 'Dungeons',
+  roster: 'Hero',
+  companions: 'Companions',
   bag: 'Bag',
   heroDetail: 'Hero',
   formation: 'Formation',
@@ -4606,7 +7053,10 @@ const TITLES = {
 const FULLSCREEN = new Set(['battle', 'results']);
 
 /** Which tab lights up for a given screen. */
-const TAB_OF = { campaign: 'campaign', roster: 'roster', bag: 'bag', heroDetail: 'roster', formation: 'campaign' };
+const TAB_OF = {
+  campaign: 'campaign', dungeons: 'dungeons', roster: 'roster',
+  companions: 'companions', bag: 'bag',
+};
 
 let current = null;
 let history = [];
@@ -4635,7 +7085,7 @@ function navigate(name, params = {}, { replace = false } = {}) {
   $('.back-btn').hidden = history.length === 0 || FULLSCREEN.has(name);
 
   for (const tab of document.querySelectorAll('.tab')) {
-    tab.classList.toggle('active', tab.dataset.tab === TAB_OF[name]);
+    tab.classList.toggle('active', tab.dataset.tab === tabFor(name, params));
   }
 
   host.scrollTop = 0;
@@ -4663,9 +7113,27 @@ function currentScreen() {
   return current;
 }
 
+/** Which tab should light up. Hero detail depends on whose detail it is. */
+function tabFor(name, params) {
+  // A companion opened from either place still belongs to the companion tab;
+  // the protagonist belongs to his own.
+  if (name === 'heroDetail') {
+    return params?.heroId === PROTAGONIST_ID ? 'roster' : 'companions';
+  }
+  // The pre-battle screen belongs to whichever list the fight came from.
+  if (name === 'formation') {
+    return params?.ref?.kind === 'dungeon' ? 'dungeons' : 'campaign';
+  }
+  return TAB_OF[name];
+}
+
 function refreshWallet() {
-  const chip = $('#wallet-zeni .val');
-  if (chip) chip.textContent = fmt(getState().zeni);
+  const zeni = $('#wallet-zeni .val');
+  if (zeni) zeni.textContent = fmt(getState().zeni);
+  const senzu = $('#wallet-senzu .val');
+  if (senzu) senzu.textContent = fmt(getState().senzu);
+  const iron = $('#wallet-iron .val');
+  if (iron) iron.textContent = fmt(getState().iron || 0);
 }
 
 function initShell() {
