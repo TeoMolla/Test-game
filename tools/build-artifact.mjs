@@ -48,6 +48,7 @@ const MODULES = [
   'src/ui/avatar.js',
   'src/ui/sprites.js',
   'src/ui/spriteAnimator.js',
+  'src/ui/gearCard.js',
 ];
 
 const SCREENS = [

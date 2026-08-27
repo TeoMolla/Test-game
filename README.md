@@ -84,7 +84,11 @@ Progress saves to `localStorage`, so it survives closing the tab.
 - **Slot levels** — each of the four slots carries its own bought level, shown
   as a `+N` on the slot. Scrap gear you will not use for **iron** in the Bag,
   spend iron raising a slot, and the slot multiplies whatever is in it.
-- **Bag** — zeni, shards, gear, record, reset.
+- **Bag** — three tabs. *Items* holds currency, senzu, iron, shards and the
+  record; *Gear* is everything you own, best first, each row opening its item
+  card; *Dismantle* is a selectable grid for clearing surplus in bulk.
+- **Locking** — any piece can be locked from its item card. Locked gear is
+  never offered for scrapping by either path.
 
 ## Module map
 
@@ -102,6 +106,11 @@ systems talk through those interfaces only.
 | `src/inventory/` | Zeni, shards, gear ownership — the only place resources move |
 | `src/save/` | The player-state object and its localStorage persistence |
 | `src/ui/` | Screens, the sprite layer, and the placeholder avatar renderer |
+
+`src/ui/dom.js`'s `onAction` keeps its handlers in a map owned by the node, and
+`clear()` empties that map. One listener per node, and a screen the player has
+left stops answering clicks — before that every navigation stacked another live
+listener on `#screen`, so two screens sharing an action name would both fire.
 
 `src/battle/engine.js` never touches the DOM and never imports the save layer —
 it emits events, and `src/ui/screens/battle.js` draws them. That's what lets the
@@ -261,6 +270,18 @@ than the surplus an early one does. Equipped gear is never offered for
 scrapping — the safest way to stop someone destroying what they are wearing is
 not to show the button.
 
+Scrapping happens in the Bag's Dismantle tab: a grid of everything spare, one
+tap per tile to select, or one tap on a rarity to take every piece of it at
+once. Two guards sit in front of it. **Locked** pieces (🔒, set from the item
+card) are never offered. And **Keep best per slot** (▲, on by default) holds
+back the single strongest piece you own for each slot, counting what is
+equipped.
+
+That last rule started out as "anything that beats what you are wearing", which
+looked right until a slot was empty — then every piece for it beat nothing and
+the whole slot became unscrappable. Best-per-slot says the same thing where it
+matters and stays true when the slot is bare.
+
 Iron buys slot levels. Each of the four slots has its own, and a slot level
 multiplies whatever item is sitting in it: an empty slot's level is worth
 nothing, and a slot level is worth more once you have something good there. The
@@ -281,6 +302,12 @@ The card is centred rather than a bottom sheet, and the picker behind Replace
 is a bottom sheet — a single object you are inspecting and a list you scroll
 should not feel alike. The power figure on the card is exact: the hero's power
 now, minus his power with that slot emptied.
+
+The same card opens from a Bag gear row, in an item mode: stats are the piece's
+own rather than multiplied by a slot it is not in, the slot's level is shown as
+what it *would* add, and the actions become Equip and Scrap. Both modes carry
+the lock toggle, which is why Bag rows open it at all — before that, unequipped
+gear could not be inspected, so there was nowhere to lock it.
 
 ### Where the payouts split
 

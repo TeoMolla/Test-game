@@ -910,3 +910,113 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 
 .gear-row .scrap { flex: none; font-variant-numeric: tabular-nums; }
 .gear-row .scrap.danger { border-color: var(--bad); color: var(--bad); }
+
+/* ---------------- bag tabs ---------------- */
+
+/* The hero screen pins its tabs to the bottom; the Bag's belong at the top,
+   under the wallet, because its tabs switch between whole inventories rather
+   than between views of one hero. */
+.tab-bar.bag-tabs {
+  position: static; margin: 12px 0 4px;
+  padding: 0; background: none; backdrop-filter: none; border-top: 0;
+}
+.tab-bar.bag-tabs .tab-btn { padding: 9px 0; font-size: 13.5px; }
+.tab-bar.bag-tabs .tab-btn.active { background: var(--accent); color: #1a0d02; }
+.bag-tabs + .tab-body { padding-bottom: 20px; }
+
+/* ---------------- dismantle grid ---------------- */
+
+.scrap-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin: 6px 2px 10px;
+  font-size: 13px;
+}
+.sh-count b { color: var(--gold); font-size: 15px; }
+.sh-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: 0; color: var(--muted); font-size: 12.5px;
+}
+.sh-toggle .sh-box {
+  width: 17px; height: 17px; border-radius: 5px;
+  border: 1.5px solid var(--panel-line);
+  display: grid; place-items: center; font-size: 11px; line-height: 1;
+}
+.sh-toggle.on { color: var(--text); }
+.sh-toggle.on .sh-box { background: var(--good); border-color: var(--good); color: #0b1020; }
+
+.scrap-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px;
+}
+.scrap-tile {
+  position: relative; aspect-ratio: 1;
+  border-radius: 14px;
+  border: 2px solid var(--gr);
+  background: color-mix(in srgb, var(--gr) 12%, #0b1220);
+  display: grid; place-items: center;
+  font-size: 27px;
+}
+/* Selection is the ACCENT, never a rarity colour — a green "selected" ring on
+   a green uncommon border is unreadable. */
+.scrap-tile.on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, #0b1220);
+  box-shadow: 0 0 0 2px var(--accent), 0 0 18px -5px var(--accent);
+}
+/* Held back rather than hidden: seeing why a piece is not on the table is the
+   whole point of the exclude toggle. */
+.scrap-tile.blocked { opacity: 0.42; }
+
+/* Unchecked is an empty outline, not a filled disc — a dark disc on a dark
+   tile reads as a hole punched in the corner. */
+.st-check {
+  position: absolute; top: -4px; left: -4px;
+  width: 20px; height: 20px; border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  background: rgba(11, 18, 32, 0.75); color: #1a0d02;
+  display: grid; place-items: center;
+  font-size: 12px; font-weight: 900; line-height: 1;
+}
+.scrap-tile.on .st-check { background: var(--accent); border-color: var(--accent); }
+.scrap-tile.blocked .st-check { display: none; }
+.st-lv {
+  position: absolute; right: 3px; bottom: 2px;
+  font-size: 11px; font-weight: 800; color: var(--text);
+  text-shadow: 0 1px 3px #000;
+}
+.st-flag { position: absolute; top: 2px; right: 3px; font-size: 11px; }
+
+.scrap-rarities {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  margin: 14px 0 10px;
+}
+.rarity-pick {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 11px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--rc) 40%, transparent);
+  background: color-mix(in srgb, var(--rc) 10%, transparent);
+  color: var(--rc); font-size: 12px; font-weight: 700;
+}
+.rarity-pick small { color: var(--muted); font-weight: 500; }
+.rp-dot {
+  width: 9px; height: 9px; border-radius: 999px;
+  border: 1.5px solid var(--rc);
+}
+.rarity-pick.on {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border-color: var(--accent); color: var(--text);
+}
+.rarity-pick.on .rp-dot { background: var(--accent); border-color: var(--accent); }
+
+.scrap-actions { margin-top: 4px; }
+
+/* ---------------- lock ---------------- */
+
+.gd-lock {
+  margin-left: auto; flex: none;
+  width: 32px; height: 32px; border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.28);
+  font-size: 15px; line-height: 1;
+}
+.gd-lock.on { border-color: var(--gold); background: rgba(251, 191, 36, 0.16); }
+.lock-note { color: var(--gold); }

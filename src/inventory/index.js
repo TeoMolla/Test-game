@@ -9,7 +9,7 @@
 import { getState, persist } from '../save/index.js';
 import { isProtagonist } from '../hero/heroes.js';
 import {
-  createGearInstance, getGearDef, dismantleYield, slotUpgradeCost,
+  createGearInstance, getGearDef, dismantleYield, slotUpgradeCost, gearScore,
 } from '../gear/index.js';
 import { GEAR_SLOTS } from '../gear/gear.js';
 
@@ -176,7 +176,7 @@ export function dismantleGear(uid) {
   const idx = s.gear.findIndex((g) => g.uid === uid);
   if (idx < 0) return 0;
   const inst = s.gear[idx];
-  if (inst.equippedBy) return 0;
+  if (!canDismantle(inst)) return 0;
   const def = getGearDef(inst.defId);
   if (!def) return 0;
 
@@ -185,6 +185,70 @@ export function dismantleGear(uid) {
   s.iron = (s.iron || 0) + gained;
   persist();
   return gained;
+}
+
+/** Equipped and locked gear is never scrappable, by either path. */
+export function canDismantle(inst) {
+  return !!inst && !inst.equippedBy && !inst.locked;
+}
+
+/** Scrap a batch. Returns the total iron and how many pieces actually went. */
+export function dismantleMany(uids) {
+  let iron = 0;
+  let count = 0;
+  for (const uid of uids) {
+    const gained = dismantleGear(uid);
+    if (gained) { iron += gained; count += 1; }
+  }
+  return { iron, count };
+}
+
+/** Lock a piece against scrapping, or unlock it. Returns the new state. */
+export function toggleGearLock(uid) {
+  const inst = gearByUid(uid);
+  if (!inst) return false;
+  inst.locked = !inst.locked;
+  persist();
+  return inst.locked;
+}
+
+/**
+ * The pieces the dismantle screen is allowed to offer, and why each one is or
+ * is not on the table. `excludeUpgrades` is the "don't let me scrap something
+ * I should be wearing" safety net.
+ *
+ * What that protects is the single BEST piece you own for each slot, counting
+ * the equipped one. Protecting everything that merely beats what is equipped
+ * looked right until a slot was empty — then every piece for it beat nothing
+ * and the whole slot became unscrappable. Best-per-slot says the same thing
+ * where it matters and stays true when the slot is bare.
+ */
+export function dismantleCandidates({ excludeUpgrades = true } = {}) {
+  const best = bestPerSlot();
+  return getState().gear
+    .filter((inst) => !inst.equippedBy)
+    .map((inst) => {
+      const def = getGearDef(inst.defId);
+      const isBest = !!def && best.get(def.slot) === inst.uid;
+      const blocked = inst.locked ? 'locked' : (excludeUpgrades && isBest ? 'best' : null);
+      return { inst, isBest, blocked, yield: dismantleYield(def, inst.level) };
+    });
+}
+
+/** uid of the strongest piece owned for each slot, equipped or not. */
+function bestPerSlot() {
+  const best = new Map();
+  const score = new Map();
+  for (const inst of getState().gear) {
+    const def = getGearDef(inst.defId);
+    if (!def) continue;
+    const s = gearScore(inst);
+    if (!best.has(def.slot) || s > score.get(def.slot)) {
+      best.set(def.slot, inst.uid);
+      score.set(def.slot, s);
+    }
+  }
+  return best;
 }
 
 /** What one slot upgrade costs and whether it is affordable right now. */

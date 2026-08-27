@@ -9,13 +9,11 @@ import { bustSVG } from '../avatar.js';
 import { portraitHTML } from '../sprites.js';
 import {
   getHeroDef, heroSave, statsFor, powerOf, slotsFor,
-  promoteInfo, promote, xpInfo, isProtagonist, bondOf, levelOf,
+  promoteInfo, promote, xpInfo, isProtagonist, bondOf, levelOf, PROTAGONIST_ID,
 } from '../../hero/index.js';
 import { rarityOf, MAX_STARS } from '../../config.js';
-import {
-  GEAR_SLOTS, GEAR_SLOT_META, getGearDef, describeGear, sortGear,
-  GEAR_SLOT_LEVEL_STEP, gearSlotMult, statsAtLevel,
-} from '../../gear/index.js';
+import { GEAR_SLOTS, GEAR_SLOT_META, getGearDef, describeGear, sortGear } from '../../gear/index.js';
+import { openGearCard } from '../gearCard.js';
 import * as inventory from '../../inventory/index.js';
 import { getState } from '../../save/index.js';
 import { refresh } from '../app.js';
@@ -156,7 +154,7 @@ function renderStats(body, heroId) {
   }));
 
   onAction(body, {
-    gear: (el) => openGearDetail(heroId, el.dataset.slot),
+    gear: (el) => openSlotCard(el.dataset.slot),
   });
 }
 
@@ -244,114 +242,15 @@ function renderSkills(body, heroId) {
   }));
 }
 
-/* ---------------- Gear detail card ---------------- */
-
-const STAT_LABEL = { atk: 'ATK', hp: 'HP', def: 'DEF', speed: 'SPD' };
-
-/**
- * The item card: what is in this slot, what it is worth, and the two things
- * you can do about it. Tapping a slot lands here rather than straight in the
- * picker, because "what am I actually wearing" is the more common question.
- *
- * Stats are split the way the reference splits them — the item's flat numbers
- * read as its main line, its percentages as additional — and both are shown
- * already multiplied by the slot level, since that is what the hero actually
- * receives. Showing base values and a separate multiplier would make the
- * player do the arithmetic.
- */
-function openGearDetail(heroId, slot) {
-  const meta = GEAR_SLOT_META[slot];
-
-  const cardHTML = () => {
-    const hs = heroSave(heroId);
-    const uid = hs.equipped[slot];
-    const inst = uid ? inventory.gearByUid(uid) : null;
-    const def = inst ? getGearDef(inst.defId) : null;
-    const r = def ? rarityOf(def.rarity) : { color: 'var(--panel-line)', name: 'Empty', glow: 'transparent' };
-    const up = inventory.slotUpgradeInfo(slot);
-    const mult = gearSlotMult(up.level);
-
-    // What this piece is actually worth: the hero's power now, minus his power
-    // with this slot emptied. Exact rather than a heuristic, and it moves when
-    // the slot level does.
-    const worth = def
-      ? powerOf(heroId) - powerOf(heroId, { equipped: { ...hs.equipped, [slot]: null } })
-      : 0;
-
-    const at = def ? statsAtLevel(def, inst.level) : { flat: {}, pct: {} };
-    const mainRows = Object.entries(at.flat)
-      .filter(([, v]) => v)
-      .map(([k, v]) => `<div class="gd-stat main"><span>${STAT_LABEL[k] || k}</span><b>+${fmt(Math.round(v * mult))}</b></div>`)
-      .join('');
-    const addRows = Object.entries(at.pct)
-      .filter(([, v]) => v)
-      .map(([k, v]) => `<div class="gd-stat"><span>${STAT_LABEL[k] || k}</span><b>+${(v * mult * 100).toFixed(1)}%</b></div>`)
-      .join('');
-
-    return `
-      <div class="gd-head" style="--gr:${r.color}">
-        <span class="gd-name">${def ? def.name : meta.name}</span>
-        <span class="gd-plus">+${up.level}</span>
-      </div>
-
-      <div class="gd-band" style="--gr:${r.color}">
-        <div class="gd-band-text">
-          <div class="gd-slot">${meta.name}</div>
-          <div class="gd-rarity">${def ? r.name : 'Empty'}</div>
-          ${def ? `<div class="gd-worth">⚡ ${fmt(worth)}</div>` : ''}
-        </div>
-        <div class="gd-art">${def ? def.icon : meta.icon}</div>
-        ${def ? `<div class="gd-level">Level <b>${inst.level}</b></div>` : ''}
-      </div>
-
-      <div class="gd-stats">
-        ${def ? mainRows : '<p class="note">Nothing equipped in this slot.</p>'}
-        ${addRows ? `<div class="gd-sub">Additional Stats</div>${addRows}` : ''}
-        <div class="gd-sub">Slot</div>
-        <div class="gd-stat">
-          <span>Slot level +${up.level}</span>
-          <b>+${(up.level * GEAR_SLOT_LEVEL_STEP * 100).toFixed(1)}%</b>
-        </div>
-      </div>
-
-      <div class="gd-actions">
-        <button class="btn ghost small" data-action="replace">${def ? 'Replace' : 'Equip'}</button>
-        <button class="btn ${up.canUpgrade ? 'primary' : 'ghost'} small ${up.canUpgrade ? '' : 'disabled'}"
-                data-action="enhance">Enhance 🔩${fmt(up.cost)}</button>
-      </div>`;
-  };
-
-  const sheet = h('div', {
-    // Centred rather than a bottom sheet: the picker is a list you scroll, this
-    // is a single object you are looking at, and they should not feel alike.
-    class: 'sheet-backdrop centred',
-    html: `<div class="sheet gear-detail">${cardHTML()}</div>`,
-  });
-
-  onAction(sheet, {
-    replace: () => {
-      sheet.remove();
-      openGearSheet(heroId, slot);
-    },
-    // Enhancing is a repeated action, so the card updates in place: the +N in
-    // the title, the stat rows and the power figure all move together, which
-    // is the whole point of doing it from here.
-    enhance: () => {
-      if (inventory.upgradeGearSlot(slot)) {
-        sheet.querySelector('.gear-detail').innerHTML = cardHTML();
-        refresh();
-      } else {
-        toast('Not enough iron. Scrap spare gear in the Bag.', 'warn');
-      }
-    },
-  });
-  sheet.addEventListener('click', (ev) => { if (ev.target === sheet) sheet.remove(); });
-  document.body.appendChild(sheet);
-}
-
 /* ---------------- Gear picker sheet ---------------- */
 
-function openGearSheet(heroId, slot) {
+/** Tapping a slot lands on the item card; Replace is what reaches the picker. */
+function openSlotCard(slot) {
+  openGearCard({ slot, onReplace: () => openGearSheet(slot) });
+}
+
+function openGearSheet(slot) {
+  const heroId = PROTAGONIST_ID;
   const hs = heroSave(heroId);
   const equippedUid = hs.equipped[slot];
   const options = inventory.availableGearForSlot(slot);
@@ -385,17 +284,17 @@ function openGearSheet(heroId, slot) {
       inventory.equipGear(heroId, el.dataset.uid);
       sheet.remove();
       refresh();
-      openGearDetail(heroId, slot);
+      openSlotCard(slot);
     },
     unequip: () => {
       inventory.unequipGear(heroId, slot);
       sheet.remove();
       refresh();
-      openGearDetail(heroId, slot);
+      openSlotCard(slot);
     },
     // Closing the picker returns to the item card it was opened from, rather
     // than dumping the player back on the hero screen mid-decision.
-    close: () => { sheet.remove(); openGearDetail(heroId, slot); },
+    close: () => { sheet.remove(); openSlotCard(slot); },
   });
   sheet.addEventListener('click', (ev) => { if (ev.target === sheet) sheet.remove(); });
 

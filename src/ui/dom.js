@@ -29,6 +29,12 @@ export function h(tag, attrs = {}, children = []) {
 }
 
 export function clear(node) {
+  // Drop the node's delegated action handlers along with its content. Without
+  // this every navigation left another live listener on #screen, so a screen
+  // the player had already left kept answering clicks — and two screens using
+  // the same action name (say `open`) would both fire, oldest first.
+  const map = actionMaps.get(node);
+  if (map) for (const key of Object.keys(map)) delete map[key];
   while (node.firstChild) node.removeChild(node.firstChild);
   return node;
 }
@@ -37,13 +43,28 @@ export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
 /** Bind clicks by [data-action] within a root — cheap event delegation. */
+const actionMaps = new WeakMap();
+
+/**
+ * Delegated click handling for [data-action] descendants.
+ *
+ * The handlers live in a map owned by the node, not in this closure, so one
+ * listener is ever attached per node and clear() can empty it. Calling this
+ * twice on the same node merges rather than stacking.
+ */
 export function onAction(root, handlers) {
-  root.addEventListener('click', (ev) => {
-    const target = ev.target.closest('[data-action]');
-    if (!target || !root.contains(target)) return;
-    const fn = handlers[target.dataset.action];
-    if (fn) { ev.preventDefault(); fn(target, ev); }
-  });
+  let map = actionMaps.get(root);
+  if (!map) {
+    map = {};
+    actionMaps.set(root, map);
+    root.addEventListener('click', (ev) => {
+      const target = ev.target.closest('[data-action]');
+      if (!target || !root.contains(target)) return;
+      const fn = map[target.dataset.action];
+      if (fn) { ev.preventDefault(); fn(target, ev); }
+    });
+  }
+  Object.assign(map, handlers);
 }
 
 export function fmt(n) {

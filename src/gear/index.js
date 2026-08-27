@@ -25,7 +25,7 @@ let uidCounter = 0;
 export function createGearInstance(defId, level = 1, seedUid) {
   if (!GEAR[defId]) return null;
   const uid = seedUid || `g_${Date.now().toString(36)}_${(uidCounter++).toString(36)}`;
-  return { uid, defId, level: Math.max(1, Math.round(level)), equippedBy: null };
+  return { uid, defId, level: Math.max(1, Math.round(level)), locked: false, equippedBy: null };
 }
 
 /**
