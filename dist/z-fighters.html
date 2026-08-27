@@ -1052,30 +1052,6 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   border-radius: 999px; padding: 3px 11px;
 }
 
-/* ---- time-stop ----
-   PLACEHOLDER staging for the ultimate cut-in that will replace it: the world
-   dims and desaturates, the caster stays lit, and every other animation holds
-   where it is. The frame-by-frame sprite clip runs off the wall clock, so the
-   ultimate itself plays straight through. */
-
-.battle-screen.time-stop .arena::before { opacity: 1; }
-
-.time-stop .unit:not(.caster) {
-  filter: grayscale(0.75) brightness(0.5);
-}
-/* Hold everyone else mid-motion \002014 mid-swing, mid-recoil, numbers mid-flight. */
-.time-stop .unit:not(.caster) .u-art,
-.time-stop .unit:not(.caster) .float {
-  animation-play-state: paused;
-}
-.time-stop .unit.caster .u-art {
-  filter: drop-shadow(0 0 14px var(--aura)) brightness(1.08);
-}
-.time-stop .bt-timer { opacity: 0.45; }
-
-.unit:not(.caster), .unit.caster .u-art, .bt-timer {
-  transition: filter 130ms ease, opacity 130ms ease;
-}
 
 /* ---- arena ---- */
 
@@ -1087,21 +1063,6 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   min-height: 0;
   position: relative;
 }
-/* the time-stop wash; sits above the ground and below the units */
-.arena::before {
-  content: '';
-  position: absolute; inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(120% 90% at 50% 45%, rgba(8, 12, 30, 0.25), rgba(4, 7, 18, 0.72));
-  /* snap in, ease out \002014 the hit should land, not fade in */
-  transition: opacity 260ms ease;
-}
-.battle-screen.time-stop .arena::before {
-  transition: opacity 90ms ease;
-}
-
 /* ground plane */
 .arena::after {
   content: '';
@@ -1126,25 +1087,10 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   position: relative;
   width: 74px;
   display: flex; flex-direction: column; align-items: center;
-  /* --advance-x/y is where this unit has run to engage; 0 for anyone holding
-     the back line. Every transform below has to carry it, or a unit snaps back
-     to its lane the moment another class touches `transform`. */
-  transform: translate(var(--advance-x, 0px), var(--advance-y, 0px));
-  transition: opacity 0.35s ease, transform var(--approach-ms, 550ms) ease-in-out;
+  transition: opacity 0.35s ease, transform 0.25s ease;
 }
-.unit.dead {
-  opacity: 0;
-  transform: translate(var(--advance-x, 0px), calc(var(--advance-y, 0px) + 14px)) scale(0.85);
-  pointer-events: none;
-}
+.unit.dead { opacity: 0; transform: translateY(14px) scale(0.85); pointer-events: none; }
 
-/* Running in. There is no run cycle in the sprite set, so the guard pose plus
-   a bob carries it; a real run frame would drop straight in here. */
-.unit.advancing .u-art { animation: runBob 280ms ease-in-out infinite; }
-@keyframes runBob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-5px); }
-}
 
 .u-art { width: 74px; height: 104px; position: relative; }
 
@@ -1167,7 +1113,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 /* Sprite units play their own defeat clip, so they hold at full opacity until
    it finishes. :not(.dead) matters \002014 this selector is more specific than
    .unit.dead, and without it the body would never fade out afterwards. */
-.unit.has-sprite.dying:not(.dead) { opacity: 1; transform: translate(var(--advance-x, 0px), var(--advance-y, 0px)); }
+.unit.has-sprite.dying:not(.dead) { opacity: 1; transform: none; }
 .u-art::after {
   content: '';
   position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%);
@@ -1274,6 +1220,11 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 
 /* ---- skill call-out above the caster ---- */
 
+/* Callouts on the outer edges of the arena would run off screen if they were
+   centred on their unit, so each side's hang inward. */
+.unit.enemy .u-callout { left: auto; right: 0; transform: none; }
+.unit.player .u-callout { left: 0; right: auto; transform: none; }
+
 .u-callout {
   position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
   font-size: 10px; font-weight: 800; white-space: nowrap;
@@ -1282,23 +1233,30 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
   border: 1px solid rgba(255, 255, 255, 0.18);
   opacity: 0; z-index: 5;
   transition: opacity 0.18s ease;
+  max-width: 128px; overflow: hidden; text-overflow: ellipsis;
 }
+/* Both sides shout at once constantly. Putting the enemy's callouts on their
+   own line stops two simultaneous skill names landing on top of each other. */
+.unit.enemy .u-callout { top: -32px; left: auto; right: 0; transform: none; }
 .u-callout.show { opacity: 1; }
 .u-callout.ultimate { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 14px -3px var(--gold); }
 .u-callout.technique { border-color: #38bdf8; color: #7dd3fc; }
 .u-callout.passive { border-color: #c084fc; color: #d8b4fe; }
+.u-callout.telegraph { border-color: var(--bad); color: #fecaca; box-shadow: 0 0 16px -2px var(--bad); }
+.u-callout.phase { border-color: #fb7185; color: #fecdd3; box-shadow: 0 0 20px -2px #fb7185; }
 
 /* ---- bottom dock: per-hero cooldown + ultimate meter ---- */
 
+/* A status readout now, not a control \002014 the action bar below owns input. */
 .bt-dock {
   display: flex; gap: 8px; justify-content: center;
-  padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px));
-  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.55) 40%);
+  padding: 8px 12px 8px;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.5) 40%);
 }
 
 .dock-card {
   position: relative;
-  width: 88px;
+  width: 84px;
   border-radius: 13px;
   border: 1.5px solid var(--rarity, #64748b);
   background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(0,0,0,0.4));
@@ -1307,10 +1265,6 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 }
 .dock-card.down { filter: grayscale(1) brightness(0.5); }
 
-.dc-timer {
-  font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums;
-  color: #e2e8f0;
-}
 .dc-art { width: 46px; height: 46px; border-radius: 9px; overflow: hidden; background: rgba(0,0,0,0.3); }
 .dc-name { font-size: 9.5px; color: rgba(255,255,255,0.72); }
 
@@ -1321,28 +1275,195 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 .dc-ult-fill { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #fbbf24, #f97316); transition: width 0.15s linear; }
 .dc-hp-fill { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #22c55e, #86efac); transition: width 0.16s linear; }
 
+
 /* the "ultimate ready" state called for in the reference dock */
 .dock-card.ult-ready {
   border-color: var(--gold);
   box-shadow: 0 0 0 1px var(--gold), 0 0 18px -2px var(--gold);
   animation: ultReady 1s ease-in-out infinite;
 }
-.dock-card.ult-ready .dc-timer::after {
-  content: ' \0026a1';
-  color: var(--gold);
-}
 @keyframes ultReady {
   0%, 100% { box-shadow: 0 0 0 1px var(--gold), 0 0 12px -3px var(--gold); }
   50%      { box-shadow: 0 0 0 1px var(--gold), 0 0 24px 1px var(--gold); }
 }
 
+
+/* ---- boss phase turn ---- */
+
+.phase-banner {
+  position: absolute; left: 0; right: 0; top: 38%;
+  text-align: center;
+  font-family: var(--font-display); font-size: 30px; letter-spacing: 0.03em;
+  color: #fff;
+  text-shadow: 0 0 22px #fb7185, 0 2px 4px #000;
+  animation: phaseIn 1.6s ease forwards;
+  pointer-events: none; z-index: 8;
+}
+@keyframes phaseIn {
+  0%   { opacity: 0; transform: scale(0.7); letter-spacing: 0.3em; }
+  22%  { opacity: 1; transform: scale(1); letter-spacing: 0.03em; }
+  75%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.06); }
+}
+/* A unit that has turned keeps a permanent mark of it. */
+.unit.phased .u-art { filter: drop-shadow(0 0 10px #fb7185); }
+
 @media (prefers-reduced-motion: reduce) {
   .u-art.hit, .u-art.lunge, .dock-card.ult-ready, .hero-card.unlockable { animation: none; }
-  .unit.advancing .u-art { animation: none; }
-  .arena::before { transition: none; }
+  .unit.charging::after, .unit.threatened::before, .unit.selected::before,
+  .phase-banner, .to-pip.now, .dock-card.nope { animation: none; }
+  .unit.charging::after, .unit.threatened::before { opacity: 0.8; }
+  .phase-banner { opacity: 1; }
   .unit { transition: opacity 0.35s ease; }
   .u-beam.fire { animation: none; width: var(--beam-len, 150px); opacity: 1; }
 }
+
+/* ---- turn order ----
+   The spine of a turn-based fight: who acts next has to be a fact on screen,
+   not something the player infers from speed stats. Left is soonest. */
+
+.turn-order {
+  display: flex; align-items: center; gap: 5px;
+  padding: 2px 14px 8px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.turn-order::-webkit-scrollbar { display: none; }
+
+.to-pip {
+  position: relative; flex: none;
+  width: 34px; height: 34px; border-radius: 10px;
+  border: 1.5px solid var(--rarity, #64748b);
+  background: rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  opacity: 0.55;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.to-pip .to-art { position: absolute; inset: 0; }
+/* The one acting right now leads the strip and is the only one at full size. */
+.to-pip.now {
+  opacity: 1; width: 42px; height: 42px; border-width: 2px;
+  box-shadow: 0 0 12px -2px var(--rarity);
+}
+.to-pip.enemy { border-style: dashed; }
+.to-pip .to-flag {
+  position: absolute; right: -1px; bottom: -2px;
+  font-size: 11px; color: var(--bad); text-shadow: 0 1px 3px #000;
+}
+
+/* ---- unit states ---- */
+
+/* Charging: announced this turn, lands on this unit's next one. */
+.unit.charging::after {
+  content: '';
+  position: absolute; inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--bad);
+  animation: chargeRing 0.9s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes chargeRing {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50%      { opacity: 0.95; transform: scale(1.06); }
+}
+.unit.charging .u-art { filter: drop-shadow(0 0 14px var(--bad)); }
+
+/* In the blast of something charging. */
+.unit.threatened::before {
+  content: '';
+  position: absolute; inset: -4px;
+  border-radius: 12px;
+  border: 2px dashed var(--bad);
+  animation: threatPulse 0.7s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes threatPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+
+/* Braced. Halves the next hit, so it needs to read at a glance. */
+.unit.guarding .u-art { filter: drop-shadow(0 0 10px #38bdf8) brightness(0.95); }
+.unit.guarding::after {
+  content: '\01f6e1\00fe0f';
+  position: absolute; top: 4px; right: 2px;
+  font-size: 15px; z-index: 4;
+  text-shadow: 0 1px 4px #000;
+}
+
+/* Whose turn it is. */
+.unit.acting .u-art { filter: drop-shadow(0 0 12px var(--gold)); }
+
+/* Picking a target. */
+.unit.selectable { cursor: pointer; }
+.unit.selectable .u-art { outline: 2px dotted rgba(255,255,255,0.28); outline-offset: 3px; border-radius: 10px; }
+.unit.selected::before {
+  content: '';
+  position: absolute; inset: -5px;
+  border-radius: 12px;
+  border: 2.5px solid var(--gold);
+  box-shadow: 0 0 16px -3px var(--gold);
+  pointer-events: none;
+}
+
+.unit.phased .u-art { filter: drop-shadow(0 0 10px #fb7185); }
+
+/* ---- phase turn ---- */
+
+.phase-banner {
+  position: absolute; left: 0; right: 0; top: 36%;
+  text-align: center;
+  font-family: var(--font-display); font-size: 30px; letter-spacing: 0.03em;
+  color: #fff;
+  text-shadow: 0 0 22px #fb7185, 0 2px 4px #000;
+  animation: phaseIn 1.6s ease forwards;
+  pointer-events: none; z-index: 8;
+}
+@keyframes phaseIn {
+  0%   { opacity: 0; transform: scale(0.7); letter-spacing: 0.3em; }
+  22%  { opacity: 1; transform: scale(1); letter-spacing: 0.03em; }
+  75%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.06); }
+}
+
+/* ---- action bar ----
+   Only ever shows what the engine says is legal, so a greyed button is a
+   cooldown or an unfilled meter and never a bug. */
+
+.action-bar-battle {
+  min-height: 92px;
+  padding: 0 10px calc(10px + env(safe-area-inset-bottom, 0px));
+}
+.ab-who {
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--gold); text-align: center; margin-bottom: 6px;
+}
+.ab-who.waiting { color: var(--muted); padding-top: 22px; }
+.ab-row { display: flex; gap: 6px; }
+.ab-btn {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 8px 4px 7px;
+  border-radius: 12px;
+  border: 1.5px solid var(--panel-line);
+  background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(0,0,0,0.42));
+  color: var(--text);
+}
+.ab-ico { font-size: 19px; line-height: 1; }
+.ab-name {
+  font-size: 9.5px; font-weight: 700; line-height: 1.15; text-align: center;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ab-sub { font-size: 9px; color: var(--muted); }
+.ab-btn.disabled { opacity: 0.4; pointer-events: none; }
+.ab-btn.ultimate { border-color: var(--gold); box-shadow: 0 0 14px -4px var(--gold); }
+.ab-btn.technique { border-color: #38bdf8; }
+.ab-btn.guard { border-color: #94a3b8; }
+.ab-btn:active { transform: scale(0.96); }
+
+/* AUTO is a mode, so it stays lit while it is on. */
+#bt-auto.on { border-color: var(--good); color: var(--good); }
+
+.float.guard { color: #7dd3fc; font-size: 12px; }
+.u-callout.charge { border-color: var(--bad); color: #fecaca; box-shadow: 0 0 16px -2px var(--bad); }
+.u-callout.phase { border-color: #fb7185; color: #fecdd3; box-shadow: 0 0 20px -2px #fb7185; }
+.u-callout.guard { border-color: #38bdf8; color: #bae6fd; }
 
 </style>
 
@@ -1486,13 +1607,16 @@ const RESERVED_SLOTS = ['transform'];
  * field, heroes and enemies alike, so raising it stretches every fight without
  * touching who beats whom: both sides gain the same survivability.
  *
- * It is not perfectly neutral, and the direction is worth knowing. Auto-attacks
- * scale with the clock, but techniques run on fixed cooldowns and ultimates on
- * a charge meter \u2014 so a longer fight means more casts, and it quietly favours
- * whoever has the better kit. That is usually the boss. Re-run
- * tools/simulate.mjs after changing this.
+ * It is not perfectly neutral, and the direction is worth knowing. A longer
+ * fight means more turns, and more turns means more techniques and ultimates \u2014
+ * so it quietly favours whoever has the better kit. That is usually the boss.
+ * Re-run tools/simulate.mjs after changing this.
+ *
+ * Dropped from 2.0 when combat went turn-based: a unit that used to swing
+ * thirty-odd times in a fight now takes six or eight turns, so the same HP
+ * pool turned every boss into a stalemate against the turn cap.
  */
-const HP_SCALE = 2.0;
+const HP_SCALE = 0.8;
 
 const MAX_LEVEL = 60;             // PLACEHOLDER
 
@@ -1616,46 +1740,32 @@ function computePower(stats, star = 0) {
 
 /** Combat tuning. PLACEHOLDER across the board. */
 const COMBAT = {
-  tickMs: 50,                  // fixed simulation step
-  baseAttackInterval: 1.7,     // seconds between auto-attacks at speed 1.0
-  maxBattleSeconds: 90,        // draw -> defeat if nobody wipes
+  maxTurns: 80,               // stalemate -> defeat if nobody wipes
   defenseConstant: 240,        // dmg * K / (K + def)
   damageVariance: 0.12,        // +/- 12% roll
   critChance: 0.1,
   critMult: 1.6,
-  ultimateChargePerSecond: 5.6,   // passive charge
+
+  /** Guarding halves the hit and is the answer to a charging attack. */
+  guardDamageMult: 0.5,
+
+  /** Turns a technique sits on cooldown when its skill does not say. */
+  defaultTechniqueCooldown: 3,
+
+  /* Ultimate charge, now per TURN rather than per second. A unit reaches a
+     full meter in roughly five of its own turns if it does nothing but swing,
+     sooner if it is being hit or guarding. */
+  ultimateChargePerTurn: 12,
   ultimateChargeOnHitDealt: 4,
   ultimateChargeOnHitTaken: 3,
+  ultimateChargeOnGuard: 10,
   ultimateChargeMax: 100,
+
+  /** Auto-battle guards a charging hit only below this much health \u2014 guarding
+   *  at full health throws the turn away. */
+  aiGuardHpThreshold: 0.62,
+
   backRowDamageTakenMult: 1.0, // if back row ever becomes targetable early
-
-  /**
-   * Front-line units close the distance before they can swing. Nobody on
-   * either side acts until they have arrived, so the simulation and the
-   * on-screen run stay in step.
-   * PLACEHOLDER: pure feel \u2014 longer reads as a heavier charge, shorter as a
-   * scrappier brawl.
-   */
-  approachSeconds: 0.55,
-
-  /**
-   * Everything stops when an ultimate goes off \u2014 timers, cooldowns, the battle
-   * clock, every other unit. The cast's own animation keeps playing, because
-   * that runs on the wall clock rather than the simulation, so the moment is
-   * held for the ultimate alone.
-   * This is where the cut-in, flash and camera work will hang once they exist.
-   * PLACEHOLDER: long enough to land, short enough not to stall the fight.
-   */
-  ultimateFreezeSeconds: 0.7,
-
-  /**
-   * After any technique or ultimate, that unit does nothing at all for this
-   * long \u2014 no second skill, no auto-attack. Without it a hero whose ultimate
-   * comes up on one tick can fire its technique on the very next one, 50ms
-   * later, which reads on screen as both firing at once.
-   * PLACEHOLDER: about a third of an attack interval.
-   */
-  castRecoverySeconds: 0.5,
 };
 
 /**
@@ -1686,12 +1796,11 @@ function engagesInMelee(row, attackSkill) {
 const TARGETING_MODE = 'strict';
 
 /**
- * ULTIMATE ACTIVATION (adjustable): 'auto' fires the ultimate the instant the
- * meter fills \u2014 the simpler prototype behaviour requested. Switching this to
- * 'tap' is the hook for making ultimates player-activated later; the battle
- * portraits already render a distinct ready state and accept taps.
+ * Auto-battle. On, the AI takes the player's turns too; the player can switch
+ * it off mid-fight and take over. Stages already cleared start on it, so a
+ * farming run stays hands-free and a new boss gets your attention.
  */
-const ULTIMATE_MODE = 'auto';
+const AUTO_BATTLE_ON_CLEARED = true;
 
 const TEAM_SIZE = 3;
 
@@ -1878,8 +1987,12 @@ function getHeroDef(id) {
  *   slot      'attack' | 'technique' | 'ultimate' | 'passive'
  *   icon      short glyph used by the placeholder art layer
  *   desc      tooltip text
- *   cooldown  seconds (technique only; attacks use the unit's attack interval,
- *             ultimates use the charge meter)
+ *   cooldownTurns  turns before a technique can be used again (technique only;
+ *             attacks are always available, ultimates use the charge meter)
+ *   charge    true means the skill is ANNOUNCED on the turn it is used and
+ *             lands at the start of the caster's next turn. The whole point of
+ *             a heavy hit: the other side gets a real turn to guard, heal or
+ *             kill the caster before it goes off.
  *   targeting see battle/targeting.js for the supported modes
  *   effects   array of effect descriptors applied in order
  *   trigger   passives only: 'battleStart' | 'onHitDealt' | 'onHitTaken' | 'lowHp'
@@ -1891,7 +2004,7 @@ function getHeroDef(id) {
  *   { kind:'damage',    mult, hits?, defIgnore? }
  *   { kind:'heal',      mult }                        // of caster ATK
  *   { kind:'selfDamage', pctMaxHp }
- *   { kind:'buff',      stat:'atk'|'def'|'speed', pct, seconds, target:'self'|'allies' }
+ *   { kind:'buff',      stat:'atk'|'def'|'speed', pct, turns, target:'self'|'allies' }
  *   { kind:'debuff',    stat:'atk'|'def'|'speed', pct, seconds }
  *   { kind:'charge',    amount }                      // ultimate meter
  *
@@ -1910,7 +2023,7 @@ const SKILLS = {
   goku_technique: {
     id: 'goku_technique', name: 'Kamehameha', slot: 'technique', icon: '\ud83c\udf0a', range: 'ranged',
     desc: 'Fires a concentrated ki wave at the strongest foe.',
-    cooldown: 8,
+    cooldownTurns: 3,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.3 }],
   },
@@ -1934,7 +2047,7 @@ const SKILLS = {
   piccolo_technique: {
     id: 'piccolo_technique', name: 'Special Beam Cannon', slot: 'technique', icon: '\ud83c\udf00', range: 'ranged',
     desc: 'A drilling beam that pierces much of the target\u2019s defence.',
-    cooldown: 10,
+    cooldownTurns: 3,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.6, defIgnore: 0.5 }],
   },
@@ -1958,7 +2071,7 @@ const SKILLS = {
   gohan_technique: {
     id: 'gohan_technique', name: 'Masenko', slot: 'technique', icon: '\u26a1', range: 'ranged',
     desc: 'A two-handed burst of ki aimed at the weakest foe.',
-    cooldown: 9,
+    cooldownTurns: 3,
     targeting: 'lowestHp',
     effects: [{ kind: 'damage', mult: 2.4 }],
   },
@@ -1982,7 +2095,7 @@ const SKILLS = {
   krillin_technique: {
     id: 'krillin_technique', name: 'Destructo Disc', slot: 'technique', icon: '\ud83d\udcbf', range: 'ranged',
     desc: 'A razor of ki that cuts straight through defences.',
-    cooldown: 9,
+    cooldownTurns: 3,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.1, defIgnore: 0.7 }],
   },
@@ -2006,7 +2119,7 @@ const SKILLS = {
   yamcha_technique: {
     id: 'yamcha_technique', name: 'Wolf Fang Fist', slot: 'technique', icon: '\ud83d\udc3a',
     desc: 'Four savage clawing blows in sequence.',
-    cooldown: 7,
+    cooldownTurns: 2,
     targeting: 'frontFirst',
     effects: [{ kind: 'damage', mult: 0.62, hits: 4 }],
   },
@@ -2027,7 +2140,7 @@ const SKILLS = {
   tien_technique: {
     id: 'tien_technique', name: 'Dodon Ray', slot: 'technique', icon: '\u2604\ufe0f', range: 'ranged',
     desc: 'A piercing beam fired from a single fingertip.',
-    cooldown: 8,
+    cooldownTurns: 3,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.35 }],
   },
@@ -2051,7 +2164,7 @@ const SKILLS = {
   saibaman_technique: {
     id: 'saibaman_technique', name: 'Acid Spit', slot: 'technique', icon: '\ud83e\uddea', range: 'ranged',
     desc: 'Corrosive spray that softens armour.',
-    cooldown: 9,
+    cooldownTurns: 3,
     targeting: 'frontFirst',
     effects: [
       { kind: 'damage', mult: 1.4 },
@@ -2067,14 +2180,14 @@ const SKILLS = {
   raditz_technique: {
     id: 'raditz_technique', name: 'Double Sunday', slot: 'technique', icon: '\u2604\ufe0f', range: 'ranged',
     desc: 'Twin ki beams fired at once.',
-    cooldown: 8,
+    cooldownTurns: 3,
     targeting: 'frontFirst',
     effects: [{ kind: 'damage', mult: 1.3, hits: 2 }],
   },
   raditz_ultimate: {
     id: 'raditz_ultimate', name: 'Shooting Star Attack', slot: 'ultimate', icon: '\ud83d\udcab', range: 'ranged',
     desc: 'A brutal charging tackle through the whole team.',
-    targeting: 'allEnemies',
+    targeting: 'allEnemies', charge: true,
     effects: [{ kind: 'damage', mult: 1.5 }],
   },
   nappa_attack: {
@@ -2086,14 +2199,14 @@ const SKILLS = {
   nappa_technique: {
     id: 'nappa_technique', name: 'Bomber DX', slot: 'technique', icon: '\ud83d\udca3', range: 'ranged',
     desc: 'A shockwave that rips through the battlefield.',
-    cooldown: 9,
+    cooldownTurns: 3,
     targeting: 'allEnemies',
     effects: [{ kind: 'damage', mult: 1.15 }],
   },
   nappa_ultimate: {
     id: 'nappa_ultimate', name: 'Break Cannon', slot: 'ultimate', icon: '\ud83c\udf0b', range: 'ranged',
     desc: 'A point-blank detonation aimed at the weakest defender.',
-    targeting: 'lowestHp',
+    targeting: 'lowestHp', charge: true,
     effects: [{ kind: 'damage', mult: 3.2 }],
   },
   nappa_passive: {
@@ -2112,14 +2225,14 @@ const SKILLS = {
   vegeta_technique: {
     id: 'vegeta_technique', name: 'Galick Gun', slot: 'technique', icon: '\ud83d\udfe3', range: 'ranged',
     desc: 'A violet torrent of ki.',
-    cooldown: 8,
+    cooldownTurns: 3,
     targeting: 'highestAtk',
     effects: [{ kind: 'damage', mult: 2.5, defIgnore: 0.3 }],
   },
   vegeta_ultimate: {
     id: 'vegeta_ultimate', name: 'Galaxy Breaker', slot: 'ultimate', icon: '\ud83c\udf0c', range: 'ranged',
     desc: 'A world-ending sphere hurled at the entire team.',
-    targeting: 'allEnemies',
+    targeting: 'allEnemies', charge: true,
     effects: [{ kind: 'damage', mult: 2.2 }],
   },
   vegeta_passive: {
@@ -2128,6 +2241,31 @@ const SKILLS = {
     trigger: 'lowHp',
     hpThreshold: 0.5,                               // PLACEHOLDER
     effects: [{ kind: 'buff', stat: 'atk', pct: 0.45, seconds: 999, target: 'self' }],
+  },
+
+  /* ---------------- phase skills ----------------
+     What a boss swaps to once it turns. Each is a harder version of the skill
+     it replaces, so a phase change reads as the same fighter escalating rather
+     than a different one arriving. */
+  raditz_attack_rage: {
+    id: 'raditz_attack_rage', name: 'Savage Rush', slot: 'attack', icon: '\ud83d\udca2',
+    desc: 'No technique left in it \u2014 only speed and spite.',
+    targeting: 'frontFirst',
+    effects: [{ kind: 'damage', mult: 1.35 }],
+  },
+  nappa_technique_rage: {
+    id: 'nappa_technique_rage', name: 'Bomber Barrage', slot: 'technique', icon: '\ud83d\udca5', range: 'ranged',
+    desc: 'Shockwave after shockwave, with no pause between them.',
+    cooldownTurns: 2,
+    targeting: 'allEnemies',
+    effects: [{ kind: 'damage', mult: 1.35 }],
+  },
+  vegeta_technique_rage: {
+    id: 'vegeta_technique_rage', name: 'Galick Barrage', slot: 'technique', icon: '\ud83d\udfea', range: 'ranged',
+    desc: 'The torrent stops being aimed and simply keeps coming.',
+    cooldownTurns: 2,
+    targeting: 'allEnemies',
+    effects: [{ kind: 'damage', mult: 1.6, defIgnore: 0.3 }],
   },
 };
 
@@ -2310,6 +2448,17 @@ function getGearDef(id) {
  * Nappa and Vegeta are Epic/SSR, which is what puts the passive-skill rule
  * (passives at Epic and above) on screen in this pass.
  *
+ * PHASES (bosses only) give a long fight a shape. Crossing an HP threshold
+ * transforms the unit once \u2014 it takes the phase's effects, optionally swaps a
+ * skill, and the world holds for a beat. Without them a boss at 5% health
+ * fights exactly as it did at full, and a fifty-second battle is one
+ * eight-second loop played six times.
+ *
+ *   phases: [{ atPct, name, icon?, skills?: { slot: skillId }, effects: [] }]
+ *
+ * Thresholds are checked in order and each fires once, so a burst that skips
+ * past two thresholds triggers both.
+ *
  * PLACEHOLDER: every number here is untuned.
  */
 
@@ -2330,6 +2479,13 @@ const ENEMIES = {
     id: 'raditz', name: 'Raditz', rarity: 'rare',
     stats: { atk: 94, hp: 2150, def: 44, speed: 1.05 },
     skills: { attack: 'raditz_attack', technique: 'raditz_technique', ultimate: 'raditz_ultimate' },
+    phases: [
+      {
+        atPct: 0.5, name: 'Full Power', icon: '\ud83d\udca2',
+        skills: { attack: 'raditz_attack_rage' },
+        effects: [{ kind: 'buff', stat: 'speed', pct: 0.25, seconds: 999, target: 'self' }],
+      },
+    ],
     art: { skin: '#e8b48b', hair: '#171717', hairStyle: 'mane', gi: '#1e293b', trim: '#f5f5f4', aura: '#a855f7' },
   },
   nappa: {
@@ -2339,6 +2495,16 @@ const ENEMIES = {
       attack: 'nappa_attack', technique: 'nappa_technique',
       ultimate: 'nappa_ultimate', passive: 'nappa_passive',
     },
+    phases: [
+      {
+        atPct: 0.45, name: 'Enraged', icon: '\ud83d\udca5',
+        skills: { technique: 'nappa_technique_rage' },
+        effects: [
+          { kind: 'buff', stat: 'atk', pct: 0.25, seconds: 999, target: 'self' },
+          { kind: 'buff', stat: 'speed', pct: 0.2, seconds: 999, target: 'self' },
+        ],
+      },
+    ],
     art: { skin: '#e8b48b', hair: 'none', hairStyle: 'bald', gi: '#1e293b', trim: '#f59e0b', aura: '#c084fc' },
   },
   vegeta: {
@@ -2348,6 +2514,21 @@ const ENEMIES = {
       attack: 'vegeta_attack', technique: 'vegeta_technique',
       ultimate: 'vegeta_ultimate', passive: 'vegeta_passive',
     },
+    phases: [
+      {
+        atPct: 0.6, name: 'No More Games', icon: '\ud83d\udfe3',
+        skills: { technique: 'vegeta_technique_rage' },
+        effects: [{ kind: 'buff', stat: 'speed', pct: 0.2, seconds: 999, target: 'self' }],
+      },
+      {
+        atPct: 0.2, name: 'Saiyan Rage', icon: '\ud83d\udd25',
+        effects: [
+          { kind: 'buff', stat: 'atk', pct: 0.4, seconds: 999, target: 'self' },
+          { kind: 'buff', stat: 'speed', pct: 0.25, seconds: 999, target: 'self' },
+        ],
+        freezeSeconds: 1.0,
+      },
+    ],
     art: { skin: '#e8b48b', hair: '#171717', hairStyle: 'widowsPeak', gi: '#1e293b', trim: '#fbbf24', aura: '#fbbf24' },
   },
 };
@@ -2391,7 +2572,7 @@ const STAGES = [
     id: 1,
     name: 'Landing Zone',
     subtitle: 'A pod cracks the earth open outside the city.',
-    requiredPower: 600,
+    requiredPower: 450,
     enemies: [
       { defId: 'saibaman', row: 'front', scale: 1.0 },
       { defId: 'saibaman', row: 'front', scale: 1.0 },
@@ -2409,7 +2590,7 @@ const STAGES = [
     id: 2,
     name: 'Farmland Skirmish',
     subtitle: 'The scouts spread out across the fields.',
-    requiredPower: 1200,
+    requiredPower: 900,
     enemies: [
       { defId: 'saibaman', row: 'front', scale: 1.15 },
       { defId: 'saibaman', row: 'front', scale: 1.15 },
@@ -2432,7 +2613,7 @@ const STAGES = [
     id: 3,
     name: 'Raditz Strikes',
     subtitle: 'Goku\u2019s brother has come to collect him.',
-    requiredPower: 2100,
+    requiredPower: 1600,
     enemies: [
       { defId: 'raditz', row: 'front', scale: 1.0 },
       { defId: 'saibaman', row: 'back', scale: 1.2 },
@@ -2455,7 +2636,7 @@ const STAGES = [
     id: 4,
     name: 'One Year Later',
     subtitle: 'Training ends. The sky turns the colour of a scouter.',
-    requiredPower: 3100,
+    requiredPower: 2350,
     enemies: [
       { defId: 'saibaman_elite', row: 'front', scale: 1.0 },
       { defId: 'saibaman_elite', row: 'front', scale: 1.0 },
@@ -2479,7 +2660,7 @@ const STAGES = [
     id: 5,
     name: 'Nappa\u2019s Rampage',
     subtitle: 'He is not even trying yet.',
-    requiredPower: 4700,
+    requiredPower: 3500,
     enemies: [
       { defId: 'nappa', row: 'front', scale: 1.0 },
       { defId: 'saibaman_elite', row: 'back', scale: 1.1 },
@@ -2503,7 +2684,7 @@ const STAGES = [
     id: 6,
     name: 'The Prince of All Saiyans',
     subtitle: 'Vegeta stops watching and steps forward.',
-    requiredPower: 6300,
+    requiredPower: 4800,
     enemies: [
       { defId: 'vegeta', row: 'front', scale: 1.0 },
     ],
@@ -2596,7 +2777,7 @@ const DUNGEONS = [
         boss: 'raditz',
         title: 'Raditz',
         note: 'Alone, and not expecting a fight.',
-        requiredPower: 1800,
+        requiredPower: 1350,
         enemies: [{ defId: 'raditz', row: 'front', scale: 0.9 }],
         zeni: 140,
         drops: { rolls: 2, weights: { common: 100 }, level: [5, 10] },
@@ -2605,7 +2786,7 @@ const DUNGEONS = [
         boss: 'nappa',
         title: 'Nappa',
         note: 'He brought help and still barely cares.',
-        requiredPower: 4200,
+        requiredPower: 3150,
         enemies: [
           { defId: 'nappa', row: 'front', scale: 0.95 },
           { defId: 'saibaman_elite', row: 'back', scale: 1.0 },
@@ -2617,7 +2798,7 @@ const DUNGEONS = [
         boss: 'vegeta',
         title: 'Vegeta',
         note: 'The prince, with nothing held back.',
-        requiredPower: 6300,
+        requiredPower: 4700,
         enemies: [{ defId: 'vegeta', row: 'front', scale: 1.0 }],
         zeni: 420,
         drops: { rolls: 2, weights: { uncommon: 100 }, level: [18, 28] },
@@ -2626,11 +2807,11 @@ const DUNGEONS = [
         boss: 'vegeta',
         title: 'Raditz \u00b7 Nappa \u00b7 Vegeta',
         note: 'Every Saiyan who ever landed, on the field together.',
-        requiredPower: 9000,
+        requiredPower: 6800,
         enemies: [
-          { defId: 'vegeta', row: 'front', scale: 1.12 },
-          { defId: 'nappa', row: 'front', scale: 1.08 },
-          { defId: 'raditz', row: 'back', scale: 1.05 },
+          { defId: 'vegeta', row: 'front', scale: 1.0 },
+          { defId: 'nappa', row: 'front', scale: 1.0 },
+          { defId: 'raditz', row: 'back', scale: 1.0 },
         ],
         zeni: 700,
         // PLACEHOLDER: rare is a bonus here rather than the expected drop \u2014
@@ -3809,6 +3990,7 @@ function buildUnits(entries) {
       row: entry.row || 'front',
       art: def.art,
       skills: def.skills,
+      phases: def.phases || null,
       stats: {
         atk: Math.round(def.stats.atk * scale),
         hp: Math.round(def.stats.hp * scale * HP_SCALE),
@@ -4145,20 +4327,29 @@ function resolveTargets(battle, unit, mode) {
 
 /* ===== src/battle/engine.js ===== */
 /**
- * battle/engine.js \u2014 Real-time auto-battle simulation.
+ * battle/engine.js \u2014 Turn-based combat simulation.
  *
- * Not turn-based: every unit runs its own timers and acts the moment they
- * come due, so both teams act simultaneously.
+ * TURN ORDER is an action-value queue, not rounds. Every unit carries an
+ * `av` \u2014 the distance until its next turn \u2014 and whoever is closest acts next.
+ * Acting resets that unit's av to BASE_AV / speed, so a faster unit simply
+ * comes round again sooner. Two consequences worth knowing:
+ *   - SPEED is a real stat again. It buys turns, not a shorter timer.
+ *   - The order is knowable ahead of time, so `battle.preview()` can show the
+ *     next several turns and a charging attack can say which turn it lands on.
  *
- * Per unit, per tick:
- *   1. tick buffs/debuffs down
- *   2. tick the ultimate charge meter; fire it the instant it fills
- *      (ULTIMATE_MODE === 'auto'; 'tap' defers to requestUltimate())
- *   3. tick the technique cooldown; fire it the instant it is off cooldown
- *   4. tick the auto-attack timer; fire when due
+ * A TURN, in order:
+ *   1. the unit's cooldowns and buffs tick down one turn
+ *   2. a hit it was charging resolves now, and the turn ends
+ *   3. otherwise it picks an action \u2014 the player chooses for their heroes,
+ *      the AI chooses for everyone else (and for the player under auto-battle)
  *
- * The engine is headless \u2014 it emits events and never touches the DOM, so the
- * same simulation can be replayed, fast-forwarded or run in a test.
+ * CHARGING replaces the real-time telegraph: a heavy skill is announced on one
+ * turn and lands at the start of the caster's next one, so the answer to it is
+ * a turn you actually get rather than a second of reaction time.
+ *
+ * The engine is headless \u2014 it emits events and never touches the DOM \u2014 so the
+ * same fight runs in a browser, in a test, or a thousand times in the balance
+ * harness.
  */
 
 
@@ -4167,6 +4358,13 @@ function resolveTargets(battle, unit, mode) {
 
 let uidSeq = 0;
 
+/** Turn-order distance a unit of speed 1.0 travels per turn. */
+const BASE_AV = 1000;
+
+function avStep(unit) {
+  return BASE_AV / Math.max(0.2, effectiveStat(unit, 'speed'));
+}
+
 function makeUnit(desc, side) {
   const skills = {};
   for (const [slot, id] of Object.entries(desc.skills || {})) {
@@ -4174,7 +4372,7 @@ function makeUnit(desc, side) {
     if (skill) skills[slot] = skill;
   }
   const maxHp = Math.max(1, Math.round(desc.stats.hp));
-  return {
+  const unit = {
     uid: desc.uid || `u${uidSeq++}`,
     side,
     heroId: desc.heroId || null,
@@ -4191,20 +4389,22 @@ function makeUnit(desc, side) {
     alive: true,
     skills,
     buffs: [],
-    // PLACEHOLDER: small random offset so units don't all swing in lockstep.
-    attackTimer: Math.random() * 0.4,
-    attackInterval: COMBAT.baseAttackInterval / Math.max(0.2, desc.stats.speed || 1),
-    // Front-line melee units run in first; nobody acts before they arrive, so
-    // the fight never starts with someone swinging across an empty gap.
+    // Front-line melee units stand forward; the UI reads this for staging.
     engages: engagesInMelee(desc.row === 'back' ? 'back' : 'front', skills.attack),
-    readyAt: 0,
-    targetUid: null,
-    recover: 0,
-    techniqueTimer: skills.technique ? (skills.technique.cooldown || 8) * 0.6 : Infinity,
+    // Turns, not seconds, from here down.
+    techniqueCd: 0,
     ultimateCharge: 0,
     ultimateReady: false,
+    guarding: false,
+    charging: null,          // { skill, slot } announced, lands next turn
+    turnsTaken: 0,
     passiveFired: false,
+    phases: desc.phases || null,
+    phasesFired: new Set(),
+    av: 0,
   };
+  unit.av = avStep(unit);
+  return unit;
 }
 
 function effectiveStat(unit, stat) {
@@ -4215,7 +4415,7 @@ function effectiveStat(unit, stat) {
 
 /**
  * PLACEHOLDER damage formula:
- *   atk * mult * K / (K + effectiveDef) , then variance and crit.
+ *   atk * mult * K / (K + effectiveDef) , then variance, crit and guard.
  * Defence is a soft mitigation curve, so stacking DEF never reaches immunity.
  */
 function computeDamage(attacker, target, effect) {
@@ -4224,16 +4424,19 @@ function computeDamage(attacker, target, effect) {
   const base = atk * (effect.mult ?? 1) * (COMBAT.defenseConstant / (COMBAT.defenseConstant + def));
   const variance = 1 + (Math.random() * 2 - 1) * COMBAT.damageVariance;
   const crit = Math.random() < COMBAT.critChance;
-  const amount = Math.max(1, Math.round(base * variance * (crit ? COMBAT.critMult : 1)));
-  return { amount, crit };
+  let amount = base * variance * (crit ? COMBAT.critMult : 1);
+  const guarded = !!target.guarding;
+  if (guarded) amount *= COMBAT.guardDamageMult;
+  return { amount: Math.max(1, Math.round(amount)), crit, guarded };
 }
 
 function addCharge(unit, amount) {
   if (!unit.skills.ultimate || unit.ultimateReady) return;
   unit.ultimateCharge = Math.min(COMBAT.ultimateChargeMax, unit.ultimateCharge + amount);
+  if (unit.ultimateCharge >= COMBAT.ultimateChargeMax) unit.ultimateReady = true;
 }
 
-function createBattle({ playerUnits = [], enemyUnits = [], stageId = null } = {}) {
+function createBattle({ playerUnits = [], enemyUnits = [], stageId = null, auto = false } = {}) {
   const units = [
     ...playerUnits.map((d) => makeUnit(d, 'player')),
     ...enemyUnits.map((d) => makeUnit(d, 'enemy')),
@@ -4242,171 +4445,239 @@ function createBattle({ playerUnits = [], enemyUnits = [], stageId = null } = {}
   const battle = {
     stageId,
     units,
-    elapsed: 0,
-    freeze: 0,             // seconds of held time left after an ultimate
-    frozenTotal: 0,        // seconds spent in time-stop, excluded from `elapsed`
-    state: 'running',      // 'running' | 'victory' | 'defeat'
+    turn: 0,                 // turns taken by anyone, for the readout
+    state: 'running',        // 'running' | 'victory' | 'defeat'
     events: [],
-    _accumulator: 0,
+    auto,
+    pending: null,           // { uid, isPlayer } \u2014 a turn open and waiting
+    retreated: false,
     log: [],
   };
 
   battle.player = () => battle.units.filter((u) => u.side === 'player');
   battle.enemy = () => battle.units.filter((u) => u.side === 'enemy');
   battle.unitById = (uid) => battle.units.find((u) => u.uid === uid) || null;
+  battle.living = () => battle.units.filter((u) => u.alive);
+  battle.setAuto = (v) => { battle.auto = !!v; };
 
-  // Melee units pick their target up front rather than on their first swing, so
-  // they know who to run at during the approach.
-  for (const unit of units) {
-    if (!unit.engages) continue;
-    unit.readyAt = COMBAT.approachSeconds;
-    resolveTargets(battle, unit, 'frontFirst');
-  }
-
-  // Passives with a battleStart trigger land before the first swing.
+  // Passives with a battleStart trigger land before anyone acts.
   for (const unit of units) {
     const passive = unit.skills.passive;
-    if (passive && passive.trigger === 'battleStart') {
-      firePassive(battle, unit, passive);
-    }
+    if (passive && passive.trigger === 'battleStart') firePassive(battle, unit, passive);
   }
 
-  /** Player-activated ultimates (ULTIMATE_MODE === 'tap'). */
-  battle.requestUltimate = (uid) => {
-    const unit = battle.unitById(uid);
-    if (!unit || !unit.alive || !unit.ultimateReady) return false;
-    if (unit.recover > 0 || battle.freeze > 0) return false;
-    castSkill(battle, unit, unit.skills.ultimate, 'ultimate');
-    unit.ultimateCharge = 0;
-    unit.ultimateReady = false;
-    return true;
+  /**
+   * The next `count` units to act, soonest first. Pure lookahead \u2014 it clones
+   * the queue state and rolls it forward, so asking never changes anything.
+   */
+  battle.preview = (count = 6) => {
+    const sim = battle.living().map((u) => ({ uid: u.uid, av: u.av, step: avStep(u) }));
+    const out = [];
+    for (let i = 0; i < count && sim.length; i++) {
+      sim.sort((a, b) => a.av - b.av);
+      const next = sim[0];
+      const delta = next.av;
+      for (const s of sim) s.av -= delta;
+      out.push(next.uid);
+      next.av = next.step;
+    }
+    return out;
+  };
+
+  /** Open the next turn. Returns the events it produced. */
+  battle.advance = () => {
+    battle.events = [];
+    if (battle.state !== 'running' || battle.pending) return battle.events;
+
+    const alive = battle.living();
+    if (!alive.length) { checkEnd(battle); return battle.events; }
+
+    // Roll the queue forward to whoever is closest.
+    alive.sort((a, b) => a.av - b.av);
+    const actor = alive[0];
+    const delta = actor.av;
+    if (delta > 0) for (const u of alive) u.av -= delta;
+
+    battle.turn += 1;
+    actor.turnsTaken += 1;
+
+    // Start-of-turn upkeep. Guard only lasts until your own next turn, which
+    // is what makes guarding a trade rather than a free mitigation.
+    actor.guarding = false;
+    if (actor.techniqueCd > 0) actor.techniqueCd -= 1;
+    if (actor.buffs.length) {
+      actor.buffs = actor.buffs.filter((b) => {
+        b.turns -= 1;
+        return b.turns > 0;
+      });
+    }
+    addCharge(actor, COMBAT.ultimateChargePerTurn);
+
+    battle.events.push({ t: 'turnStart', uid: actor.uid, turn: battle.turn, side: actor.side });
+
+    // A charged hit lands now and consumes the turn.
+    if (actor.charging) {
+      const { skill, slot } = actor.charging;
+      actor.charging = null;
+      battle.events.push({ t: 'release', uid: actor.uid, skillId: skill.id, name: skill.name, icon: skill.icon });
+      resolveCast(battle, actor, skill, slot);
+      endTurn(battle, actor);
+      return battle.events;
+    }
+
+    battle.pending = { uid: actor.uid, isPlayer: actor.side === 'player' };
+    return battle.events;
   };
 
   /**
-   * Advance the simulation. `dt` is wall-clock seconds; internally the battle
-   * runs on fixed COMBAT.tickMs steps so results don't depend on frame rate.
-   * Returns the events produced during this call.
+   * What the unit whose turn it is can legally do. The UI renders this
+   * directly, so anything not in here cannot be chosen.
    */
-  battle.update = (dt) => {
-    battle.events = [];
-    if (battle.state !== 'running') return battle.events;
-
-    battle._accumulator += Math.min(dt, 0.25); // clamp: tab-switch catch-up
-    const step = COMBAT.tickMs / 1000;
-
-    while (battle._accumulator >= step && battle.state === 'running') {
-      battle._accumulator -= step;
-
-      // Time-stop: the world is held, so the clock does not advance and no
-      // timer moves. The ultimate's animation is on the wall clock and plays
-      // straight through it.
-      if (battle.freeze > 0) {
-        battle.freeze -= step;
-        battle.frozenTotal += step;
-        if (battle.freeze <= 0) {
-          battle.freeze = 0;
-          battle.events.push({ t: 'unfreeze' });
-        }
-        continue;
-      }
-      tick(battle, step);
+  battle.actions = (uid = battle.pending?.uid) => {
+    const unit = battle.unitById(uid);
+    if (!unit || !unit.alive) return [];
+    const list = [];
+    if (unit.skills.attack) {
+      list.push({ id: 'attack', skill: unit.skills.attack, ready: true });
     }
-    return battle.events;
+    if (unit.skills.technique) {
+      list.push({
+        id: 'technique', skill: unit.skills.technique,
+        ready: unit.techniqueCd <= 0, cooldown: unit.techniqueCd,
+      });
+    }
+    if (unit.skills.ultimate) {
+      list.push({
+        id: 'ultimate', skill: unit.skills.ultimate,
+        ready: unit.ultimateReady,
+        charge: unit.ultimateCharge, chargeMax: COMBAT.ultimateChargeMax,
+      });
+    }
+    list.push({ id: 'guard', skill: GUARD, ready: true });
+    return list;
+  };
+
+  /**
+   * Take the pending turn. `targetUid` overrides the skill's own targeting for
+   * single-target skills; everything else ignores it.
+   * Returns true if the action was legal and resolved.
+   */
+  battle.act = (actionId, targetUid = null) => {
+    battle.events = [];
+    if (battle.state !== 'running' || !battle.pending) return false;
+    const unit = battle.unitById(battle.pending.uid);
+    if (!unit || !unit.alive) { battle.pending = null; return false; }
+
+    const action = battle.actions(unit.uid).find((a) => a.id === actionId);
+    if (!action || !action.ready) return false;
+
+    battle.pending = null;
+
+    if (actionId === 'guard') {
+      unit.guarding = true;
+      addCharge(unit, COMBAT.ultimateChargeOnGuard);
+      battle.events.push({ t: 'guard', uid: unit.uid, name: GUARD.name, icon: GUARD.icon });
+      endTurn(battle, unit);
+      return true;
+    }
+
+    const skill = action.skill;
+    if (actionId === 'ultimate') {
+      unit.ultimateCharge = 0;
+      unit.ultimateReady = false;
+    }
+    if (actionId === 'technique') {
+      unit.techniqueCd = skill.cooldownTurns ?? COMBAT.defaultTechniqueCooldown;
+    }
+
+    castSkill(battle, unit, skill, actionId, targetUid);
+    endTurn(battle, unit);
+    return true;
+  };
+
+  /** What the AI would do with the pending turn. Also drives auto-battle. */
+  battle.aiChoose = (uid = battle.pending?.uid) => chooseAction(battle, battle.unitById(uid));
+
+  /** Resolve the pending turn with the AI's choice. */
+  battle.takeAiTurn = () => {
+    const choice = battle.aiChoose();
+    if (!choice) return false;
+    return battle.act(choice.actionId, choice.targetUid);
+  };
+
+  /** True when the fight is waiting on the player rather than on a timer. */
+  battle.awaitingInput = () => !!battle.pending && battle.pending.isPlayer && !battle.auto;
+
+  /** Give up now rather than play out a decided fight. */
+  battle.retreat = () => {
+    if (battle.state !== 'running') return false;
+    battle.events = [];
+    battle.state = 'defeat';
+    battle.retreated = true;
+    battle.pending = null;
+    battle.events.push({ t: 'end', result: 'defeat', retreated: true });
+    return true;
   };
 
   return battle;
 }
 
-function tick(battle, dt) {
-  battle.elapsed += dt;
+/** The one action every unit always has, and the answer to a charging hit. */
+const GUARD = {
+  id: 'guard', name: 'Guard', slot: 'guard', icon: '\ud83d\udee1\ufe0f',
+  desc: 'Brace. Halves damage until your next turn and builds ki.',
+};
 
-  for (const unit of battle.units) {
-    // An ultimate fired earlier in this same pass: nobody else gets to act on
-    // the tick that started the time-stop.
-    if (battle.freeze > 0) break;
-    if (!unit.alive) continue;
-
-    // 1. buffs expire
-    if (unit.buffs.length) {
-      unit.buffs = unit.buffs.filter((b) => {
-        b.remaining -= dt;
-        return b.remaining > 0;
-      });
-    }
-
-    // Still closing the distance \u2014 no attacking, charging or cooling down yet.
-    if (battle.elapsed < unit.readyAt) continue;
-
-    // 2. ultimate meter. Charging continues through recovery; only acting stops.
-    if (unit.skills.ultimate && !unit.ultimateReady) {
-      addCharge(unit, COMBAT.ultimateChargePerSecond * dt);
-      if (unit.ultimateCharge >= COMBAT.ultimateChargeMax) {
-        unit.ultimateReady = true;
-        battle.events.push({ t: 'ultReady', uid: unit.uid });
-      }
-    }
-
-    // 3. recovering from the last cast \u2014 no skill, no swing, no exceptions.
-    if (unit.recover > 0) {
-      unit.recover -= dt;
-      continue;
-    }
-
-    // 4. ultimate
-    if (unit.ultimateReady && ULTIMATE_MODE === 'auto') {
-      castSkill(battle, unit, unit.skills.ultimate, 'ultimate');
-      unit.ultimateCharge = 0;
-      unit.ultimateReady = false;
-      continue; // one action per tick keeps the readout legible
-    }
-
-    // 5. technique
-    if (unit.skills.technique) {
-      unit.techniqueTimer -= dt;
-      if (unit.techniqueTimer <= 0) {
-        const fired = castSkill(battle, unit, unit.skills.technique, 'technique');
-        unit.techniqueTimer = unit.skills.technique.cooldown || 8;
-        if (fired) continue;
-      }
-    }
-
-    // 6. auto-attack
-    if (unit.skills.attack) {
-      unit.attackTimer -= dt;
-      if (unit.attackTimer <= 0) {
-        unit.attackTimer = unit.attackInterval;
-        castSkill(battle, unit, unit.skills.attack, 'attack');
-      }
-    }
-  }
-
+function endTurn(battle, unit) {
+  unit.av += avStep(unit);
   checkEnd(battle);
+  battle.events.push({ t: 'turnEnd', uid: unit.uid });
 }
 
-/** Returns true if the skill actually went off (had a legal target). */
-function castSkill(battle, caster, skill, slot) {
+/* ---------------- casting ---------------- */
+
+/**
+ * Start a skill. A skill with `charge: true` is announced now and lands at the
+ * start of this unit's next turn; everything else resolves immediately.
+ */
+function castSkill(battle, caster, skill, slot, targetUid = null) {
   if (!skill || !caster.alive) return false;
-  const targets = resolveTargets(battle, caster, skill.targeting || 'frontFirst');
+
+  if (skill.charge) {
+    caster.charging = { skill, slot };
+    const targets = resolveTargets(battle, caster, skill.targeting || 'frontFirst');
+    battle.events.push({
+      t: 'charge', uid: caster.uid, skillId: skill.id, slot,
+      name: skill.name, icon: skill.icon,
+      targets: targets.map((u) => u.uid),
+    });
+    return true;
+  }
+  return resolveCast(battle, caster, skill, slot, targetUid);
+}
+
+/** Apply a skill now. */
+function resolveCast(battle, caster, skill, slot, targetUid = null) {
+  if (!skill || !caster.alive) return false;
+
+  let targets = resolveTargets(battle, caster, skill.targeting || 'frontFirst');
+  // A player-picked target overrides the rule, but only for skills that hit
+  // one thing \u2014 overriding an "everyone" skill is meaningless.
+  if (targetUid && targets.length <= 1) {
+    const picked = battle.unitById(targetUid);
+    if (picked && picked.alive && picked.side !== caster.side) targets = [picked];
+  }
+
   const needsTarget = (skill.effects || []).some((e) => e.kind === 'damage');
   if (needsTarget && !targets.length) return false;
 
-  battle.events.push({ t: 'skill', uid: caster.uid, skillId: skill.id, slot, name: skill.name, icon: skill.icon });
+  battle.events.push({
+    t: 'skill', uid: caster.uid, skillId: skill.id, slot,
+    name: skill.name, icon: skill.icon, targets: targets.map((u) => u.uid),
+  });
 
   for (const effect of skill.effects || []) {
     applyEffect(battle, caster, effect, targets, { skill, slot });
-  }
-
-  // A cast leaves the unit recovering, so a technique and an ultimate can never
-  // land on top of each other.
-  if (slot === 'technique' || slot === 'ultimate') {
-    caster.recover = COMBAT.castRecoverySeconds;
-  }
-  if (slot === 'ultimate') {
-    battle.freeze = Math.max(battle.freeze, COMBAT.ultimateFreezeSeconds);
-    battle.events.push({
-      t: 'freeze', uid: caster.uid, skillId: skill.id,
-      name: skill.name, icon: skill.icon, seconds: COMBAT.ultimateFreezeSeconds,
-    });
   }
   return true;
 }
@@ -4447,7 +4718,7 @@ function applyEffect(battle, caster, effect, targets, ctx) {
         ? battle.units.filter((u) => u.side === caster.side && u.alive)
         : [caster];
       for (const target of pool) {
-        target.buffs.push({ stat: effect.stat, pct: effect.pct, remaining: effect.seconds });
+        target.buffs.push({ stat: effect.stat, pct: effect.pct, turns: turnsFor(effect) });
         battle.events.push({ t: 'buff', uid: target.uid, stat: effect.stat, pct: effect.pct });
       }
       break;
@@ -4456,7 +4727,7 @@ function applyEffect(battle, caster, effect, targets, ctx) {
     case 'debuff': {
       for (const target of targets) {
         if (!target.alive) continue;
-        target.buffs.push({ stat: effect.stat, pct: -Math.abs(effect.pct), remaining: effect.seconds });
+        target.buffs.push({ stat: effect.stat, pct: -Math.abs(effect.pct), turns: turnsFor(effect) });
         battle.events.push({ t: 'debuff', uid: target.uid, stat: effect.stat, pct: effect.pct });
       }
       break;
@@ -4471,12 +4742,23 @@ function applyEffect(battle, caster, effect, targets, ctx) {
   }
 }
 
+/**
+ * Buff durations are authored in seconds (the real-time era) or in turns.
+ * Turns win when given; otherwise a second is worth roughly a third of a turn,
+ * which keeps the old data usable without a rewrite of every skill.
+ */
+function turnsFor(effect) {
+  if (effect.turns != null) return effect.turns;
+  const seconds = effect.seconds ?? 6;
+  return seconds >= 900 ? 9999 : Math.max(1, Math.round(seconds / 3));
+}
+
 function dealDamage(battle, attacker, target, effect, ctx = {}) {
-  const { amount, crit } = computeDamage(attacker, target, effect);
+  const { amount, crit, guarded } = computeDamage(attacker, target, effect);
   target.hp = Math.max(0, target.hp - amount);
   battle.events.push({
     t: 'damage', uid: target.uid, from: attacker.uid,
-    amount, crit, slot: ctx.slot || null,
+    amount, crit, guarded, slot: ctx.slot || null,
   });
 
   addCharge(attacker, COMBAT.ultimateChargeOnHitDealt);
@@ -4486,15 +4768,43 @@ function dealDamage(battle, attacker, target, effect, ctx = {}) {
     killUnit(battle, target);
   } else {
     checkLowHpPassive(battle, target);
+    checkPhase(battle, target);
   }
 
-  // on-hit passives \u2014 `fromPassive` stops a passive proccing itself
   if (!ctx.fromPassive) {
     const passive = attacker.skills.passive;
     if (passive && passive.trigger === 'onHitDealt' && Math.random() < (passive.chance ?? 1)) {
       firePassive(battle, attacker, passive, [target]);
     }
   }
+}
+
+/**
+ * Boss phases. Crossing an HP threshold transforms the unit once: it takes the
+ * phase's effects and, if the phase names one, swaps in a new skill.
+ *
+ * This is what gives a long fight a shape. Without it a boss at 5% health
+ * fights exactly as it did at full.
+ */
+function checkPhase(battle, unit) {
+  if (!unit.phases) return;
+  const pct = unit.hp / unit.maxHp;
+  unit.phases.forEach((phase, i) => {
+    if (unit.phasesFired.has(i) || pct > phase.atPct) return;
+    unit.phasesFired.add(i);
+
+    for (const [slot, id] of Object.entries(phase.skills || {})) {
+      const skill = getSkill(id);
+      if (skill) unit.skills[slot] = skill;
+    }
+    for (const effect of phase.effects || []) {
+      applyEffect(battle, unit, effect, [unit], { slot: 'phase', fromPassive: true });
+    }
+    // Turning interrupts whatever it was charging \u2014 the transformation is the
+    // moment, not the attack it was about to throw.
+    unit.charging = null;
+    battle.events.push({ t: 'phase', uid: unit.uid, name: phase.name, icon: phase.icon || '\u26a1' });
+  });
 }
 
 function checkLowHpPassive(battle, unit) {
@@ -4521,12 +4831,10 @@ function killUnit(battle, unit) {
   unit.alive = false;
   unit.hp = 0;
   unit.ultimateReady = false;
-  unit.targetUid = null;
-  // Whoever was locked onto this unit picks again next time they swing, which
-  // is what makes a focused group move on together.
-  for (const other of battle.units) {
-    if (other.targetUid === unit.uid) other.targetUid = null;
-  }
+  unit.guarding = false;
+  // Killing something mid-charge cancels the hit. That is the payoff for
+  // answering a telegraph by removing the caster.
+  unit.charging = null;
   battle.events.push({ t: 'death', uid: unit.uid });
 }
 
@@ -4535,18 +4843,66 @@ function checkEnd(battle) {
   const playersAlive = battle.units.some((u) => u.side === 'player' && u.alive);
   const enemiesAlive = battle.units.some((u) => u.side === 'enemy' && u.alive);
 
-  if (!enemiesAlive) {
-    battle.state = 'victory';
-  } else if (!playersAlive) {
-    battle.state = 'defeat';
-  } else if (battle.elapsed >= COMBAT.maxBattleSeconds) {
-    // PLACEHOLDER: a timeout counts as a loss. Could become a judged result
-    // (most remaining HP%) later.
-    battle.state = 'defeat';
-  } else {
-    return;
-  }
+  if (!enemiesAlive) battle.state = 'victory';
+  else if (!playersAlive) battle.state = 'defeat';
+  else if (battle.turn >= COMBAT.maxTurns) battle.state = 'defeat';
+  else return;
+
+  battle.pending = null;
   battle.events.push({ t: 'end', result: battle.state });
+}
+
+/* ---------------- the AI ----------------
+   Drives the enemy team, and the player's team under auto-battle \u2014 so it has
+   to be good enough that a farming run is not a worse run. The order is a
+   priority list, not a score: simple to reason about and to explain on screen.
+*/
+
+function chooseAction(battle, unit) {
+  if (!unit || !unit.alive) return null;
+  const foes = battle.units.filter((u) => u.side !== unit.side && u.alive);
+  if (!foes.length) return { actionId: 'guard', targetUid: null };
+
+  // 1. Ultimate the moment it is up. Held charge does nothing.
+  if (unit.ultimateReady && unit.skills.ultimate) {
+    return { actionId: 'ultimate', targetUid: pickTarget(battle, unit, unit.skills.ultimate, foes) };
+  }
+
+  // 2. Brace for a hit already in the air aimed at this unit, if it is hurt
+  //    enough to care. Guarding at full health wastes the turn.
+  const incoming = battle.units.some((u) => (
+    u.alive && u.side !== unit.side && u.charging
+    && (u.charging.skill.targeting === 'allEnemies'
+        || resolveTargets(battle, u, u.charging.skill.targeting || 'frontFirst').some((t) => t.uid === unit.uid))
+  ));
+  if (incoming && unit.hp / unit.maxHp < COMBAT.aiGuardHpThreshold) {
+    return { actionId: 'guard', targetUid: null };
+  }
+
+  // 3. Technique off cooldown.
+  if (unit.skills.technique && unit.techniqueCd <= 0) {
+    return { actionId: 'technique', targetUid: pickTarget(battle, unit, unit.skills.technique, foes) };
+  }
+
+  // 4. Swing.
+  return { actionId: 'attack', targetUid: pickTarget(battle, unit, unit.skills.attack, foes) };
+}
+
+/** Finish anything already in range of dying; otherwise take the rule's pick. */
+function pickTarget(battle, unit, skill, foes) {
+  if (!skill) return foes[0]?.uid ?? null;
+  const legal = resolveTargets(battle, unit, skill.targeting || 'frontFirst');
+  if (legal.length !== 1) return null;   // AoE and self-targeting ignore the pick
+  const finisher = legal.find((t) => t.hp <= estimateDamage(unit, t, skill));
+  return (finisher || legal[0]).uid;
+}
+
+function estimateDamage(attacker, target, skill) {
+  const dmg = (skill.effects || []).find((e) => e.kind === 'damage');
+  if (!dmg) return 0;
+  const atk = effectiveStat(attacker, 'atk');
+  const def = effectiveStat(target, 'def') * (1 - (dmg.defIgnore || 0));
+  return atk * (dmg.mult ?? 1) * (COMBAT.defenseConstant / (COMBAT.defenseConstant + def)) * (dmg.hits || 1);
 }
 
 /* ===== src/battle/index.js ===== */
@@ -4607,31 +4963,41 @@ function startStageBattle(stageId) {
  * Start a fight from an encounter reference (a story stage or a dungeon tier).
  * The engine is told nothing about where the enemies came from \u2014 it only ever
  * sees two lists of units.
+ *
+ * Auto-battle starts ON for anything already cleared: a farming run should be
+ * hands-free, and a fight you have never won should have your attention. The
+ * player can flip it either way once the fight starts.
  */
 function startEncounterBattle(ref) {
+  const info = encounterInfo(ref);
   return createBattle({
     stageId: ref?.stageId ?? null,
     playerUnits: buildPlayerUnits(),
     enemyUnits: buildEncounterEnemies(ref),
+    auto: AUTO_BATTLE_ON_CLEARED && !!info?.cleared,
   });
 }
 
 /**
- * Headless run used for balance checks (see tools/simulate.js). Returns the
- * result plus how long the fight took.
+ * Headless run used for balance checks (see tools/simulate.mjs). Plays the
+ * whole fight with the AI on both sides \u2014 which is exactly what auto-battle
+ * does, so these numbers describe a real farming run rather than a model of
+ * one. A player choosing their own turns should do better than this baseline.
  */
-function simulate(battle, { maxSeconds = 120, step = 0.05 } = {}) {
-  let guard = Math.ceil(maxSeconds / step) + 10;
-  while (battle.state === 'running' && guard-- > 0) battle.update(step);
+function simulate(battle, { maxTurns = 200 } = {}) {
+  let guard = maxTurns + 20;
+  while (battle.state === 'running' && guard-- > 0) {
+    battle.advance();
+    if (battle.pending) battle.takeAiTurn();
+  }
   return {
     result: battle.state,
-    seconds: +battle.elapsed.toFixed(1),
-    // Time-stop is held outside `elapsed`, so a fight lasts this much longer
-    // on the clock than the simulation says.
-    frozen: +battle.frozenTotal.toFixed(1),
-    wall: +(battle.elapsed + battle.frozenTotal).toFixed(1),
+    turns: battle.turn,
     survivors: battle.units.filter((u) => u.side === 'player' && u.alive).length,
     enemyHpLeft: battle.units.filter((u) => u.side === 'enemy').reduce((s, u) => s + u.hp, 0),
+    // Kept so callers that print a duration still work; a turn is about a
+    // second and a half of wall time once animations are in.
+    seconds: +(battle.turn * 1.5).toFixed(1),
   };
 }
 
@@ -6481,13 +6847,22 @@ return { render };
 /* ===== src/ui/screens/battle.js ===== */
 const __screen_battle = (() => {
 /**
- * ui/screens/battle.js \u2014 Real-time auto-battle presentation.
+ * ui/screens/battle.js \u2014 Turn-based battle presentation.
  *
- * Side-view lanes: player team on the left, enemies on the right, back row set
- * behind and above the front row. The engine (battle/engine.js) owns the
- * simulation; this file only draws what it emits \u2014 HP bars, floating damage
- * numbers, skill call-outs, and the bottom portrait row with each hero's own
- * technique countdown and ultimate-ready indicator.
+ * The engine (battle/engine.js) owns the fight and knows nothing about the
+ * DOM; this file drives it one turn at a time and draws what it emits.
+ *
+ * The loop is deliberately not a frame loop. It asks the engine to open a
+ * turn, plays that turn's events with enough delay to read them, and then
+ * either waits for the player to choose (their hero's turn, auto off) or lets
+ * the AI choose and carries on. Nothing here runs on requestAnimationFrame,
+ * so a fight cannot drift out of step with the simulation.
+ *
+ * Three things carry the readability:
+ *   - the TURN ORDER strip, so "who acts next" is never a guess
+ *   - a CHARGING marker on the caster and everyone it is aimed at, so a heavy
+ *     hit is a problem you have a turn to answer
+ *   - the ACTION BAR, which only ever shows what the engine says is legal
  */
 
 
@@ -6499,18 +6874,31 @@ const __screen_battle = (() => {
 
 
 
-let raf = null;
 let battle = null;
 let nodes = new Map();
 let speed = 1;
 let finished = false;
+let timers = [];
+let selectedTarget = null;
+let els = {};
+
+/** Base beats, in ms at x1. Everything else is derived from these. */
+const PACE = { open: 140, act: 620, big: 900, death: 480 };
+
+function wait(ms, fn) {
+  const id = setTimeout(fn, Math.max(16, ms / speed));
+  timers.push(id);
+  return id;
+}
 
 function dispose() {
-  if (raf) cancelAnimationFrame(raf);
+  for (const id of timers) clearTimeout(id);
+  timers = [];
   for (const n of nodes.values()) n.animator?.stop();
-  raf = null;
   battle = null;
   nodes = new Map();
+  els = {};
+  selectedTarget = null;
   finished = false;
 }
 
@@ -6527,10 +6915,16 @@ function render(host, { ref }) {
     class: 'bt-top',
     html: `
       <span class="bt-stage">${info ? info.title : 'Battle'}</span>
-      <span class="bt-timer" id="bt-timer">0.0s</span>
-      <button class="btn ghost tiny" id="bt-speed">x1</button>`,
+      <span class="bt-timer" id="bt-turn">T1</span>
+      <button class="btn ghost tiny" id="bt-auto">AUTO</button>
+      <button class="btn ghost tiny" id="bt-speed">x1</button>
+      <button class="btn ghost tiny" id="bt-retreat">Retreat</button>`,
   });
   screen.appendChild(top);
+
+  /* ---- turn order ---- */
+  const order = h('div', { class: 'turn-order', id: 'turn-order' });
+  screen.appendChild(order);
 
   /* ---- arena ---- */
   const arena = h('div', { class: 'arena' });
@@ -6557,6 +6951,7 @@ function render(host, { ref }) {
     const node = h('div', {
       class: `unit ${unit.side} row-${unit.row} ${set ? 'has-sprite' : ''}`,
       style: { '--rarity': r.color, '--aura': unit.art?.aura || r.color },
+      dataset: { uid: unit.uid },
       html: `
         <div class="u-callout"></div>
         <div class="u-fx"></div>
@@ -6573,8 +6968,8 @@ function render(host, { ref }) {
       callout: node.querySelector('.u-callout'),
       art: node.querySelector('.u-art'),
       swings: 0,
+      unit,
     };
-
     if (set) {
       const beam = node.querySelector('.u-beam');
       entry.animator = createAnimator(set, node.querySelector('.u-frame'), {
@@ -6582,89 +6977,202 @@ function render(host, { ref }) {
         onBeam: (ms) => fireBeam(beam, node, unit, ms),
       });
     }
-    entry.unit = unit;
     nodes.set(unit.uid, entry);
+
+    // Tapping an enemy picks it as the target for your next action.
+    if (unit.side === 'enemy') {
+      node.addEventListener('click', () => {
+        if (!unit.alive || !battle.awaitingInput()) return;
+        selectedTarget = selectedTarget === unit.uid ? null : unit.uid;
+        paintTargets();
+      });
+    }
   }
 
-  /* ---- bottom portrait row (per-hero cooldown timers) ---- */
+  /* ---- team status ---- */
   const dock = h('div', { class: 'bt-dock' });
   for (const unit of battle.units.filter((u) => u.side === 'player')) {
     const r = rarityOf(unit.rarity);
-    const card = h('button', {
+    const card = h('div', {
       class: 'dock-card',
       style: { '--rarity': r.color, '--glow': r.glow },
       dataset: { uid: unit.uid },
       html: `
-        <span class="dc-timer">\u2014</span>
         <span class="dc-art">${bustHTML(unit.heroId, unit.art, bustSVG)}</span>
         <span class="dc-ult"><span class="dc-ult-fill"></span></span>
         <span class="dc-name">${unit.name}</span>
         <span class="dc-hp"><span class="dc-hp-fill"></span></span>`,
     });
-    // ULTIMATE_MODE === 'tap' would make this the activation control; in 'auto'
-    // the tap is a no-op and the ready state is purely informational.
-    card.addEventListener('click', () => {
-      if (ULTIMATE_MODE === 'tap') battle.requestUltimate(unit.uid);
-    });
     dock.appendChild(card);
     const n = nodes.get(unit.uid);
     n.dock = card;
-    n.dockTimer = card.querySelector('.dc-timer');
     n.dockUlt = card.querySelector('.dc-ult-fill');
     n.dockHp = card.querySelector('.dc-hp-fill');
   }
   screen.appendChild(dock);
 
+  /* ---- action bar ---- */
+  const actions = h('div', { class: 'action-bar-battle', id: 'action-bar' });
+  screen.appendChild(actions);
+
   host.appendChild(screen);
 
-  // Base positions are read once, before anything is translated, so the
-  // advance can be recomputed later without measuring its own effect.
-  const arenaBox = arena.getBoundingClientRect();
-  for (const n of nodes.values()) {
-    const r = n.root.getBoundingClientRect();
-    n.baseCX = r.left + r.width / 2 - arenaBox.left;
-    n.baseCY = r.top + r.height / 2 - arenaBox.top;
-  }
-  updateAdvance(true);
+  els = {
+    turn: top.querySelector('#bt-turn'),
+    order,
+    actions,
+    auto: top.querySelector('#bt-auto'),
+  };
 
   top.querySelector('#bt-speed').addEventListener('click', (ev) => {
     speed = speed === 1 ? 2 : speed === 2 ? 3 : 1;
     ev.currentTarget.textContent = `x${speed}`;
   });
 
-  const timerEl = top.querySelector('#bt-timer');
-  let last = performance.now();
+  els.auto.classList.toggle('on', battle.auto);
+  els.auto.addEventListener('click', () => {
+    battle.setAuto(!battle.auto);
+    els.auto.classList.toggle('on', battle.auto);
+    // Turning auto on mid-fight should take the turn it is already waiting on.
+    // `ref` has to travel with it \u2014 the loop carries the encounter all the way
+    // to the results screen, and dropping it here lands a dungeon win on the
+    // campaign's results.
+    if (battle.auto && battle.pending) { clearActions(); step(ref); }
+    else if (!battle.auto && battle.pending?.isPlayer) showActions(ref);
+  });
 
-  const frame = (now) => {
-    const dt = Math.min((now - last) / 1000, 0.25);
-    last = now;
-
-    const events = battle.update(dt * speed);
-    for (const ev of events) handleEvent(ev);
-    paint(timerEl);
-
-    if (battle.state === 'running') {
-      raf = requestAnimationFrame(frame);
-    } else if (!finished) {
-      finished = true;
-      endBattle(ref);
+  const retreatBtn = top.querySelector('#bt-retreat');
+  let retreatArmed = false;
+  retreatBtn.addEventListener('click', () => {
+    if (!retreatArmed) {
+      retreatArmed = true;
+      retreatBtn.textContent = 'Give up?';
+      retreatBtn.classList.add('danger');
+      wait(3000 * speed, () => {
+        if (!retreatArmed) return;
+        retreatArmed = false;
+        retreatBtn.textContent = 'Retreat';
+        retreatBtn.classList.remove('danger');
+      });
+      return;
     }
-  };
-  raf = requestAnimationFrame(frame);
+    battle.retreat();
+    paintAll();
+    endBattle(ref);
+  });
+
+  paintAll();
+  step(ref);
 }
 
-/* ---------------- event -> DOM ---------------- */
+/* ---------------- the turn loop ---------------- */
+
+function step(ref) {
+  if (!battle) return;
+  if (battle.state !== 'running') return endBattle(ref);
+
+  if (battle.pending) {
+    if (battle.awaitingInput()) { showActions(ref); return; }
+    // AI turn (an enemy, or one of yours under auto-battle). The bar says who
+    // is acting rather than going blank \u2014 the space is reserved either way.
+    showActing(battle.unitById(battle.pending.uid));
+    wait(PACE.open, () => {
+      if (!battle || battle.state !== 'running') return endBattle(ref);
+      battle.takeAiTurn();
+      playEvents(battle.events, () => step(ref));
+    });
+    return;
+  }
+
+  const events = battle.advance();
+  playEvents(events, () => step(ref), PACE.open);
+}
+
+/**
+ * Draw a turn's events, then continue. Everything lands at once in the
+ * simulation; the delay here is purely so a person can read it.
+ */
+function playEvents(events, done, lead = 0) {
+  for (const ev of events) handleEvent(ev);
+  paintAll();
+  const heavy = events.some((e) => e.t === 'phase' || e.t === 'release'
+    || (e.t === 'skill' && e.slot === 'ultimate'));
+  const died = events.some((e) => e.t === 'death');
+  const ended = events.some((e) => e.t === 'end');
+  const beat = lead || (heavy ? PACE.big : PACE.act) + (died ? PACE.death : 0);
+  wait(ended ? PACE.big : beat, done);
+}
+
+/* ---------------- player input ---------------- */
+
+function clearActions() {
+  if (els.actions) clear(els.actions);
+  for (const n of nodes.values()) n.root.classList.remove('acting');
+  selectedTarget = null;
+  paintTargets();
+}
+
+function showActing(unit) {
+  if (!els.actions || !unit) return;
+  clear(els.actions);
+  for (const n of nodes.values()) n.root.classList.toggle('acting', n.unit.uid === unit.uid);
+  els.actions.appendChild(h('div', {
+    class: 'ab-who waiting',
+    text: unit.side === 'player' ? `${unit.name} \u2014 auto` : `${unit.name} acts`,
+  }));
+}
+
+function showActions(ref) {
+  const uid = battle.pending?.uid;
+  const unit = battle.unitById(uid);
+  if (!unit) return;
+
+  for (const n of nodes.values()) n.root.classList.toggle('acting', n.unit.uid === uid);
+  clear(els.actions);
+
+  const label = h('div', { class: 'ab-who', text: `${unit.name}'s turn` });
+  els.actions.appendChild(label);
+
+  const row = h('div', { class: 'ab-row' });
+  for (const action of battle.actions(uid)) {
+    const sub = action.id === 'technique' && !action.ready ? `${action.cooldown} turn${action.cooldown === 1 ? '' : 's'}`
+      : action.id === 'ultimate' && !action.ready ? `${Math.floor((action.charge / action.chargeMax) * 100)}%`
+      : '';
+    const btn = h('button', {
+      class: `ab-btn ${action.id} ${action.ready ? '' : 'disabled'}`,
+      html: `<span class="ab-ico">${action.skill.icon || '\u2022'}</span>
+             <span class="ab-name">${action.skill.name}</span>
+             ${sub ? `<span class="ab-sub">${sub}</span>` : ''}`,
+    });
+    if (action.ready) {
+      btn.addEventListener('click', () => {
+        if (!battle.awaitingInput()) return;
+        clearActions();
+        battle.act(action.id, selectedTarget);
+        playEvents(battle.events, () => step(ref));
+      });
+    }
+    row.appendChild(btn);
+  }
+  els.actions.appendChild(row);
+  paintTargets();
+}
+
+/* ---------------- events -> DOM ---------------- */
 
 function handleEvent(ev) {
   const n = nodes.get(ev.uid);
   switch (ev.t) {
+    case 'turnStart':
+      break;
+
     case 'damage': {
       if (!n) return;
       floater(n.fx, `-${fmt(ev.amount)}`, ev.crit ? 'crit' : (ev.self ? 'self' : 'dmg'));
+      if (ev.guarded) floater(n.fx, 'GUARD', 'guard');
       const unit = battle.unitById(ev.uid);
       pulse(n.art, 'hit');
       if (n.animator && !ev.self && unit?.alive) {
-        // PLACEHOLDER: what counts as a "heavy" hit worth the knockback clip.
         const heavy = ev.crit || ev.amount / unit.maxHp > 0.12;
         n.animator.play(heavy ? 'hit_heavy' : 'hit');
       }
@@ -6672,158 +7180,150 @@ function handleEvent(ev) {
       if (from && ev.from !== ev.uid && !from.animator) pulse(from.art, 'lunge');
       break;
     }
+
     case 'heal':
       if (n) floater(n.fx, `+${fmt(ev.amount)}`, 'heal');
       break;
+
+    case 'guard':
+      if (n) { callout(n.callout, `${ev.icon} ${ev.name}`, 'guard'); n.root.classList.add('guarding'); }
+      break;
+
     case 'skill':
       if (!n) break;
-      if (ev.slot !== 'attack') callout(n.callout, `${ev.icon || ''} ${ev.name}`, ev.slot);
+      callout(n.callout, `${ev.icon || ''} ${ev.name}`, ev.slot);
+      n.root.classList.remove('guarding');
       if (n.animator) {
-        if (ev.slot === 'attack') {
-          // Alternate punch and kick so repeated auto-attacks don't loop one pose.
-          n.animator.play(n.swings++ % 2 ? 'attack_alt' : 'attack');
-        } else if (ev.slot === 'technique' || ev.slot === 'ultimate') {
-          n.animator.play(ev.slot);
-        }
+        if (ev.slot === 'attack') n.animator.play(n.swings++ % 2 ? 'attack_alt' : 'attack');
+        else if (ev.slot === 'technique' || ev.slot === 'ultimate') n.animator.play(ev.slot);
       }
       break;
+
+    // Announced now, lands at the start of this unit's next turn. Both the
+    // caster and everyone in the blast are marked until it goes off.
+    case 'charge': {
+      if (n) {
+        n.root.classList.add('charging');
+        callout(n.callout, `${ev.icon || ''} ${ev.name}`, 'charge');
+      }
+      for (const uid of ev.targets || []) nodes.get(uid)?.root.classList.add('threatened');
+      break;
+    }
+
+    case 'release': {
+      if (n) { n.root.classList.remove('charging'); callout(n.callout, `${ev.icon || ''} ${ev.name}`, 'ultimate'); }
+      for (const other of nodes.values()) other.root.classList.remove('threatened');
+      break;
+    }
+
+    case 'phase':
+      if (n) { n.root.classList.add('phased'); callout(n.callout, `${ev.icon || ''} ${ev.name}`, 'phase'); }
+      banner(`${ev.icon || ''} ${ev.name}`);
+      break;
+
     case 'passive':
       if (n) callout(n.callout, `${ev.icon || ''} ${ev.name}`, 'passive');
       break;
+
     case 'buff':
       if (n) floater(n.fx, `${ev.stat.toUpperCase()} \u25b2`, 'buff');
       break;
+
     case 'debuff':
       if (n) floater(n.fx, `${ev.stat.toUpperCase()} \u25bc`, 'debuff');
       break;
-    case 'freeze': {
-      // PLACEHOLDER staging for the real cut-in: hold everything but the
-      // caster, so the ultimate has the screen to itself.
-      const screen = document.querySelector('.battle-screen');
-      if (screen) {
-        screen.style.setProperty('--freeze-ms', `${Math.round((ev.seconds * 1000) / Math.max(0.25, speed))}ms`);
-        screen.classList.add('time-stop');
-      }
-      for (const other of nodes.values()) other.root.classList.remove('caster');
-      if (n) n.root.classList.add('caster');
-      break;
-    }
-
-    case 'unfreeze': {
-      document.querySelector('.battle-screen')?.classList.remove('time-stop');
-      for (const other of nodes.values()) other.root.classList.remove('caster');
-      break;
-    }
 
     case 'death':
       if (!n) break;
+      n.root.classList.remove('charging', 'threatened', 'guarding');
       if (n.animator) {
-        // Let the fall play out, then clear the body off the field.
         const ms = n.animator.play('defeat');
         n.root.classList.add('dying');
-        clearTimeout(n.deathTimer);
-        n.deathTimer = setTimeout(() => n.root.classList.add('dead'), ms);
+        wait(ms * speed, () => n.root.classList.add('dead'));
       } else {
         n.root.classList.add('dead');
       }
       break;
+
     default:
       break;
   }
 }
 
-/**
- * Put every melee unit next to the enemy it is actually fighting.
- *
- * Each attacker runs to the midpoint between itself and its target and squares
- * up there. Attackers sharing a target fan out \u2014 the first goes toe to toe, and
- * each one after that stands a step further back and off to one side \u2014 which is
- * what makes a group visibly close in on one defender rather than stacking on
- * the same spot. Ranged and back-row units never move.
- *
- * Distances come from the positions captured before anything was translated, so
- * this is safe to re-run whenever targets change or a unit falls.
- * PLACEHOLDER: the spacing constants are feel, not measurement.
- */
-const STANDOFF = 56;   // centre-to-centre distance when standing toe to toe
-const FAN = 34;        // each extra attacker on the same target stands back this much
-const FAN_Y = 18;      // ...and off to one side by this much
-const MAX_Y = 26;      // never slide this far vertically; the lanes still read
+/* ---------------- painting ---------------- */
 
-let advanceSig = '';
+function paintAll() {
+  if (!battle) return;
+  if (els.turn) els.turn.textContent = `T${battle.turn}`;
 
-function updateAdvance(force = false) {
-  const all = [...nodes.values()];
-  const sig = all.map((n) => `${n.unit.uid}:${n.unit.targetUid}:${n.unit.alive ? 1 : 0}`).join('|');
-  if (!force && sig === advanceSig) return;
-  advanceSig = sig;
+  for (const unit of battle.units) {
+    const n = nodes.get(unit.uid);
+    if (!n) continue;
+    const pct = Math.max(0, unit.hp / unit.maxHp) * 100;
+    n.fill.style.width = `${pct}%`;
+    n.fill.classList.toggle('low', pct < 30);
+    n.root.classList.toggle('guarding', !!unit.guarding && unit.alive);
+    if (unit.alive) n.animator?.setIdleFrame(pct < 25 ? 'heavy_stun' : 'idle');
 
-  const groups = new Map();
-  for (const n of all) {
-    if (!n.unit.alive || !n.unit.engages) continue;
-    const tid = n.unit.targetUid;
-    if (!tid) continue;
-    if (!groups.has(tid)) groups.set(tid, []);
-    groups.get(tid).push(n);
+    if (!n.dock) continue;
+    n.dockHp.style.width = `${pct}%`;
+    n.dock.classList.toggle('down', !unit.alive);
+    const chargePct = unit.skills.ultimate ? unit.ultimateCharge : 0;
+    n.dockUlt.style.width = `${Math.min(100, chargePct)}%`;
+    n.dock.classList.toggle('ult-ready', !!unit.ultimateReady && unit.alive);
   }
+  paintOrder();
+  paintTargets();
+}
 
-  const ms = Math.round((COMBAT.approachSeconds * 1000) / Math.max(0.25, speed));
-  for (const n of all) {
-    n.root.style.setProperty('--approach-ms', `${ms}ms`);
-  }
+/** The next several turns, soonest first. */
+function paintOrder() {
+  if (!els.order) return;
+  clear(els.order);
+  const upcoming = battle.preview(7);
+  upcoming.forEach((uid, i) => {
+    const unit = battle.unitById(uid);
+    if (!unit) return;
+    const r = rarityOf(unit.rarity);
+    els.order.appendChild(h('div', {
+      class: `to-pip ${unit.side} ${i === 0 ? 'now' : ''}`,
+      style: { '--rarity': r.color },
+      html: `<span class="to-art">${bustHTML(unit.heroId, unit.art, bustSVG)}</span>
+             ${unit.charging ? '<span class="to-flag">\u26a0</span>' : ''}`,
+    }));
+  });
+}
 
-  for (const [tid, members] of groups) {
-    const target = nodes.get(tid);
-    if (!target || !target.unit.alive) continue;
-    members.forEach((n, i) => {
-      const dir = n.unit.side === 'player' ? 1 : -1;
-      // Meet in the middle of the pair rather than running to where the target
-      // is standing now \u2014 the target is usually charging too, and aiming at its
-      // starting spot makes the two of them run straight past each other.
-      const meetX = (n.baseCX + target.baseCX) / 2;
-      const wantX = meetX - dir * (STANDOFF / 2 + i * FAN);
-      // i === 0 squares up; the rest peel off alternating sides
-      const offsetY = i === 0 ? 0 : (i % 2 ? -FAN_Y : FAN_Y);
-      const dx = wantX - n.baseCX;
-      const dy = Math.max(-MAX_Y, Math.min(MAX_Y, target.baseCY + offsetY - n.baseCY));
-      // Nobody retreats to engage.
-      const clampedX = dir > 0 ? Math.max(0, dx) : Math.min(0, dx);
-      n.root.style.setProperty('--advance-x', `${Math.round(clampedX)}px`);
-      n.root.style.setProperty('--advance-y', `${Math.round(dy)}px`);
-      // Depth order by final height on screen: lower is nearer the viewer, so a
-      // unit that peeled downward covers the one it stepped in front of rather
-      // than showing through it.
-      n.root.style.zIndex = String(2 + Math.round(n.baseCY + dy));
-      n.root.classList.add('engaged');
-    });
+/** Which enemy the next action will hit. */
+function paintTargets() {
+  const picking = !!battle && battle.awaitingInput();
+  for (const n of nodes.values()) {
+    const selectable = picking && n.unit.side === 'enemy' && n.unit.alive;
+    n.root.classList.toggle('selectable', selectable);
+    n.root.classList.toggle('selected', selectable && n.unit.uid === selectedTarget);
   }
 }
 
-/**
- * The release frame draws the hands thrust forward but no beam, so the beam is
- * a DOM effect \u2014 which also lets it stretch to actually reach its target.
- */
-function fireBeam(beam, casterNode, unit, ms) {
-  const foe = battle.units.find((u) => u.side !== unit.side && u.alive);
-  const foeNode = foe && nodes.get(foe.uid)?.root;
-  let len = 150;                                  // PLACEHOLDER fallback length
-  if (foeNode) {
-    const a = casterNode.getBoundingClientRect();
-    const b = foeNode.getBoundingClientRect();
-    len = Math.max(70, Math.abs((unit.side === 'player' ? b.left - a.right : a.left - b.right)) + 40);
+/* ---------------- fx helpers ---------------- */
+
+function fireBeam(beam, node, unit, ms) {
+  const target = battle.units.find((u) => u.side !== unit.side && u.alive);
+  const tn = target && nodes.get(target.uid);
+  let len = 150;
+  if (tn) {
+    const a = node.getBoundingClientRect();
+    const b = tn.root.getBoundingClientRect();
+    len = Math.max(60, Math.abs((b.left + b.width / 2) - (a.left + a.width / 2)) - 30);
   }
   beam.style.setProperty('--beam-len', `${Math.round(len)}px`);
   beam.style.setProperty('--beam-ms', `${Math.round(ms)}ms`);
   beam.classList.remove('fire');
-  void beam.offsetWidth;                          // restart the animation
+  void beam.offsetWidth;
   beam.classList.add('fire');
-  setTimeout(() => beam.classList.remove('fire'), ms + 60);
 }
 
 function floater(host, text, kind) {
   const node = h('span', { class: `float ${kind}`, text });
-  // PLACEHOLDER: jitter so simultaneous numbers don't stack into one
-  // unreadable blob. Vertical offset matters more than horizontal.
   node.style.setProperty('--dx', `${(Math.random() * 46 - 23).toFixed(0)}px`);
   node.style.setProperty('--dy', `${(Math.random() * 26 - 8).toFixed(0)}px`);
   host.appendChild(node);
@@ -6834,79 +7334,39 @@ function callout(host, text, kind) {
   host.textContent = text;
   host.className = `u-callout show ${kind}`;
   clearTimeout(host._t);
-  host._t = setTimeout(() => { host.className = 'u-callout'; }, 900);
+  host._t = setTimeout(() => { host.className = 'u-callout'; }, 1100);
+}
+
+function banner(text) {
+  const arena = document.querySelector('.arena');
+  if (!arena) return;
+  const node = h('div', { class: 'phase-banner', text });
+  arena.appendChild(node);
+  setTimeout(() => node.remove(), 1600);
 }
 
 function pulse(node, cls) {
   node.classList.remove(cls);
-  // force reflow so the animation restarts on rapid repeat hits
   void node.offsetWidth;
   node.classList.add(cls);
-}
-
-/* ---------------- per-frame paint ---------------- */
-
-function paint(timerEl) {
-  timerEl.textContent = `${battle.elapsed.toFixed(1)}s`;
-  updateAdvance();   // cheap: only rewrites when a target or a life changes
-
-  for (const unit of battle.units) {
-    const n = nodes.get(unit.uid);
-    if (!n) continue;
-    const pct = Math.max(0, unit.hp / unit.maxHp) * 100;
-    n.fill.style.width = `${pct}%`;
-    n.fill.classList.toggle('low', pct < 30);
-
-    // Resting pose: closing the distance, badly hurt, or neither.
-    // PLACEHOLDER threshold for "badly hurt".
-    const closing = unit.alive && battle.elapsed < unit.readyAt;
-    n.root.classList.toggle('advancing', closing);
-    if (unit.alive) {
-      n.animator?.setIdleFrame(closing ? 'guard' : pct < 25 ? 'heavy_stun' : 'idle');
-    }
-
-    if (!n.dock) continue;
-    n.dockHp.style.width = `${pct}%`;
-
-    if (!unit.alive) {
-      n.dock.classList.add('down');
-      n.dockTimer.textContent = 'KO';
-      n.dockUlt.style.width = '0%';
-      continue;
-    }
-
-    // Individual technique cooldown countdown, as in the reference dock.
-    if (unit.skills.technique) {
-      n.dockTimer.textContent = `${Math.max(0, unit.techniqueTimer).toFixed(1)}s`;
-    } else {
-      n.dockTimer.textContent = '\u2014';
-    }
-
-    const chargePct = unit.skills.ultimate
-      ? (unit.ultimateCharge / COMBAT.ultimateChargeMax) * 100
-      : 0;
-    n.dockUlt.style.width = `${Math.min(100, chargePct)}%`;
-    n.dock.classList.toggle('ult-ready', !!unit.ultimateReady);
-  }
 }
 
 /* ---------------- resolution ---------------- */
 
 function endBattle(ref) {
-  // A finishing ultimate ends the battle on the tick that started the
-  // time-stop, so the matching 'unfreeze' never arrives. Clear it here.
-  document.querySelector('.battle-screen')?.classList.remove('time-stop');
-  for (const n of nodes.values()) n.root.classList.remove('caster');
+  if (finished) return;
+  finished = true;
+  clearActions();
 
   const won = battle.state === 'victory';
   const survivors = battle.units.filter((u) => u.side === 'player' && u.alive).length;
-  const seconds = battle.elapsed;
+  const turns = battle.turn;
 
   const rewards = won ? completeEncounter(ref) : (recordDefeat(), null);
 
-  setTimeout(() => {
-    navigate('results', { ref, won, survivors, seconds, rewards });
-  }, 1000);
+  wait(700, () => {
+    navigate('results', { ref, won, survivors, turns, rewards });
+  });
 }
 return { dispose, render };
 })();
@@ -6925,7 +7385,7 @@ const __screen_results = (() => {
 
 
 
-function render(host, { ref, won, survivors, seconds, rewards }) {
+function render(host, { ref, won, survivors, turns, rewards }) {
   const info = encounterInfo(ref);
 
   const rewardRows = [];
@@ -6969,7 +7429,7 @@ function render(host, { ref, won, survivors, seconds, rewards }) {
     html: `
       <div class="res-banner">${won ? 'VICTORY' : 'DEFEAT'}</div>
       <div class="res-stage">${info ? info.title : ''}</div>
-      <div class="res-line">${seconds.toFixed(1)}s \u00b7 ${survivors} hero${survivors === 1 ? '' : 'es'} standing</div>
+      <div class="res-line">${turns} turn${turns === 1 ? '' : 's'} \u00b7 ${survivors} hero${survivors === 1 ? '' : 'es'} standing</div>
       ${rewards?.firstClear ? '<div class="first-clear">First Clear Bonus!</div>' : ''}
       ${rewards?.unlocked ? `<div class="first-clear unlock">${rewards.unlocked} Unlocked!</div>` : ''}
       <div class="reward-list">
